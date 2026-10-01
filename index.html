@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AgriVoice AI - Assistant Vocal Agricole</title>
+    <title>AgriVoice AI — Assistant Vocal Agricole</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -17,345 +17,305 @@
             }
         }
     </script>
-    <link rel="stylesheet" href="style.css?v=30">
+    <link rel="stylesheet" href="style.css?v=31">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-[#f8fafc] flex h-screen overflow-hidden text-gray-800 antialiased select-none md:select-auto">
+<body>
 
-    <!-- Toast Notification -->
-    <div id="toast-notification" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900/90 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg z-50 pointer-events-none opacity-0 transition-all duration-300 flex items-center gap-2">
+    <!-- ===== TOAST ===== -->
+    <div id="toast-notification" class="fixed top-4 left-1/2 -translate-x-1/2 bg-gray-900/90 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg z-50 pointer-events-none opacity-0 flex items-center gap-2">
         <i class="fa-solid fa-circle-check text-green-400"></i>
         <span id="toast-text">Action effectuée</span>
     </div>
 
-    <!-- Sidebar Overlay Mobile -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 hidden md:hidden transition-opacity" onclick="toggleSidebar()"></div>
+    <!-- ===== OVERLAY MOBILE ===== -->
+    <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
-    <!-- Sidebar Drawer (Style Gemini) -->
-    <aside id="mobile-sidebar" class="fixed md:static inset-y-0 left-0 w-72 bg-[#013b1c] text-white flex-shrink-0 flex flex-col z-40 sidebar-closed md:transform-none shadow-2xl md:shadow-none border-r border-white/5">
-        
-        <!-- Sidebar Header -->
-        <div class="p-4 flex items-center justify-between">
-            <div class="flex items-center gap-3 font-extrabold text-xl tracking-tight">
-                <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-agrigreen-light to-emerald-400 flex items-center justify-center shadow-md">
-                    <i class="fa-solid fa-leaf text-white text-lg"></i>
+    <!-- ===== SIDEBAR ===== -->
+    <aside id="app-sidebar">
+
+        <div class="p-4 flex items-center justify-between flex-shrink-0" style="border-bottom:1px solid rgba(255,255,255,0.08)">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-2xl overflow-hidden flex-shrink-0 shadow-md" id="logo-container">
+                    <img src="logo.png" alt="AgriVoice" style="width:100%;height:100%;object-fit:cover"
+                        onerror="document.getElementById('logo-container').innerHTML='<div style=\'width:100%;height:100%;background:linear-gradient(135deg,#028540,#22c55e);display:flex;align-items:center;justify-content:center\'><i class=\'fa-solid fa-leaf\' style=\'color:white;font-size:18px\'></i></div>'">
                 </div>
-                <span class="bg-gradient-to-r from-white via-emerald-100 to-agriyellow bg-clip-text text-transparent">AgriVoice</span>
+                <span style="font-weight:800;font-size:1.2rem;background:linear-gradient(to right,#fff,#d1fae5,#ffcc00);-webkit-background-clip:text;-webkit-text-fill-color:transparent">AgriVoice</span>
             </div>
-            <button class="md:hidden text-white/70 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition" onclick="toggleSidebar()">
-                <i class="fa-solid fa-xmark text-lg"></i>
+            <button id="sidebar-close-btn" onclick="closeSidebar()" style="display:none;color:rgba(255,255,255,.6);padding:6px;border-radius:8px;transition:all .15s" aria-label="Fermer">
+                <i class="fa-solid fa-xmark" style="font-size:18px"></i>
             </button>
         </div>
 
-        <!-- Bouton Nouvelle Discussion -->
-        <div class="px-4 pb-2">
-            <button onclick="resetConversation(); if(window.innerWidth < 768) toggleSidebar();" class="w-full bg-white/10 hover:bg-white/20 text-white transition flex items-center gap-3 py-3 px-4 rounded-2xl shadow-sm font-semibold text-sm border border-white/10">
-                <i class="fa-solid fa-plus text-agriyellow text-base"></i>
+        <div style="padding:12px">
+            <button onclick="resetConversation(); closeSidebarOnMobile();"
+                style="width:100%;background:rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:16px;font-weight:600;font-size:14px;border:1px solid rgba(255,255,255,.1);transition:background .15s;cursor:pointer">
+                <i class="fa-solid fa-plus" style="color:#ffcc00;font-size:15px"></i>
                 <span data-i18n="new_question">Nouvelle discussion</span>
             </button>
         </div>
 
-        <!-- Navigation Menu -->
-        <div class="p-4 flex-1 overflow-y-auto space-y-1">
-            <div class="text-[11px] font-bold text-white/40 mb-2 uppercase tracking-wider px-3" data-i18n="menu_title">Menu</div>
-            <ul class="space-y-1" id="nav-menu">
-                <li onclick="switchView('view-chat', this)" class="nav-item bg-white/15 text-white p-3 rounded-2xl cursor-pointer text-sm transition flex items-center font-bold">
-                    <i class="fa-solid fa-message mr-3 text-agriyellow w-5 text-center text-base"></i> <span data-i18n="nav_home">Assistant Vocal</span>
+        <nav style="padding:0 12px;flex:1;overflow-y:auto">
+            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;padding:0 12px" data-i18n="menu_title">Menu</div>
+            <ul id="nav-menu" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:2px">
+                <li onclick="switchView('view-chat', this); closeSidebarOnMobile();"
+                    class="nav-item" style="background:rgba(255,255,255,.15);color:#fff;padding:12px;border-radius:16px;cursor:pointer;font-size:14px;display:flex;align-items:center;font-weight:700">
+                    <i class="fa-solid fa-message" style="margin-right:12px;color:#ffcc00;width:20px;text-align:center;font-size:15px"></i>
+                    <span data-i18n="nav_home">Assistant Vocal</span>
                 </li>
-                <li onclick="switchView('view-resources', this)" class="nav-item text-white/70 p-3 hover:bg-white/10 rounded-2xl cursor-pointer text-sm transition flex items-center">
-                    <i class="fa-solid fa-book-open mr-3 text-emerald-300 w-5 text-center text-base"></i> <span data-i18n="nav_resources">Guides & Fiches</span>
+                <li onclick="switchView('view-resources', this); closeSidebarOnMobile();"
+                    class="nav-item" style="color:rgba(255,255,255,.65);padding:12px;border-radius:16px;cursor:pointer;font-size:14px;display:flex;align-items:center;transition:background .15s">
+                    <i class="fa-solid fa-book-open" style="margin-right:12px;color:#6ee7b7;width:20px;text-align:center;font-size:15px"></i>
+                    <span data-i18n="nav_resources">Guides & Fiches</span>
                 </li>
-                <li onclick="switchView('view-profile', this)" class="nav-item text-white/70 p-3 hover:bg-white/10 rounded-2xl cursor-pointer text-sm transition flex items-center">
-                    <i class="fa-solid fa-user mr-3 text-emerald-300 w-5 text-center text-base"></i> <span data-i18n="nav_profile">Profil Producteur</span>
+                <li onclick="switchView('view-profile', this); closeSidebarOnMobile();"
+                    class="nav-item" style="color:rgba(255,255,255,.65);padding:12px;border-radius:16px;cursor:pointer;font-size:14px;display:flex;align-items:center;transition:background .15s">
+                    <i class="fa-solid fa-user" style="margin-right:12px;color:#6ee7b7;width:20px;text-align:center;font-size:15px"></i>
+                    <span data-i18n="nav_profile">Profil Producteur</span>
                 </li>
-                <li onclick="switchView('view-settings', this)" class="nav-item text-white/70 p-3 hover:bg-white/10 rounded-2xl cursor-pointer text-sm transition flex items-center">
-                    <i class="fa-solid fa-gear mr-3 text-emerald-300 w-5 text-center text-base"></i> <span data-i18n="nav_settings">Paramètres</span>
+                <li onclick="switchView('view-settings', this); closeSidebarOnMobile();"
+                    class="nav-item" style="color:rgba(255,255,255,.65);padding:12px;border-radius:16px;cursor:pointer;font-size:14px;display:flex;align-items:center;transition:background .15s">
+                    <i class="fa-solid fa-gear" style="margin-right:12px;color:#6ee7b7;width:20px;text-align:center;font-size:15px"></i>
+                    <span data-i18n="nav_settings">Paramètres</span>
                 </li>
             </ul>
-        </div>
+        </nav>
 
-        <!-- Sidebar Footer User Card -->
-        <div class="p-4 border-t border-white/10 bg-black/20">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-agrigreen-light to-agriyellow text-white font-bold flex items-center justify-center shadow-sm text-sm">
-                    BK
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="text-sm font-bold text-white truncate">Bio Kora</div>
-                    <div class="text-xs text-white/60 truncate">Parakou, Bénin</div>
+        <div style="padding:16px;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.15);flex-shrink:0">
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#028540,#ffcc00);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">BK</div>
+                <div style="flex:1;min-width:0">
+                    <div style="font-size:14px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Bio Kora</div>
+                    <div style="font-size:12px;color:rgba(255,255,255,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Parakou, Bénin</div>
                 </div>
             </div>
         </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-full bg-[#f8fafc] relative w-full overflow-hidden">
-        
-        <!-- Header Style Gemini (Mobile) -->
-        <header class="md:hidden bg-white/90 backdrop-blur-md border-b border-gray-200/80 p-3 flex items-center justify-between sticky top-0 z-20 shadow-xs">
-            <button class="text-gray-700 p-2 hover:bg-gray-100 rounded-xl transition" onclick="toggleSidebar()" aria-label="Menu">
-                <i class="fa-solid fa-bars-staggered text-lg"></i>
-            </button>
-            
-            <!-- Pastille Modèle & Langue Centrale Gemini -->
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-gray-100/90 hover:bg-emerald-50 rounded-full text-xs font-bold text-gray-800 border border-gray-200 transition cursor-pointer" onclick="switchNextLang()">
-                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span>AgriVoice</span>
-                <span class="text-[10px] bg-agrigreen text-white px-1.5 py-0.5 rounded-md uppercase font-black" id="mobile-lang-pill">FR</span>
-            </div>
+    <!-- ===== MAIN CONTENT ===== -->
+    <main id="app-main">
 
-            <!-- Bouton Nouvelle Discussion -->
-            <button onclick="resetConversation()" class="text-gray-700 p-2 hover:text-agrigreen hover:bg-emerald-50 rounded-xl transition" title="Nouvelle discussion">
-                <i class="fa-solid fa-pen-to-square text-lg"></i>
+        <!-- TOPBAR MOBILE -->
+        <header id="mobile-topbar" style="background:rgba(255,255,255,.97);border-bottom:1px solid rgba(229,231,235,.8);padding:10px 12px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;box-shadow:0 1px 3px rgba(0,0,0,.06);flex-shrink:0">
+            <button onclick="openSidebar()" style="color:#374151;padding:8px;border-radius:10px;transition:background .15s;cursor:pointer" aria-label="Menu">
+                <i class="fa-solid fa-bars" style="font-size:18px"></i>
+            </button>
+
+            <button onclick="switchNextLang()"
+                style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(243,244,246,.9);border-radius:9999px;font-size:12px;font-weight:700;color:#1f2937;border:1px solid #e5e7eb;cursor:pointer;transition:background .15s">
+                <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite"></span>
+                <span>AgriVoice</span>
+                <span id="mobile-lang-pill" style="font-size:10px;background:#016a33;color:#fff;padding:2px 6px;border-radius:6px;font-weight:900;text-transform:uppercase">FR</span>
+            </button>
+
+            <button onclick="resetConversation()" style="color:#4b5563;padding:8px;border-radius:10px;cursor:pointer;transition:color .15s" title="Nouvelle discussion">
+                <i class="fa-solid fa-pen-to-square" style="font-size:18px"></i>
             </button>
         </header>
 
-        <!-- Header Style Gemini (Desktop Toolbar) -->
-        <header class="hidden md:flex items-center justify-between px-8 py-3.5 border-b border-gray-200/70 bg-white/80 backdrop-blur-md sticky top-0 z-20">
-            <div class="flex items-center gap-3">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-agrigreen border border-emerald-200">
-                    <i class="fa-solid fa-wand-magic-sparkles text-agrigreen"></i>
-                    <span>AgriVoice AI ✦ Flash Lite</span>
+        <!-- TOPBAR DESKTOP -->
+        <header id="desktop-topbar" style="background:rgba(255,255,255,.92);border-bottom:1px solid rgba(229,231,235,.7);padding:12px 32px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);flex-shrink:0">
+            <div style="display:flex;align-items:center;gap:10px">
+                <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:9999px;font-size:12px;font-weight:700;background:#f0fdf4;color:#016a33;border:1px solid #bbf7d0">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>AgriVoice AI · Flash Lite</span>
                 </div>
             </div>
 
-            <!-- Quick Language Switcher Desktop -->
-            <div class="flex items-center gap-1.5 bg-gray-100/80 p-1 rounded-full border border-gray-200 text-xs font-bold">
-                <button onclick="changeLang('fr')" class="lang-btn px-3 py-1 rounded-full transition text-gray-600 hover:text-gray-900" id="btn-lang-fr">Français</button>
-                <button onclick="changeLang('fon')" class="lang-btn px-3 py-1 rounded-full transition text-gray-600 hover:text-gray-900" id="btn-lang-fon">Fɔngbe</button>
-                <button onclick="changeLang('yoruba')" class="lang-btn px-3 py-1 rounded-full transition text-gray-600 hover:text-gray-900" id="btn-lang-yoruba">Yorùbá</button>
-                <button onclick="changeLang('ewe')" class="lang-btn px-3 py-1 rounded-full transition text-gray-600 hover:text-gray-900" id="btn-lang-ewe">Éwé</button>
+            <div style="display:flex;align-items:center;gap:4px;background:rgba(243,244,246,.8);padding:4px;border-radius:9999px;border:1px solid #e5e7eb;font-size:12px;font-weight:700">
+                <button onclick="changeLang('fr')"   class="lang-btn" id="btn-lang-fr"   style="padding:4px 14px;border-radius:9999px;color:#4b5563;cursor:pointer;transition:all .15s">Français</button>
+                <button onclick="changeLang('fon')"  class="lang-btn" id="btn-lang-fon"  style="padding:4px 14px;border-radius:9999px;color:#4b5563;cursor:pointer;transition:all .15s">Fɔngbe</button>
+                <button onclick="changeLang('yoruba')" class="lang-btn" id="btn-lang-yoruba" style="padding:4px 14px;border-radius:9999px;color:#4b5563;cursor:pointer;transition:all .15s">Yorùbá</button>
+                <button onclick="changeLang('ewe')"  class="lang-btn" id="btn-lang-ewe"  style="padding:4px 14px;border-radius:9999px;color:#4b5563;cursor:pointer;transition:all .15s">Éwé</button>
             </div>
         </header>
 
-        <!-- VIEW : CHAT (ACCUEIL) -->
-        <div id="view-chat" class="app-view active flex-1 flex-col h-full relative overflow-hidden">
-            
-            <!-- Chat Container Scrollable -->
-            <div id="chat-container" class="flex-1 overflow-y-auto px-4 md:px-8 pt-6 pb-40 md:pb-36 flex flex-col gap-5 scroll-smooth">
-                
-                <!-- Welcome Screen Style Google Gemini -->
-                <div class="my-auto max-w-2xl mx-auto w-full py-6 md:py-10 text-left" id="welcome-screen">
-                    <div class="mb-6 inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/70 text-agrigreen text-xs font-bold shadow-xs">
-                        <i class="fa-solid fa-sparkles text-agriyellow"></i>
+        <!-- VIEW CHAT -->
+        <div id="view-chat" class="app-view active">
+            <div id="chat-container" style="flex:1;overflow-y:auto;padding:24px 16px 160px;display:flex;flex-direction:column;gap:20px;scroll-behavior:smooth">
+
+                <div id="welcome-screen" style="margin:auto;max-width:680px;width:100%;padding:32px 0">
+                    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:9999px;background:#f0fdf4;border:1px solid rgba(187,247,208,.7);color:#016a33;font-size:12px;font-weight:700;margin-bottom:20px">
+                        <i class="fa-solid fa-sparkles" style="color:#eab308"></i>
                         <span>Assistant Agricole Intelligent</span>
                     </div>
+                    <h1 class="gemini-gradient-text" style="font-size:clamp(2rem,5vw,3.2rem);font-weight:800;margin:0 0 8px;letter-spacing:-.02em" data-i18n="welcome_title">Bonjour, Bio</h1>
+                    <p style="color:#6b7280;font-size:clamp(1rem,2.5vw,1.4rem);font-weight:500;margin:0 0 32px;line-height:1.4" data-i18n="welcome_desc">Comment puis-je vous aider pour vos récoltes aujourd'hui ?</p>
 
-                    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-2 gemini-gradient-text" data-i18n="welcome_title">
-                        Bonjour, Bio
-                    </h1>
-                    <p class="text-gray-500 text-lg md:text-2xl font-medium mb-8 leading-snug" data-i18n="welcome_desc">
-                        Comment puis-je vous aider pour vos récoltes aujourd'hui ?
-                    </p>
-
-                    <!-- Cartes de suggestions Gemini -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                        <div class="gemini-card p-4 bg-white rounded-2xl cursor-pointer group flex flex-col justify-between" onclick="usePromptSuggestion('Mes feuilles de maïs jaunissent et ont des taches, quel traitement appliquer ?')">
-                            <p class="text-sm font-semibold text-gray-800 group-hover:text-agrigreen transition leading-relaxed">
-                                🌽 "Mes feuilles de maïs jaunissent et ont des taches, quel traitement appliquer ?"
-                            </p>
-                            <div class="mt-3 flex items-center justify-between text-xs text-gray-400">
-                                <span>Diagnostic Maïs</span>
-                                <i class="fa-solid fa-arrow-up-right-from-square group-hover:text-agrigreen transition"></i>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+                        <div class="gemini-card" style="padding:16px;background:#fff;border-radius:16px;cursor:pointer" onclick="usePromptSuggestion('Mes feuilles de maïs jaunissent et ont des taches, quel traitement appliquer ?')">
+                            <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5;margin:0 0 12px">🌽 "Mes feuilles de maïs jaunissent et ont des taches, quel traitement appliquer ?"</p>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af">
+                                <span>Diagnostic Maïs</span><i class="fa-solid fa-arrow-up-right-from-square"></i>
                             </div>
                         </div>
-
-                        <div class="gemini-card p-4 bg-white rounded-2xl cursor-pointer group flex flex-col justify-between" onclick="usePromptSuggestion('Quel est le prix actuel du maïs et du soja au marché Dantokpa ?')">
-                            <p class="text-sm font-semibold text-gray-800 group-hover:text-agrigreen transition leading-relaxed">
-                                💰 "Quel est le prix actuel du maïs et du soja au marché Dantokpa ?"
-                            </p>
-                            <div class="mt-3 flex items-center justify-between text-xs text-gray-400">
-                                <span>Prix des Marchés</span>
-                                <i class="fa-solid fa-arrow-up-right-from-square group-hover:text-agrigreen transition"></i>
+                        <div class="gemini-card" style="padding:16px;background:#fff;border-radius:16px;cursor:pointer" onclick="usePromptSuggestion('Quel est le prix actuel du maïs et du soja au marché Dantokpa ?')">
+                            <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5;margin:0 0 12px">💰 "Quel est le prix actuel du maïs et du soja au marché Dantokpa ?"</p>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af">
+                                <span>Prix des Marchés</span><i class="fa-solid fa-arrow-up-right-from-square"></i>
                             </div>
                         </div>
-
-                        <div class="gemini-card p-4 bg-white rounded-2xl cursor-pointer group flex flex-col justify-between" onclick="usePromptSuggestion('Comment préparer un bio-pesticide efficace avec des feuilles de Neem ?')">
-                            <p class="text-sm font-semibold text-gray-800 group-hover:text-agrigreen transition leading-relaxed">
-                                🌿 "Comment préparer un bio-pesticide efficace avec des feuilles de Neem ?"
-                            </p>
-                            <div class="mt-3 flex items-center justify-between text-xs text-gray-400">
-                                <span>Recette Naturelle</span>
-                                <i class="fa-solid fa-arrow-up-right-from-square group-hover:text-agrigreen transition"></i>
+                        <div class="gemini-card" style="padding:16px;background:#fff;border-radius:16px;cursor:pointer" onclick="usePromptSuggestion('Comment préparer un bio-pesticide efficace avec des feuilles de Neem ?')">
+                            <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5;margin:0 0 12px">🌿 "Comment préparer un bio-pesticide efficace avec des feuilles de Neem ?"</p>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af">
+                                <span>Recette Naturelle</span><i class="fa-solid fa-arrow-up-right-from-square"></i>
                             </div>
                         </div>
-
-                        <div class="gemini-card p-4 bg-white rounded-2xl cursor-pointer group flex flex-col justify-between" onclick="usePromptSuggestion('Quelles sont les prévisions de pluie et conseils de semis à Parakou ?')">
-                            <p class="text-sm font-semibold text-gray-800 group-hover:text-agrigreen transition leading-relaxed">
-                                🌦️ "Quelles sont les prévisions de pluie et conseils de semis à Parakou ?"
-                            </p>
-                            <div class="mt-3 flex items-center justify-between text-xs text-gray-400">
-                                <span>Météo & Calendrier</span>
-                                <i class="fa-solid fa-arrow-up-right-from-square group-hover:text-agrigreen transition"></i>
+                        <div class="gemini-card" style="padding:16px;background:#fff;border-radius:16px;cursor:pointer" onclick="usePromptSuggestion('Quelles sont les prévisions de pluie et conseils de semis à Parakou ?')">
+                            <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5;margin:0 0 12px">🌦️ "Quelles sont les prévisions de pluie et conseils de semis à Parakou ?"</p>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af">
+                                <span>Météo & Calendrier</span><i class="fa-solid fa-arrow-up-right-from-square"></i>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Message Templates -->
-                <!-- Template Assistant (Style Gemini) -->
-                <div class="flex gap-3 md:gap-4 max-w-3xl mx-auto w-full message-enter hidden" id="template-assistant">
-                    <div class="w-8 h-8 md:w-9 md:h-9 rounded-2xl bg-gradient-to-br from-agrigreen to-emerald-600 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm text-white">
-                        <i class="fa-solid fa-sparkles text-xs"></i>
+                <!-- Template assistant -->
+                <div id="template-assistant" class="hidden" style="display:none;gap:12px;max-width:720px;margin:0 auto;width:100%">
+                    <div style="width:36px;height:36px;border-radius:14px;background:linear-gradient(135deg,#016a33,#059669);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;box-shadow:0 2px 8px rgba(1,106,51,.25)">
+                        <i class="fa-solid fa-sparkles" style="color:#fff;font-size:13px"></i>
                     </div>
-                    <div class="flex-1 overflow-hidden">
-                        <div class="prose prose-sm md:prose-base text-gray-800 message-content break-words leading-relaxed font-normal"></div>
+                    <div style="flex:1;overflow:hidden">
+                        <div class="prose message-content" style="font-size:15px;line-height:1.7;color:#1e293b;word-break:break-word"></div>
                     </div>
                 </div>
 
-                <!-- Template User -->
-                <div class="flex gap-3 md:gap-4 max-w-3xl mx-auto w-full flex-row-reverse message-enter hidden" id="template-user">
-                    <div class="flex-1 flex justify-end overflow-hidden">
-                        <div class="bg-gray-200/80 text-gray-900 rounded-3xl rounded-tr-sm px-4 md:px-5 py-2.5 md:py-3 max-w-[90%] md:max-w-[85%] message-content break-words text-sm md:text-base font-medium shadow-2xs"></div>
+                <!-- Template user -->
+                <div id="template-user" class="hidden" style="display:none;gap:12px;max-width:720px;margin:0 auto;width:100%;flex-direction:row-reverse">
+                    <div style="flex:1;display:flex;justify-content:flex-end;overflow:hidden">
+                        <div class="message-content" style="background:rgba(209,213,219,.7);color:#111827;border-radius:20px 20px 4px 20px;padding:12px 18px;max-width:85%;word-break:break-word;font-size:14px;font-weight:500"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Floating Prompt Capsule Style Google Gemini -->
-            <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#f8fafc] via-[#f8fafc]/95 to-transparent pt-8 pb-3 md:pb-5 px-3 md:px-6 z-20">
-                <div class="max-w-3xl mx-auto relative">
-                    
-                    <!-- Audio Recording Pulse Status -->
-                    <div id="recording-status" class="hidden absolute -top-9 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-3.5 py-1 rounded-full text-xs font-bold flex items-center gap-2 shadow-lg animate-bounce">
-                        <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
-                        <span>Écoute en cours... Cliquez pour transcrire</span>
+            <!-- PROMPT FLOTTANT -->
+            <div style="position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(to top,#f8fafc 70%,transparent);padding:32px 16px 12px;z-index:10;pointer-events:none">
+                <div style="max-width:720px;margin:0 auto;position:relative;pointer-events:auto">
+                    <div id="recording-status" style="display:none;position:absolute;top:-42px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:6px 14px;border-radius:9999px;font-size:12px;font-weight:700;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(220,38,38,.4)">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#fff;animation:ping 1s infinite"></span>
+                        <span>Écoute… cliquer pour transcrire</span>
                     </div>
 
-                    <!-- Capsule Gemini -->
-                    <form id="chat-form" class="gemini-prompt-box rounded-3xl p-2 md:p-2.5 flex flex-col gap-1">
-                        
-                        <div class="flex items-end gap-2 px-2 pt-1">
-                            <textarea id="user-input" rows="1" class="w-full max-h-36 resize-none outline-none py-2 px-1 text-gray-800 bg-transparent text-sm md:text-base placeholder:text-gray-400 font-medium" placeholder="Posez une question à AgriVoice ou dictez au micro..."></textarea>
+                    <form id="chat-form" class="gemini-prompt-box" style="border-radius:24px;padding:8px 10px;display:flex;flex-direction:column;gap:4px">
+                        <div style="display:flex;align-items:flex-end;gap:8px;padding:4px 8px">
+                            <textarea id="user-input" rows="1"
+                                style="flex:1;resize:none;outline:none;padding:6px 4px;background:transparent;font-size:15px;color:#1e293b;font-family:inherit;font-weight:500;line-height:1.5;max-height:140px;overflow-y:auto;border:none"
+                                placeholder="Posez une question à AgriVoice ou dictez au micro…"></textarea>
                         </div>
-
-                        <div class="flex items-center justify-between px-2 pt-1 border-t border-gray-100/80 mt-1">
-                            <!-- Quick Language Badge -->
-                            <div class="flex items-center gap-1.5">
-                                <button type="button" onclick="switchNextLang()" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-agrigreen text-xs font-bold transition" title="Changer de langue">
-                                    <i class="fa-solid fa-globe text-[11px] text-gray-400"></i>
-                                    <span id="prompt-lang-label">Français</span>
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;border-top:1px solid rgba(229,231,235,.8)">
+                            <button type="button" onclick="switchNextLang()"
+                                style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:9999px;background:#f3f4f6;color:#374151;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s">
+                                <i class="fa-solid fa-globe" style="font-size:11px;color:#9ca3af"></i>
+                                <span id="prompt-lang-label">Français</span>
+                            </button>
+                            <div style="display:flex;align-items:center;gap:6px">
+                                <button type="button" id="mic-btn"
+                                    style="width:40px;height:40px;border-radius:50%;background:#f3f4f6;color:#4b5563;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s">
+                                    <i class="fa-solid fa-microphone" id="mic-icon" style="font-size:16px"></i>
                                 </button>
-                            </div>
-
-                            <!-- Buttons (Mic & Send) -->
-                            <div class="flex items-center gap-1.5">
-                                <button type="button" id="mic-btn" class="w-10 h-10 rounded-full bg-gray-100 hover:bg-emerald-100 text-gray-600 hover:text-agrigreen flex items-center justify-center transition shadow-2xs" title="Parler au micro">
-                                    <i class="fa-solid fa-microphone text-base" id="mic-icon"></i>
-                                </button>
-                                
-                                <button type="submit" id="send-btn" class="w-10 h-10 rounded-full bg-agrigreen hover:bg-agrigreen-light text-white flex items-center justify-center transition shadow-sm" title="Envoyer">
-                                    <i class="fa-solid fa-arrow-up text-base"></i>
+                                <button type="submit" id="send-btn"
+                                    style="width:40px;height:40px;border-radius:50%;background:#016a33;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;box-shadow:0 2px 8px rgba(1,106,51,.3)">
+                                    <i class="fa-solid fa-arrow-up" style="font-size:16px"></i>
                                 </button>
                             </div>
                         </div>
                     </form>
-
-                    <!-- Disclaimer Gemini -->
-                    <p class="text-[11px] text-center text-gray-400 mt-2 font-medium">
+                    <p style="font-size:11px;text-align:center;color:#9ca3af;margin-top:8px;font-weight:500">
                         AgriVoice AI peut faire des erreurs. Vérifiez les conseils importants auprès de l'INRAB.
                     </p>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW : RESSOURCES -->
-        <div id="view-resources" class="app-view flex-1 flex-col h-full bg-[#f8fafc] overflow-y-auto p-4 md:p-8">
-            <div class="max-w-3xl mx-auto w-full pb-20">
-                <h2 class="text-2xl font-bold text-agrigreen-dark mb-1" data-i18n="res_title">Guides & Fiches pratiques audio</h2>
-                <p class="text-gray-500 text-sm mb-6" data-i18n="res_desc">Recherchez une culture, une maladie ou un engrais.</p>
-                
-                <div class="bg-white rounded-2xl border border-gray-200 px-4 py-3 mb-6 flex items-center shadow-xs">
-                    <i class="fa-solid fa-magnifying-glass text-gray-400 mr-3"></i>
-                    <input type="text" placeholder="Rechercher une culture (Maïs, Soja, Manioc)..." class="w-full outline-none bg-transparent text-sm">
+        <!-- VIEW RESSOURCES -->
+        <div id="view-resources" class="app-view" style="overflow-y:auto">
+            <div style="max-width:720px;margin:0 auto;width:100%;padding:24px 16px 80px">
+                <h2 style="font-size:22px;font-weight:700;color:#014d24;margin:0 0 4px" data-i18n="res_title">Guides & Fiches pratiques audio</h2>
+                <p style="color:#6b7280;font-size:14px;margin:0 0 24px" data-i18n="res_desc">Recherchez une culture, une maladie ou un engrais.</p>
+                <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;padding:12px 16px;margin-bottom:24px;display:flex;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                    <i class="fa-solid fa-magnifying-glass" style="color:#9ca3af;margin-right:12px"></i>
+                    <input type="text" placeholder="Rechercher une culture (Maïs, Soja, Manioc)…" style="flex:1;outline:none;background:transparent;font-size:14px;font-family:inherit">
                 </div>
-
-                <div class="space-y-4">
-                    <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-xs hover:border-agrigreen transition">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-agrigreen flex items-center justify-center font-bold">
-                                    <i class="fa-solid fa-wheat-awn"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-bold text-gray-900 text-base">Traitement des taches foliaires du Maïs</h3>
-                                    <span class="text-xs font-bold text-agrigreen">Fon • Yorùbá • Français</span>
-                                </div>
+                <div style="display:flex;flex-direction:column;gap:16px">
+                    <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                            <div style="width:40px;height:40px;border-radius:14px;background:#d1fae5;color:#016a33;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">
+                                <i class="fa-solid fa-wheat-awn"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-weight:700;color:#111827;font-size:15px;margin:0 0 2px">Traitement des taches foliaires du Maïs</h3>
+                                <span style="font-size:11px;font-weight:700;color:#016a33">Fon • Yorùbá • Français • Éwé</span>
                             </div>
                         </div>
-                        <p class="text-sm text-gray-600 mb-4">Solutions préventives et traitements au cuivre ou mankozèbè validés INRAB.</p>
-                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
-                            <button onclick="speakText('Pour traiter les taches foliaires du maïs, utilisez un fongicide à base de cuivre ou mankozèbè selon les doses recommandées.', currentLang)" class="bg-emerald-50 hover:bg-agrigreen text-agrigreen hover:text-white transition px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
-                                <i class="fa-solid fa-volume-high"></i> <span>Écouter la fiche audio</span>
+                        <p style="font-size:13px;color:#4b5563;margin:0 0 16px">Solutions préventives et traitements au cuivre ou mankozèbè validés INRAB.</p>
+                        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f1f5f9;padding-top:12px">
+                            <button onclick="speakText('Pour traiter les taches foliaires du maïs, utilisez un fongicide à base de cuivre ou mankozèbè selon les doses recommandées.', currentLang)"
+                                style="background:#f0fdf4;color:#016a33;padding:6px 16px;border-radius:9999px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s">
+                                <i class="fa-solid fa-volume-high"></i> Écouter la fiche audio
                             </button>
-                            <span class="text-xs text-green-600 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Fiche Validée</span>
+                            <span style="font-size:12px;color:#16a34a;font-weight:600"><i class="fa-solid fa-circle-check" style="margin-right:4px"></i>Validée</span>
                         </div>
                     </div>
-
-                    <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-xs hover:border-agrigreen transition">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
-                                    <i class="fa-solid fa-bugs"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-bold text-gray-900 text-base">Lutte contre la chenille légionnaire d'automne</h3>
-                                    <span class="text-xs font-bold text-agrigreen">Fon • Yorùbá • Français</span>
-                                </div>
+                    <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                            <div style="width:40px;height:40px;border-radius:14px;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">
+                                <i class="fa-solid fa-bugs"></i>
+                            </div>
+                            <div>
+                                <h3 style="font-weight:700;color:#111827;font-size:15px;margin:0 0 2px">Lutte contre la chenille légionnaire d'automne</h3>
+                                <span style="font-size:11px;font-weight:700;color:#016a33">Fon • Yorùbá • Français • Éwé</span>
                             </div>
                         </div>
-                        <p class="text-sm text-gray-600 mb-4">Préparation de la solution aqueuse d'extrait de graines de Neem et application au cœur du cornet.</p>
-                        <div class="flex justify-between items-center border-t border-gray-100 pt-3">
-                            <button onclick="speakText('Contre la chenille légionnaire, pulvérisez un extrait aqueux de neem au coucher du soleil.', currentLang)" class="bg-emerald-50 hover:bg-agrigreen text-agrigreen hover:text-white transition px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
-                                <i class="fa-solid fa-volume-high"></i> <span>Écouter la fiche audio</span>
+                        <p style="font-size:13px;color:#4b5563;margin:0 0 16px">Préparation de la solution aqueuse d'extrait de graines de Neem et application au cœur du cornet.</p>
+                        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f1f5f9;padding-top:12px">
+                            <button onclick="speakText('Contre la chenille légionnaire, pulvérisez un extrait aqueux de neem au coucher du soleil.', currentLang)"
+                                style="background:#f0fdf4;color:#016a33;padding:6px 16px;border-radius:9999px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s">
+                                <i class="fa-solid fa-volume-high"></i> Écouter la fiche audio
                             </button>
-                            <span class="text-xs text-green-600 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Fiche Validée</span>
+                            <span style="font-size:12px;color:#16a34a;font-weight:600"><i class="fa-solid fa-circle-check" style="margin-right:4px"></i>Validée</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW : PROFIL -->
-        <div id="view-profile" class="app-view flex-1 flex-col h-full bg-[#f8fafc] overflow-y-auto p-4 md:p-8">
-            <div class="max-w-2xl mx-auto w-full space-y-6 pb-20">
-                <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-xs flex items-center gap-5">
-                    <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-agrigreen to-emerald-600 text-white flex items-center justify-center text-3xl font-extrabold shadow-md">
-                        BK
-                    </div>
+        <!-- VIEW PROFIL -->
+        <div id="view-profile" class="app-view" style="overflow-y:auto">
+            <div style="max-width:600px;margin:0 auto;width:100%;padding:24px 16px 80px;display:flex;flex-direction:column;gap:20px">
+                <div style="background:#fff;border-radius:24px;padding:24px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04);display:flex;align-items:center;gap:20px">
+                    <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#016a33,#059669);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;box-shadow:0 4px 12px rgba(1,106,51,.3);flex-shrink:0">BK</div>
                     <div>
-                        <h2 class="text-2xl font-extrabold text-gray-900">Bio Kora</h2>
-                        <p class="text-gray-500 text-sm mb-2"><i class="fa-solid fa-location-dot mr-1 text-agrigreen"></i> Borgou / Parakou, Bénin</p>
-                        <span class="bg-emerald-50 text-agrigreen font-bold text-xs px-3 py-1.5 rounded-full border border-emerald-200">
-                            Maïs & Soja • 5 Hectares
-                        </span>
+                        <h2 style="font-size:22px;font-weight:800;color:#111827;margin:0 0 4px">Bio Kora</h2>
+                        <p style="color:#6b7280;font-size:13px;margin:0 0 10px"><i class="fa-solid fa-location-dot" style="margin-right:4px;color:#016a33"></i>Borgou / Parakou, Bénin</p>
+                        <span style="background:#f0fdf4;color:#016a33;font-weight:700;font-size:12px;padding:5px 12px;border-radius:9999px;border:1px solid #bbf7d0">Maïs & Soja • 5 Hectares</span>
                     </div>
                 </div>
-
-                <div class="bg-gradient-to-r from-amber-50 to-emerald-50 border border-agriyellow/40 rounded-3xl p-5 shadow-xs flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-agrigreen text-white flex items-center justify-center flex-shrink-0 text-xl shadow-sm">
+                <div style="background:linear-gradient(135deg,#fffbeb,#f0fdf4);border:1px solid rgba(255,204,0,.3);border-radius:24px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);display:flex;align-items:center;gap:16px">
+                    <div style="width:48px;height:48px;border-radius:16px;background:#016a33;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 2px 8px rgba(1,106,51,.3)">
                         <i class="fa-solid fa-microphone-lines"></i>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="font-extrabold text-agrigreen-dark text-base mb-0.5">J'aime AgriVoice</h3>
-                        <p class="text-xs text-gray-600">Enregistrez votre voix pour enrichir l'IA agricole hors-ligne et aider votre communauté.</p>
+                    <div>
+                        <h3 style="font-weight:800;color:#014d24;font-size:15px;margin:0 0 4px">J'aime AgriVoice</h3>
+                        <p style="font-size:12px;color:#4b5563;margin:0">Enregistrez votre voix pour enrichir l'IA agricole hors-ligne et aider votre communauté.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW : PARAMÈTRES -->
-        <div id="view-settings" class="app-view flex-1 flex-col h-full bg-[#f8fafc] overflow-y-auto p-4 md:p-8">
-            <div class="max-w-2xl mx-auto w-full space-y-6 pb-20">
-                <h2 class="text-xl font-bold text-agrigreen-dark" data-i18n="set_lang_title">Langue & Assistant Vocal</h2>
-                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs">
-                    <div class="p-4 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-agrigreen flex items-center justify-center font-bold">
-                                <i class="fa-solid fa-language text-lg"></i>
+        <!-- VIEW PARAMÈTRES -->
+        <div id="view-settings" class="app-view" style="overflow-y:auto">
+            <div style="max-width:600px;margin:0 auto;width:100%;padding:24px 16px 80px;display:flex;flex-direction:column;gap:20px">
+                <h2 style="font-size:19px;font-weight:700;color:#014d24;margin:0" data-i18n="set_lang_title">Langue & Assistant Vocal</h2>
+                <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                    <div style="padding:16px;display:flex;align-items:center;justify-content:space-between">
+                        <div style="display:flex;align-items:center;gap:12px">
+                            <div style="width:40px;height:40px;border-radius:14px;background:#f0fdf4;color:#016a33;display:flex;align-items:center;justify-content:center;font-weight:700">
+                                <i class="fa-solid fa-language" style="font-size:18px"></i>
                             </div>
-                            <span class="font-bold text-gray-800 text-sm" data-i18n="set_lang_app">Langue de l'application</span>
+                            <span style="font-weight:700;color:#1f2937;font-size:14px" data-i18n="set_lang_app">Langue de l'application</span>
                         </div>
-                        <select id="lang-selector" onchange="changeLang(this.value)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl p-2 outline-none font-semibold">
+                        <select id="lang-selector" onchange="changeLang(this.value)"
+                            style="background:#f9fafb;border:1px solid #d1d5db;color:#111827;font-size:14px;border-radius:10px;padding:8px;outline:none;font-weight:600;font-family:inherit">
                             <option value="fr">Français</option>
                             <option value="fon">Fon (Fɔngbe)</option>
                             <option value="yoruba">Yorùbá</option>
@@ -365,25 +325,50 @@
                 </div>
             </div>
         </div>
+
     </main>
 
-    <!-- Configuration locale -->
     <script src="config.js"></script>
 
-    <!-- Import du SDK Officiel Hugging Face (V4) -->
     <script type="module">
         import { InferenceClient } from 'https://cdn.jsdelivr.net/npm/@huggingface/inference@4.13.30/+esm';
         const hfToken = window.CONFIG?.HF_TOKEN || "";
         window.hf = new InferenceClient(hfToken);
         window.hf.provider = "hf-inference";
     </script>
-    
-    <!-- Import du Client Gradio (2.7.0) pour le serveur Fon -->
+
     <script type="module">
         import { Client } from 'https://cdn.jsdelivr.net/npm/@gradio/client@2.7.0/+esm';
         window.gradioClient = Client;
     </script>
-    
-    <script src="script.js?v=30"></script>
+
+    <script src="script.js?v=31"></script>
+
+    <script>
+        /* --- Sidebar mobile helpers ---
+           Ces fonctions sont globales et appelées depuis HTML inline.
+           script.js peut aussi les appeler via toggleSidebar() (compatibilité). */
+        function openSidebar() {
+            document.getElementById('app-sidebar').classList.add('sidebar-open');
+            document.getElementById('sidebar-overlay').classList.add('overlay-visible');
+            var btn = document.getElementById('sidebar-close-btn');
+            if (btn) btn.style.display = 'flex';
+        }
+        function closeSidebar() {
+            document.getElementById('app-sidebar').classList.remove('sidebar-open');
+            document.getElementById('sidebar-overlay').classList.remove('overlay-visible');
+            var btn = document.getElementById('sidebar-close-btn');
+            if (btn) btn.style.display = 'none';
+        }
+        function closeSidebarOnMobile() {
+            if (window.innerWidth < 768) closeSidebar();
+        }
+        /* Rétrocompat : si script.js appelle toggleSidebar() */
+        function toggleSidebar() {
+            var s = document.getElementById('app-sidebar');
+            if (s.classList.contains('sidebar-open')) closeSidebar();
+            else openSidebar();
+        }
+    </script>
 </body>
 </html>

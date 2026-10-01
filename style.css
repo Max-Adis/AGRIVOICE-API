@@ -1,134 +1,223 @@
 /* =====================================================
-   AGRIVOICE - THEME STYLE GOOGLE GEMINI (BRANDED)
+   AGRIVOICE — THEME GOOGLE GEMINI STYLE (BRANDED)
+   Version 3.0 — Layout desktop/mobile propre
 ===================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
 body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-tap-highlight-color: transparent;
-}
-
-/* Scrollbars modernes et discrètes */
-::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-}
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
-    border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #cbd5e1;
-}
-
-/* Sidebar Drawer */
-#mobile-sidebar {
-    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.sidebar-open {
-    transform: translateX(0);
-}
-.sidebar-closed {
-    transform: translateX(-100%);
-}
-
-/* Vues */
-.app-view {
-    display: none;
-    animation: geminiFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.app-view.active {
+    background: #f8fafc;
+    color: #1e293b;
     display: flex;
 }
 
-@keyframes geminiFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* =====================================================
+   SCROLLBARS
+===================================================== */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+/* =====================================================
+   SIDEBAR — Desktop : toujours visible (pas de transform)
+             Mobile : drawer caché par défaut
+===================================================== */
+#app-sidebar {
+    width: 272px;
+    min-width: 272px;
+    background: #013b1c;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex-shrink: 0;
+    z-index: 40;
+    overflow: hidden;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Animation Micro / Enregistrement */
+/* Desktop : statique, jamais de transform */
+@media (min-width: 768px) {
+    #app-sidebar {
+        position: relative !important;
+        transform: none !important;
+    }
+    #sidebar-overlay { display: none !important; }
+    #mobile-topbar { display: none !important; }
+    #desktop-topbar { display: flex !important; }
+}
+
+/* Mobile : drawer */
+@media (max-width: 767px) {
+    #app-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 24px rgba(0,0,0,.2);
+    }
+    #app-sidebar.sidebar-open { transform: translateX(0); }
+    #desktop-topbar { display: none !important; }
+    #mobile-topbar { display: flex !important; }
+}
+
+/* Overlay mobile */
+#sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.42);
+    backdrop-filter: blur(2px);
+    z-index: 35;
+}
+#sidebar-overlay.overlay-visible { display: block; }
+
+/* =====================================================
+   MAIN CONTENT
+===================================================== */
+#app-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    min-width: 0;
+    position: relative;
+    background: #f8fafc;
+}
+
+/* =====================================================
+   VUES
+===================================================== */
+.app-view {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    animation: geminiFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.app-view.active { display: flex; }
+
+@keyframes geminiFadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =====================================================
+   NAVIGATION ITEMS
+===================================================== */
+.nav-item { transition: background 0.15s, color 0.15s; }
+
+/* =====================================================
+   MICRO / ENREGISTREMENT
+===================================================== */
 .recording-pulse {
     animation: micPulse 1.6s infinite cubic-bezier(0.4, 0, 0.6, 1);
     background-color: #ef4444 !important;
     color: #ffffff !important;
 }
-
 @keyframes micPulse {
-    0%, 100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-    }
-    50% {
-        transform: scale(1.08);
-        box-shadow: 0 0 0 12px rgba(239, 68, 68, 0);
-    }
+    0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0  rgba(239,68,68,.7); }
+    50%       { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(239,68,68,0); }
 }
 
-/* Animation Barre Audio (Waveform pour TTS) */
+/* =====================================================
+   BARRE AUDIO WAVEFORM TTS
+===================================================== */
 .audio-wave-bar {
     display: inline-block;
-    width: 3px;
-    height: 12px;
-    background-color: currentColor;
+    width: 3px; height: 12px;
+    background: currentColor;
     border-radius: 9999px;
     margin: 0 1px;
     animation: audioWave 1.2s ease-in-out infinite;
 }
-.audio-wave-bar:nth-child(2) { animation-delay: 0.2s; }
-.audio-wave-bar:nth-child(3) { animation-delay: 0.4s; }
-.audio-wave-bar:nth-child(4) { animation-delay: 0.1s; }
-
+.audio-wave-bar:nth-child(2) { animation-delay: .2s; }
+.audio-wave-bar:nth-child(3) { animation-delay: .4s; }
+.audio-wave-bar:nth-child(4) { animation-delay: .1s; }
 @keyframes audioWave {
     0%, 100% { height: 4px; }
-    50% { height: 14px; }
+    50%       { height: 14px; }
 }
 
-/* Gradient texte Gemini AgriVoice */
+/* =====================================================
+   GRADIENT TEXTE AGRIVOICE
+===================================================== */
 .gemini-gradient-text {
     background: linear-gradient(135deg, #016a33 0%, #028540 40%, #22c55e 75%, #eab308 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* Carte de suggestion Gemini */
+/* =====================================================
+   CARTES DE SUGGESTION
+===================================================== */
 .gemini-card {
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    border: 1px solid rgba(226, 232, 240, 0.9);
+    border: 1px solid rgba(226,232,240,.9);
 }
 .gemini-card:hover {
     transform: translateY(-2px);
-    border-color: rgba(1, 106, 51, 0.35);
-    box-shadow: 0 10px 25px -5px rgba(1, 106, 51, 0.08), 0 8px 10px -6px rgba(1, 106, 51, 0.04);
+    border-color: rgba(1,106,51,.3);
+    box-shadow: 0 8px 24px -6px rgba(1,106,51,.1);
 }
-.gemini-card:active {
-    transform: scale(0.98);
-}
+.gemini-card:active { transform: scale(0.98); }
 
-/* Capsule de prompt flottante */
+/* =====================================================
+   CAPSULE PROMPT FLOTTANTE
+===================================================== */
 .gemini-prompt-box {
-    background: rgba(255, 255, 255, 0.96);
+    background: rgba(255,255,255,.97);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(226, 232, 240, 0.95);
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08), 0 4px 12px -4px rgba(0, 0, 0, 0.03);
-    transition: all 0.2s ease;
+    border: 1.5px solid rgba(226,232,240,.95);
+    box-shadow: 0 8px 28px -8px rgba(0,0,0,.08), 0 2px 8px -2px rgba(0,0,0,.03);
+    transition: border-color .2s, box-shadow .2s;
 }
 .gemini-prompt-box:focus-within {
     border-color: #016a33;
-    box-shadow: 0 12px 35px -10px rgba(1, 106, 51, 0.15), 0 0 0 3px rgba(1, 106, 51, 0.1);
+    box-shadow: 0 10px 32px -8px rgba(1,106,51,.16), 0 0 0 3px rgba(1,106,51,.09);
 }
 
-/* Toast de notification Copié */
+/* =====================================================
+   TOAST
+===================================================== */
 #toast-notification {
     transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =====================================================
+   MESSAGES CHAT
+===================================================== */
+.message-enter {
+    animation: geminiFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.prose a { color: #016a33; text-decoration: underline; }
+.prose strong { color: #0f172a; }
+.prose code {
+    background: #f1f5f9; border-radius: 4px;
+    padding: 1px 5px; font-size: .85em;
+}
+
+/* Textarea auto-resize */
+#user-input {
+    field-sizing: content;
+    min-height: 24px;
+    max-height: 140px;
+    overflow-y: auto;
+    line-height: 1.5;
 }

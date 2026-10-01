@@ -129,37 +129,24 @@ function showToast(message) {
 /* -----------------------------------------------------
    UI NAVIGATION & DISCUSSION RESET
 ------------------------------------------------------ */
-const sidebar = document.getElementById('mobile-sidebar');
-const overlay = document.getElementById('sidebar-overlay');
-
-function toggleSidebar() {
-    if (sidebar.classList.contains('sidebar-closed')) {
-        sidebar.classList.remove('sidebar-closed');
-        sidebar.classList.add('sidebar-open');
-        overlay.classList.remove('hidden');
-    } else {
-        sidebar.classList.remove('sidebar-open');
-        sidebar.classList.add('sidebar-closed');
-        overlay.classList.add('hidden');
-    }
-}
+// toggleSidebar / openSidebar / closeSidebar sont définis dans index.html (inline)
+// Ce bloc gère uniquement la navigation entre vues.
 
 function switchView(viewId, element) {
+    // Mise à jour des styles nav-item (inline styles dans le nouveau HTML)
     document.querySelectorAll('.nav-item').forEach(el => {
-        el.classList.remove('bg-white/15', 'text-white', 'font-bold');
-        el.classList.add('text-white/70');
+        el.style.background = '';
+        el.style.color = 'rgba(255,255,255,.65)';
+        el.style.fontWeight = '';
     });
     if (element) {
-        element.classList.remove('text-white/70');
-        element.classList.add('bg-white/15', 'text-white', 'font-bold');
+        element.style.background = 'rgba(255,255,255,.15)';
+        element.style.color = '#fff';
+        element.style.fontWeight = '700';
     }
 
     document.querySelectorAll('.app-view').forEach(view => view.classList.remove('active'));
     document.getElementById(viewId)?.classList.add('active');
-
-    if (window.innerWidth < 768 && sidebar.classList.contains('sidebar-open')) {
-        toggleSidebar();
-    }
 }
 
 function resetConversation() {

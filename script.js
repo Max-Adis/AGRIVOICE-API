@@ -3,9 +3,9 @@
 ------------------------------------------------------ */
 const i18n = {
     fr: {
-        "menu_title": "Menu", "nav_home": "Accueil (Chat)", "nav_resources": "Ressources", "nav_profile": "Profil", "nav_settings": "Paramètres",
-        "new_question": "Nouvelle question", "app_desc": "L'assistant agricole intelligent, 100% hors ligne et en langues locales.",
-        "welcome_title": "AgriVoice AI", "welcome_desc": "Posez votre question vocalement, je vous réponds en Fon ou Yorùbá.",
+        "menu_title": "Menu", "nav_home": "Assistant Vocal", "nav_resources": "Guides & Fiches", "nav_profile": "Profil Producteur", "nav_settings": "Paramètres",
+        "new_question": "Nouvelle discussion", "app_desc": "L'assistant agricole intelligent, en langues locales et en français.",
+        "welcome_title": "Bonjour, Bio", "welcome_desc": "Comment puis-je vous aider pour vos récoltes aujourd'hui ?",
         "stt_local_title": "STT IA", "stt_local_desc": "Transcription via APIs intégrées.",
         "inrab_title": "Données INRAB", "inrab_desc": "Réponses fiables et validées.",
         "res_title": "Guides & Fiches pratiques audio", "res_desc": "Recherchez une culture, une maladie ou un engrais.",
@@ -18,7 +18,7 @@ const i18n = {
     fon: {
         "menu_title": "Nǔ e kàn we lɛ", "nav_home": "Xwégbe (Chat)", "nav_resources": "Wěma kpo Gbe kpo", "nav_profile": "Nyikɔ towe", "nav_settings": "Nǔ ɖagbe lɛ",
         "new_question": "Kàn nǔ yɔ́yɔ́", "app_desc": "Alɔgɔtɔ glezɔ watɔ tɔn.",
-        "welcome_title": "AgriVoice AI", "welcome_desc": "Kàn nǔ we kpo gbe towe kpo, un na na gbe towe.",
+        "welcome_title": "Kú àbɔ̀, Bio", "welcome_desc": "Nɛ̌ un ka sixú d'alɔ we gbɔn nú gle towe lɛ égbé ?",
         "stt_local_title": "Gbe sín zɔ", "stt_local_desc": "Transcription via IA.",
         "inrab_title": "INRAB sín wema", "inrab_desc": "Xó e sɔgbe lɛ.",
         "res_title": "Wěma kpo Gbe kpo", "res_desc": "Ba gle, azɔn, engrais...",
@@ -31,7 +31,7 @@ const i18n = {
     yoruba: {
         "menu_title": "Akojọ", "nav_home": "Ile (Chat)", "nav_resources": "Àwọn Ìtọ́sọ́nà", "nav_profile": "Profaili", "nav_settings": "Àwọn Ètò Mi",
         "new_question": "Ibeere tuntun", "app_desc": "Oluranlọwọ ogbin.",
-        "welcome_title": "AgriVoice AI", "welcome_desc": "Beere ibeere rẹ pẹlu ohùn rẹ.",
+        "welcome_title": "Ẹ n lẹ́ o, Bio", "welcome_desc": "Báwo ni mo ṣe lè ràn ọ́ lọ́wọ́ pẹ̀lú oko rẹ lónìí ?",
         "stt_local_title": "STT IA", "stt_local_desc": "Transcription API.",
         "inrab_title": "Alaye INRAB", "inrab_desc": "Awọn idahun to peye.",
         "res_title": "Àwọn Ìtọ́sọ́nà Ohùn", "res_desc": "Wá ohun ọ̀gbìn, àrùn, ajílẹ̀...",
@@ -44,7 +44,7 @@ const i18n = {
     ewe: {
         "menu_title": "Tutuɖo", "nav_home": "Aƒeme (Chat)", "nav_resources": "Agblenuwɔwɔ", "nav_profile": "Ŋkɔwò", "nav_settings": "Ðoɖowo",
         "new_question": "Biabia yeye", "app_desc": "Agblemenukuwɔlawo ƒe kpekpeɖeŋutɔ.",
-        "welcome_title": "AgriVoice AI", "welcome_desc": "Bia wò biabia kple gbe, maɖo eŋu na wò le Eʋegbe (Mina) me.",
+        "welcome_title": "Woezɔ, Bio", "welcome_desc": "Aleke mate ŋu akpe ɖe ŋuwò le wò agblede ŋuti egbe ?",
         "stt_local_title": "STT IA", "stt_local_desc": "Gbe gɔmeɖeɖe kple IA.",
         "inrab_title": "INRAB Ŋuti Nyawo", "inrab_desc": "Ŋuɖoɖo nyuitɔwo.",
         "res_title": "Agblenuwɔwɔ Ƒe Gbe", "res_desc": "Bia bli, agbeli, dɔvɔwo...",
@@ -56,26 +56,81 @@ const i18n = {
     }
 };
 
+const LANG_CONFIG = {
+    fr: { label: "Français", code: "FR" },
+    fon: { label: "Fɔngbe", code: "FON" },
+    yoruba: { label: "Yorùbá", code: "YO" },
+    ewe: { label: "Éwé", code: "EWE" }
+};
+
 let currentLang = 'fr';
 
 function changeLang(langCode) {
+    if (!LANG_CONFIG[langCode]) return;
     currentLang = langCode;
+    
+    // Mise à jour des textes i18n
     const dictionary = i18n[langCode];
-    if (!dictionary) return;
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (dictionary[key]) el.innerText = dictionary[key];
+    if (dictionary) {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dictionary[key]) el.innerText = dictionary[key];
+        });
+    }
+
+    // Mise à jour des badges et labels
+    const langInfo = LANG_CONFIG[langCode];
+    const mobilePill = document.getElementById('mobile-lang-pill');
+    if (mobilePill) mobilePill.innerText = langInfo.code;
+    
+    const promptLabel = document.getElementById('prompt-lang-label');
+    if (promptLabel) promptLabel.innerText = langInfo.label;
+
+    const selector = document.getElementById('lang-selector');
+    if (selector) selector.value = langCode;
+
+    // Mise à jour des boutons desktop
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.remove('bg-white', 'text-agrigreen', 'shadow-xs');
+        btn.classList.add('text-gray-600');
     });
-    const activeNav = document.querySelector('.nav-item.font-bold span');
-    if (activeNav) document.getElementById('mobile-header-title').innerText = activeNav.innerText;
+    const activeDesktopBtn = document.getElementById(`btn-lang-${langCode}`);
+    if (activeDesktopBtn) {
+        activeDesktopBtn.classList.add('bg-white', 'text-agrigreen', 'shadow-xs');
+        activeDesktopBtn.classList.remove('text-gray-600');
+    }
+
+    showToast(`Langue changée : ${langInfo.label}`);
+}
+
+function switchNextLang() {
+    const langs = ['fr', 'fon', 'yoruba', 'ewe'];
+    const currentIndex = langs.indexOf(currentLang);
+    const nextLang = langs[(currentIndex + 1) % langs.length];
+    changeLang(nextLang);
+}
+
+// Toast de feedback
+function showToast(message) {
+    const toast = document.getElementById('toast-notification');
+    const toastText = document.getElementById('toast-text');
+    if (!toast || !toastText) return;
+
+    toastText.innerText = message;
+    toast.classList.remove('opacity-0', '-translate-y-2');
+    toast.classList.add('opacity-100', 'translate-y-0');
+
+    setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', '-translate-y-2');
+    }, 2400);
 }
 
 /* -----------------------------------------------------
-   UI NAVIGATION
+   UI NAVIGATION & DISCUSSION RESET
 ------------------------------------------------------ */
 const sidebar = document.getElementById('mobile-sidebar');
 const overlay = document.getElementById('sidebar-overlay');
-const titleEl = document.getElementById('mobile-header-title');
 
 function toggleSidebar() {
     if (sidebar.classList.contains('sidebar-closed')) {
@@ -91,19 +146,53 @@ function toggleSidebar() {
 
 function switchView(viewId, element) {
     document.querySelectorAll('.nav-item').forEach(el => {
-        el.classList.remove('bg-agrigreen-dark', 'font-bold');
-        el.classList.add('text-gray-200');
+        el.classList.remove('bg-white/15', 'text-white', 'font-bold');
+        el.classList.add('text-white/70');
     });
-    element.classList.remove('text-gray-200');
-    element.classList.add('bg-agrigreen-dark', 'font-bold');
-
-    let titleSpan = element.querySelector('span');
-    titleEl.innerText = titleSpan ? titleSpan.innerText : 'AgriVoice';
+    if (element) {
+        element.classList.remove('text-white/70');
+        element.classList.add('bg-white/15', 'text-white', 'font-bold');
+    }
 
     document.querySelectorAll('.app-view').forEach(view => view.classList.remove('active'));
-    document.getElementById(viewId).classList.add('active');
+    document.getElementById(viewId)?.classList.add('active');
 
-    if(window.innerWidth < 768) toggleSidebar();
+    if (window.innerWidth < 768 && sidebar.classList.contains('sidebar-open')) {
+        toggleSidebar();
+    }
+}
+
+function resetConversation() {
+    conversationHistory.length = 0;
+    
+    // Supprime tous les messages du chat
+    const chat = document.getElementById('chat-container');
+    const welcome = document.getElementById('welcome-screen');
+    
+    // Garde uniquement le welcome-screen et les templates
+    const messages = chat.querySelectorAll('.chat-bubble-instance');
+    messages.forEach(m => m.remove());
+
+    if (welcome) welcome.style.display = 'block';
+
+    // Réinitialise le champ
+    const input = document.getElementById('user-input');
+    if (input) {
+        input.value = '';
+        input.style.height = 'auto';
+    }
+
+    switchView('view-chat', document.querySelector('.nav-item'));
+    showToast("Nouvelle discussion démarrée");
+}
+
+function usePromptSuggestion(text) {
+    const input = document.getElementById('user-input');
+    if (!input) return;
+    input.value = text;
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+    chatForm.dispatchEvent(new Event('submit'));
 }
 
 /* -----------------------------------------------------
@@ -118,7 +207,6 @@ let mediaRecorder;
 let audioChunks = [];
 let isRecording = false;
 
-// Configuration des Modèles de transcription par Langue
 const MODELS = {
     'fr': 'openai/whisper-large-v3-turbo',
     'yoruba': 'openai/whisper-large-v3-turbo',
@@ -126,55 +214,57 @@ const MODELS = {
     'fon': 'chrisjay/fonxlsr'
 };
 
-micBtn.addEventListener('click', async () => {
-    if (!isRecording) {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            audioChunks = [];
+if (micBtn) {
+    micBtn.addEventListener('click', async () => {
+        if (!isRecording) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
 
-            mediaRecorder.ondataavailable = event => {
-                audioChunks.push(event.data);
-            };
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
 
-            mediaRecorder.onstop = async () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                await transcribeAudio(audioBlob);
-            };
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    await transcribeAudio(audioBlob);
+                };
 
-            mediaRecorder.start();
-            isRecording = true;
-            micBtn.classList.add('recording-pulse');
-            recStatus.classList.remove('hidden');
-        } catch (err) {
-            console.error("Erreur d'accès au micro:", err);
-            alert("Accès au microphone refusé ou indisponible.");
+                mediaRecorder.start();
+                isRecording = true;
+                micBtn.classList.add('recording-pulse');
+                if (recStatus) recStatus.classList.remove('hidden');
+            } catch (err) {
+                console.error("Erreur d'accès au micro:", err);
+                alert("Accès au microphone refusé ou indisponible.");
+            }
+        } else {
+            mediaRecorder.stop();
+            isRecording = false;
+            micBtn.classList.remove('recording-pulse');
+            if (recStatus) recStatus.classList.add('hidden');
+            
+            if (userInput) userInput.value = `Transcription en cours (${currentLang.toUpperCase()})...`;
         }
-    } else {
-        mediaRecorder.stop();
-        isRecording = false;
-        micBtn.classList.remove('recording-pulse');
-        recStatus.classList.add('hidden');
-        
-        userInput.value = "Transcription en cours (" + currentLang.toUpperCase() + ")...";
-    }
-});
+    });
+}
 
 async function transcribeAudio(audioBlob) {
     const model = MODELS[currentLang];
     
     try {
         if (currentLang === 'fon') {
-            // Le Fon utilise votre serveur personnel Gradio
             const app = await window.gradioClient.connect("Max-Adis/agrivoice-fon-asr");
-            const result = await app.predict("/transcrire", [
-                audioBlob,
-            ]);
+            const result = await app.predict("/transcrire", [audioBlob]);
             const text = result.data[0];
-            userInput.value = text;
+            if (userInput) {
+                userInput.value = text;
+                userInput.style.height = 'auto';
+                userInput.style.height = Math.min(userInput.scrollHeight, 140) + 'px';
+            }
             return text;
         } else {
-            // Le Français, le Yorùbá et l'Éwé utilisent Whisper V3
             const result = await window.hf.automaticSpeechRecognition({
                 model: model,
                 data: audioBlob
@@ -188,12 +278,16 @@ async function transcribeAudio(audioBlob) {
             } else {
                 text = "Audio non reconnu.";
             }
-            userInput.value = text;
+            if (userInput) {
+                userInput.value = text;
+                userInput.style.height = 'auto';
+                userInput.style.height = Math.min(userInput.scrollHeight, 140) + 'px';
+            }
             return text;
         }
     } catch (error) {
         console.error("Erreur de transcription:", error);
-        userInput.value = `Erreur de transcription: ${error.message}`;
+        if (userInput) userInput.value = `Erreur de transcription: ${error.message}`;
         throw error;
     }
 }
@@ -203,8 +297,6 @@ async function transcribeAudio(audioBlob) {
 ------------------------------------------------------ */
 const GEMINI_API_KEY = window.CONFIG?.GEMINI_API_KEY || "";
 
-
-// Modèles ordonnés par priorité (testés et opérationnels)
 const GEMINI_MODELS = [
     "gemini-2.5-flash-lite",    // Rapide et quota généreux
     "gemini-flash-lite-latest", // Flash Lite le plus récent
@@ -230,7 +322,15 @@ const templateUser = document.getElementById('template-user');
 if (userInput) {
     userInput.addEventListener('input', function() {
         this.style.height = 'auto';
-        this.style.height = Math.min(this.scrollHeight, 128) + 'px';
+        this.style.height = Math.min(this.scrollHeight, 140) + 'px';
+    });
+
+    // Envoi avec Entrée (sauf shift+entrée)
+    userInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            chatForm?.dispatchEvent(new Event('submit'));
+        }
     });
 }
 
@@ -247,7 +347,7 @@ if (chatForm) {
         userInput.value = '';
         userInput.style.height = 'auto';
 
-        const loaderId = addMessage('<div class="flex items-center gap-2 text-agrigreen font-medium"><i class="fa-solid fa-circle-notch fa-spin text-xl"></i> <span>AgriVoice réfléchit aux meilleures recommandations...</span></div>', 'assistant', true);
+        const loaderId = addMessage('<div class="flex items-center gap-2.5 text-agrigreen font-semibold"><i class="fa-solid fa-sparkles fa-spin text-lg text-agriyellow"></i> <span class="gemini-gradient-text font-bold">AgriVoice analyse votre demande...</span></div>', 'assistant', true);
 
         try {
             const botReply = await askGemini(text, currentLang);
@@ -284,7 +384,6 @@ async function askGemini(userText, lang) {
     let lastError = null;
 
     try {
-        // Bascule automatique de modèle en cas de quota dépassé (429)
         for (const modelName of GEMINI_MODELS) {
             try {
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`, {
@@ -320,7 +419,6 @@ async function askGemini(userText, lang) {
         }
         throw lastError || new Error("Tous les modèles Gemini ont épuisé leur quota.");
     } catch (finalErr) {
-        // En cas d'échec total, retirer le message utilisateur orphelin
         conversationHistory.pop();
         throw finalErr;
     }
@@ -328,8 +426,8 @@ async function askGemini(userText, lang) {
 
 function formatMarkdown(text) {
     return text
-        .replace(/### (.*?)\n/g, '<h3 class="text-base md:text-lg font-bold text-agrigreen-dark mt-3 mb-1">$1</h3>')
-        .replace(/## (.*?)\n/g, '<h2 class="text-lg md:text-xl font-bold text-agrigreen-dark mt-4 mb-2">$1</h2>')
+        .replace(/### (.*?)\n/g, '<h3 class="text-base font-bold text-gray-900 mt-3 mb-1">$1</h3>')
+        .replace(/## (.*?)\n/g, '<h2 class="text-lg font-bold text-gray-900 mt-4 mb-2">$1</h2>')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/^\* (.*$)/gim, '<li class="ml-4 list-disc">$1</li>')
@@ -343,6 +441,7 @@ function addMessage(text, role, isHtml = false, withTTS = false) {
     const clone = template.cloneNode(true);
     clone.id = 'msg-' + Date.now();
     clone.classList.remove('hidden');
+    clone.classList.add('chat-bubble-instance');
     
     const contentDiv = clone.querySelector('.message-content');
     if (isHtml) {
@@ -353,17 +452,46 @@ function addMessage(text, role, isHtml = false, withTTS = false) {
     
     let createdTtsBtn = null;
     if (withTTS && role === 'assistant') {
-        const btnContainer = document.createElement('div');
-        btnContainer.className = 'mt-3 flex items-center gap-2';
+        // Barre d'outils Style Google Gemini
+        const actionToolbar = document.createElement('div');
+        actionToolbar.className = 'mt-3 pt-2 flex items-center gap-2 border-t border-gray-100 flex-wrap';
         
+        // 1. Bouton Écouter la voix IA
         const ttsBtn = document.createElement('button');
-        ttsBtn.className = 'inline-flex items-center gap-2 bg-agrigreen-light/15 hover:bg-agrigreen hover:text-white text-agrigreen-dark text-xs font-bold px-3.5 py-1.5 rounded-full border border-agrigreen/30 transition shadow-sm cursor-pointer';
+        ttsBtn.className = 'inline-flex items-center gap-2 bg-emerald-50 hover:bg-agrigreen text-agrigreen hover:text-white text-xs font-bold px-3.5 py-1.5 rounded-full border border-emerald-200/80 transition shadow-2xs cursor-pointer';
         ttsBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Écouter la voix IA</span>';
-        
         ttsBtn.onclick = () => speakText(text, currentLang, ttsBtn);
-        btnContainer.appendChild(ttsBtn);
-        contentDiv.appendChild(btnContainer);
+        actionToolbar.appendChild(ttsBtn);
         createdTtsBtn = ttsBtn;
+
+        // 2. Bouton Copier
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center text-xs transition cursor-pointer';
+        copyBtn.title = 'Copier la réponse';
+        copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i>';
+        copyBtn.onclick = () => {
+            const cleanText = text.replace(/[*#_`]/g, '').trim();
+            navigator.clipboard.writeText(cleanText).then(() => {
+                showToast('Réponse copiée dans le presse-papier');
+                copyBtn.innerHTML = '<i class="fa-solid fa-check text-green-600"></i>';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i>';
+                }, 2000);
+            });
+        };
+        actionToolbar.appendChild(copyBtn);
+
+        // 3. Boutons Feedback (Pouce haut / bas)
+        const thumbUp = document.createElement('button');
+        thumbUp.className = 'w-8 h-8 rounded-full bg-gray-100 hover:bg-emerald-100 text-gray-500 hover:text-agrigreen flex items-center justify-center text-xs transition cursor-pointer';
+        thumbUp.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>';
+        thumbUp.onclick = () => {
+            thumbUp.classList.toggle('text-agrigreen');
+            showToast('Merci pour votre retour !');
+        };
+        actionToolbar.appendChild(thumbUp);
+
+        contentDiv.appendChild(actionToolbar);
     }
     
     chatContainer.appendChild(clone);
@@ -389,7 +517,6 @@ let currentAudioSource = null;
 let currentAudioContext = null;
 
 async function speakText(text, lang, btnElement) {
-    // Si un son est déjà en cours de lecture, on l'arrête immédiatement
     if (currentAudioSource) {
         try { 
             if (typeof currentAudioSource.stop === 'function') currentAudioSource.stop();
@@ -398,13 +525,12 @@ async function speakText(text, lang, btnElement) {
         currentAudioSource = null;
         if (btnElement) {
             btnElement.classList.remove('bg-agrigreen', 'text-white');
-            btnElement.querySelector('span').innerText = 'Écouter la voix IA';
-            btnElement.querySelector('i').className = 'fa-solid fa-volume-high';
+            btnElement.classList.add('bg-emerald-50', 'text-agrigreen');
+            btnElement.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Écouter la voix IA</span>';
         }
         return;
     }
 
-    // Nettoyer le texte du markdown
     const cleanText = text
         .replace(/[*#_`]/g, '')
         .replace(/\n+/g, ' ')
@@ -413,12 +539,12 @@ async function speakText(text, lang, btnElement) {
     if (!cleanText) return;
 
     if (btnElement) {
+        btnElement.classList.remove('bg-emerald-50', 'text-agrigreen');
         btnElement.classList.add('bg-agrigreen', 'text-white');
-        btnElement.querySelector('span').innerText = 'Génération de la voix...';
-        btnElement.querySelector('i').className = 'fa-solid fa-circle-notch fa-spin';
+        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Génération de la voix...</span>';
     }
 
-    // 1. SI LA LANGUE EST LE FON : Utiliser le modèle Meta MMS-TTS Fon sur le serveur Gradio
+    // 1. FON : Modèle Meta MMS-TTS
     if (lang === 'fon') {
         try {
             const app = await window.gradioClient.connect("Max-Adis/agrivoice-fon-asr");
@@ -430,15 +556,14 @@ async function speakText(text, lang, btnElement) {
                 currentAudioSource = fonAudio;
                 fonAudio.play();
                 if (btnElement) {
-                    btnElement.querySelector('span').innerText = 'Lecture Fon en cours (Cliquer pour stopper)...';
-                    btnElement.querySelector('i').className = 'fa-solid fa-volume-high fa-beat';
+                    btnElement.innerHTML = '<span class="audio-wave-bar"></span><span class="audio-wave-bar"></span><span class="audio-wave-bar"></span> <span>Lecture Fon...</span>';
                 }
                 fonAudio.onended = () => {
                     currentAudioSource = null;
                     if (btnElement) {
                         btnElement.classList.remove('bg-agrigreen', 'text-white');
-                        btnElement.querySelector('span').innerText = 'Réécouter en Fon';
-                        btnElement.querySelector('i').className = 'fa-solid fa-volume-high';
+                        btnElement.classList.add('bg-emerald-50', 'text-agrigreen');
+                        btnElement.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Réécouter en Fon</span>';
                     }
                 };
                 return;
@@ -447,14 +572,14 @@ async function speakText(text, lang, btnElement) {
             console.warn("Erreur Fon TTS:", fonErr);
             if (btnElement) {
                 btnElement.classList.remove('bg-agrigreen', 'text-white');
-                btnElement.querySelector('span').innerText = 'Voix Fon indisponible';
-                btnElement.querySelector('i').className = 'fa-solid fa-triangle-exclamation';
+                btnElement.classList.add('bg-emerald-50', 'text-agrigreen');
+                btnElement.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>Voix Fon indisponible</span>';
             }
             return;
         }
     }
 
-    // 2. POUR LE FRANÇAIS, LE YORÙBÁ ET L'ÉWÉ : Modèle Gemini TTS Haute Fidélité (Kore)
+    // 2. FRANÇAIS, YORÙBÁ, ÉWÉ : Gemini TTS Kore
     try {
         const ttsPayload = {
             contents: [{
@@ -506,7 +631,6 @@ async function speakText(text, lang, btnElement) {
             throw lastTtsError || new Error("Quota TTS journalier atteint. La voix humaine reviendra dès le renouvellement des quotas.");
         }
 
-        // Décodage du PCM 16-bit 24kHz brut vers Web Audio API
         const binary = atob(base64Audio);
         const bytes = new Uint8Array(binary.length);
         for (let i = 0; i < binary.length; i++) {
@@ -528,16 +652,15 @@ async function speakText(text, lang, btnElement) {
         currentAudioSource.connect(currentAudioContext.destination);
 
         if (btnElement) {
-            btnElement.querySelector('span').innerText = 'Lecture en cours (Cliquer pour stopper)...';
-            btnElement.querySelector('i').className = 'fa-solid fa-volume-high fa-beat';
+            btnElement.innerHTML = '<span class="audio-wave-bar"></span><span class="audio-wave-bar"></span><span class="audio-wave-bar"></span> <span>Lecture en cours...</span>';
         }
 
         currentAudioSource.onended = () => {
             currentAudioSource = null;
             if (btnElement) {
                 btnElement.classList.remove('bg-agrigreen', 'text-white');
-                btnElement.querySelector('span').innerText = 'Réécouter la voix IA';
-                btnElement.querySelector('i').className = 'fa-solid fa-volume-high';
+                btnElement.classList.add('bg-emerald-50', 'text-agrigreen');
+                btnElement.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Réécouter la voix IA</span>';
             }
         };
 
@@ -547,22 +670,13 @@ async function speakText(text, lang, btnElement) {
         console.warn("Erreur Gemini TTS:", err);
         if (btnElement) {
             btnElement.classList.remove('bg-agrigreen', 'text-white');
-            btnElement.querySelector('span').innerText = 'Quota TTS atteint (Réessayer demain)';
-            btnElement.querySelector('i').className = 'fa-solid fa-clock';
+            btnElement.classList.add('bg-emerald-50', 'text-agrigreen');
+            btnElement.innerHTML = '<i class="fa-solid fa-clock"></i> <span>Quota TTS atteint (Demain)</span>';
         }
     }
 }
 
-// Clics sur les cartes de suggestion de l'écran d'accueil
-document.querySelectorAll('#welcome-screen .cursor-pointer').forEach(card => {
-    card.addEventListener('click', () => {
-        const title = card.querySelector('h3')?.innerText;
-        if (title) {
-            userInput.value = title;
-            chatForm.dispatchEvent(new Event('submit'));
-        }
-    });
+// Initialisation au chargement
+document.addEventListener('DOMContentLoaded', () => {
+    changeLang('fr');
 });
-
-
-

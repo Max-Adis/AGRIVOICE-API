@@ -91,13 +91,13 @@ function changeLang(langCode) {
 
     // Mise à jour des boutons desktop
     document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.remove('bg-white', 'text-agrigreen', 'shadow-xs');
-        btn.classList.add('text-gray-600');
+        btn.classList.remove('active');
+        
     });
     const activeDesktopBtn = document.getElementById(`btn-lang-${langCode}`);
     if (activeDesktopBtn) {
-        activeDesktopBtn.classList.add('bg-white', 'text-agrigreen', 'shadow-xs');
-        activeDesktopBtn.classList.remove('text-gray-600');
+        activeDesktopBtn.classList.add('active');
+        
     }
 
     showToast(`Langue changée : ${langInfo.label}`);
@@ -112,17 +112,17 @@ function switchNextLang() {
 
 // Toast de feedback
 function showToast(message) {
-    const toast = document.getElementById('toast-notification');
+    const toast = document.getElementById('toast');
     const toastText = document.getElementById('toast-text');
     if (!toast || !toastText) return;
 
     toastText.innerText = message;
-    toast.classList.remove('opacity-0', '-translate-y-2');
-    toast.classList.add('opacity-100', 'translate-y-0');
+    toast.classList.add('show');
+    
 
     setTimeout(() => {
-        toast.classList.remove('opacity-100', 'translate-y-0');
-        toast.classList.add('opacity-0', '-translate-y-2');
+        toast.classList.remove('show');
+        
     }, 2400);
 }
 
@@ -220,8 +220,8 @@ if (micBtn) {
 
                 mediaRecorder.start();
                 isRecording = true;
-                micBtn.classList.add('recording-pulse');
-                if (recStatus) recStatus.classList.remove('hidden');
+                micBtn.classList.add('mic-recording');
+                if (recStatus) recStatus.style.display = 'flex';
             } catch (err) {
                 console.error("Erreur d'accès au micro:", err);
                 alert("Accès au microphone refusé ou indisponible.");
@@ -229,8 +229,8 @@ if (micBtn) {
         } else {
             mediaRecorder.stop();
             isRecording = false;
-            micBtn.classList.remove('recording-pulse');
-            if (recStatus) recStatus.classList.add('hidden');
+            micBtn.classList.remove('mic-recording');
+            if (recStatus) recStatus.style.display = 'none';
             
             if (userInput) userInput.value = `Transcription en cours (${currentLang.toUpperCase()})...`;
         }
@@ -427,8 +427,7 @@ function addMessage(text, role, isHtml = false, withTTS = false) {
     const template = role === 'user' ? templateUser : templateAssistant;
     const clone = template.cloneNode(true);
     clone.id = 'msg-' + Date.now();
-    clone.classList.remove('hidden');
-    clone.classList.add('chat-bubble-instance');
+    clone.classList.add('chat-bubble-instance'); clone.style.display = 'flex';
     
     const contentDiv = clone.querySelector('.message-content');
     if (isHtml) {
@@ -441,11 +440,11 @@ function addMessage(text, role, isHtml = false, withTTS = false) {
     if (withTTS && role === 'assistant') {
         // Barre d'outils Style Google Gemini
         const actionToolbar = document.createElement('div');
-        actionToolbar.className = 'mt-3 pt-2 flex items-center gap-2 border-t border-gray-100 flex-wrap';
+        actionToolbar.style.cssText = 'margin-top:12px;padding-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px solid #f1f5f9';
         
         // 1. Bouton Écouter la voix IA
         const ttsBtn = document.createElement('button');
-        ttsBtn.className = 'inline-flex items-center gap-2 bg-emerald-50 hover:bg-agrigreen text-agrigreen hover:text-white text-xs font-bold px-3.5 py-1.5 rounded-full border border-emerald-200/80 transition shadow-2xs cursor-pointer';
+        ttsBtn.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;color:#016a33;font-size:12px;font-weight:700;padding:5px 14px;border-radius:9999px;border:1px solid #bbf7d0;cursor:pointer;font-family:inherit;transition:all .15s';
         ttsBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Écouter la voix IA</span>';
         ttsBtn.onclick = () => speakText(text, currentLang, ttsBtn);
         actionToolbar.appendChild(ttsBtn);
@@ -453,7 +452,7 @@ function addMessage(text, role, isHtml = false, withTTS = false) {
 
         // 2. Bouton Copier
         const copyBtn = document.createElement('button');
-        copyBtn.className = 'w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center text-xs transition cursor-pointer';
+        copyBtn.style.cssText = 'width:32px;height:32px;border-radius:50%;background:#f3f4f6;border:none;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all .15s';
         copyBtn.title = 'Copier la réponse';
         copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i>';
         copyBtn.onclick = () => {
@@ -470,7 +469,7 @@ function addMessage(text, role, isHtml = false, withTTS = false) {
 
         // 3. Boutons Feedback (Pouce haut / bas)
         const thumbUp = document.createElement('button');
-        thumbUp.className = 'w-8 h-8 rounded-full bg-gray-100 hover:bg-emerald-100 text-gray-500 hover:text-agrigreen flex items-center justify-center text-xs transition cursor-pointer';
+        thumbUp.style.cssText = 'width:32px;height:32px;border-radius:50%;background:#f3f4f6;border:none;color:#6b7280;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:all .15s';
         thumbUp.innerHTML = '<i class="fa-regular fa-thumbs-up"></i>';
         thumbUp.onclick = () => {
             thumbUp.classList.toggle('text-agrigreen');
@@ -511,8 +510,8 @@ async function speakText(text, lang, btnElement) {
         } catch (e) {}
         currentAudioSource = null;
         if (btnElement) {
-            btnElement.classList.remove('bg-agrigreen', 'text-white');
-            btnElement.classList.add('bg-emerald-50', 'text-agrigreen');
+            btnElement.style.background = '#f0fdf4'; btnElement.style.color = '#016a33';
+            
             btnElement.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Écouter la voix IA</span>';
         }
         return;
@@ -526,8 +525,8 @@ async function speakText(text, lang, btnElement) {
     if (!cleanText) return;
 
     if (btnElement) {
-        btnElement.classList.remove('bg-emerald-50', 'text-agrigreen');
-        btnElement.classList.add('bg-agrigreen', 'text-white');
+        //noop
+        btnElement.style.background = '#016a33'; btnElement.style.color = '#fff';
         btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Génération de la voix...</span>';
     }
 
@@ -548,8 +547,8 @@ async function speakText(text, lang, btnElement) {
                 fonAudio.onended = () => {
                     currentAudioSource = null;
                     if (btnElement) {
-                        btnElement.classList.remove('bg-agrigreen', 'text-white');
-                        btnElement.classList.add('bg-emerald-50', 'text-agrigreen');
+                        btnElement.style.background = '#f0fdf4'; btnElement.style.color = '#016a33';
+                        
                         btnElement.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Réécouter en Fon</span>';
                     }
                 };
@@ -558,8 +557,8 @@ async function speakText(text, lang, btnElement) {
         } catch (fonErr) {
             console.warn("Erreur Fon TTS:", fonErr);
             if (btnElement) {
-                btnElement.classList.remove('bg-agrigreen', 'text-white');
-                btnElement.classList.add('bg-emerald-50', 'text-agrigreen');
+                btnElement.style.background = '#f0fdf4'; btnElement.style.color = '#016a33';
+                
                 btnElement.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> <span>Voix Fon indisponible</span>';
             }
             return;
@@ -645,8 +644,8 @@ async function speakText(text, lang, btnElement) {
         currentAudioSource.onended = () => {
             currentAudioSource = null;
             if (btnElement) {
-                btnElement.classList.remove('bg-agrigreen', 'text-white');
-                btnElement.classList.add('bg-emerald-50', 'text-agrigreen');
+                btnElement.style.background = '#f0fdf4'; btnElement.style.color = '#016a33';
+                
                 btnElement.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Réécouter la voix IA</span>';
             }
         };
@@ -656,8 +655,8 @@ async function speakText(text, lang, btnElement) {
     } catch (err) {
         console.warn("Erreur Gemini TTS:", err);
         if (btnElement) {
-            btnElement.classList.remove('bg-agrigreen', 'text-white');
-            btnElement.classList.add('bg-emerald-50', 'text-agrigreen');
+            btnElement.style.background = '#f0fdf4'; btnElement.style.color = '#016a33';
+            
             btnElement.innerHTML = '<i class="fa-solid fa-clock"></i> <span>Quota TTS atteint (Demain)</span>';
         }
     }

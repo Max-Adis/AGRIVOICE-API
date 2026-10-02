@@ -4,371 +4,552 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AgriVoice AI — Assistant Vocal Agricole</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        agrigreen: { DEFAULT: '#016a33', light: '#028540', dark: '#014d24', accent: '#22c55e' },
-                        agriyellow: { DEFAULT: '#ffcc00', light: '#ffd633', dark: '#e6b800' }
-                    }
-                }
-            }
-        }
-    </script>
-    <link rel="stylesheet" href="style.css?v=31">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+/* ---- RESET & BASE ---- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f8fafc;
+    color: #1e293b;
+    display: flex;
+    height: 100vh;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ---- SCROLLBARS ---- */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+/* ---- SIDEBAR ---- */
+#app-sidebar {
+    width: 268px;
+    min-width: 268px;
+    background: #013b1c;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex-shrink: 0;
+    z-index: 40;
+    overflow: hidden;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+/* ---- MAIN ---- */
+#app-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    min-width: 0;
+    background: #f8fafc;
+    position: relative;
+}
+
+/* ---- OVERLAY MOBILE ---- */
+#sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    backdrop-filter: blur(3px);
+    z-index: 35;
+    cursor: pointer;
+}
+#sidebar-overlay.open { display: block; }
+
+/* ---- MOBILE : sidebar drawer ---- */
+@media (max-width: 767px) {
+    #app-sidebar {
+        position: fixed !important;
+        top: 0; left: 0;
+        height: 100% !important;
+        transform: translateX(-100%);
+        box-shadow: 6px 0 24px rgba(0,0,0,.25);
+    }
+    #app-sidebar.open { transform: translateX(0); }
+    #mobile-topbar { display: flex !important; }
+    #desktop-topbar { display: none !important; }
+}
+
+/* ---- DESKTOP : sidebar fixe ---- */
+@media (min-width: 768px) {
+    #app-sidebar { position: relative !important; transform: none !important; }
+    #sidebar-overlay { display: none !important; }
+    #mobile-topbar { display: none !important; }
+    #desktop-topbar { display: flex !important; }
+}
+
+/* ---- VUES ---- */
+.app-view {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeUp .22s ease forwards;
+}
+.app-view.active { display: flex; }
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- GRADIENT TEXTE ---- */
+.grad-text {
+    background: linear-gradient(135deg, #016a33 0%, #028540 40%, #22c55e 70%, #eab308 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ---- SUGGESTION CARD ---- */
+.sug-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all .2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.sug-card:hover {
+    border-color: rgba(1,106,51,.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -6px rgba(1,106,51,.1);
+}
+.sug-card:active { transform: scale(.98); }
+
+/* ---- PROMPT BOX ---- */
+.prompt-box {
+    background: rgba(255,255,255,.97);
+    border: 1.5px solid #e2e8f0;
+    border-radius: 24px;
+    box-shadow: 0 8px 28px -8px rgba(0,0,0,.08);
+    transition: border-color .2s, box-shadow .2s;
+    backdrop-filter: blur(16px);
+}
+.prompt-box:focus-within {
+    border-color: #016a33;
+    box-shadow: 0 10px 32px -8px rgba(1,106,51,.15), 0 0 0 3px rgba(1,106,51,.08);
+}
+
+/* ---- MIC PULSE ---- */
+.mic-recording {
+    animation: micPulse 1.5s infinite;
+    background: #ef4444 !important;
+    color: #fff !important;
+}
+@keyframes micPulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.6); }
+    50% { box-shadow: 0 0 0 10px rgba(239,68,68,0); }
+}
+
+/* ---- AUDIO WAVE ---- */
+.audio-bar {
+    display: inline-block;
+    width: 3px; height: 12px;
+    background: currentColor;
+    border-radius: 3px;
+    margin: 0 1px;
+    animation: wave 1.2s ease-in-out infinite;
+}
+.audio-bar:nth-child(2) { animation-delay: .2s; }
+.audio-bar:nth-child(3) { animation-delay: .4s; }
+.audio-bar:nth-child(4) { animation-delay: .1s; }
+@keyframes wave { 0%,100% { height: 4px; } 50% { height: 14px; } }
+
+/* ---- TOAST ---- */
+#toast {
+    position: fixed;
+    top: 16px; left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: rgba(15,23,42,.9);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 9999px;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity .25s, transform .25s;
+    white-space: nowrap;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---- LANG BTN ACTIVE ---- */
+.lang-btn { background: transparent; border: none; cursor: pointer; font-family: inherit; }
+.lang-btn.active { background: #fff; color: #016a33; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+/* ---- PROSE / MESSAGES ---- */
+.prose { line-height: 1.7; }
+.prose p { margin-bottom: .75em; }
+.prose p:last-child { margin-bottom: 0; }
+.prose strong { font-weight: 700; color: #0f172a; }
+.prose a { color: #016a33; text-decoration: underline; }
+.prose ul, .prose ol { padding-left: 1.5em; margin-bottom: .75em; }
+.prose code { background: #f1f5f9; border-radius: 4px; padding: 1px 5px; font-size: .85em; }
+.prose h3 { font-weight: 700; font-size: 1.05em; margin: .75em 0 .4em; }
+
+/* textarea auto-grow */
+#user-input { field-sizing: content; }
+
+/* nav active state */
+.nav-item { transition: background .15s, color .15s; cursor: pointer; }
+.nav-item:hover { background: rgba(255,255,255,.08) !important; }
+    </style>
 </head>
 <body>
 
-    <!-- ===== TOAST ===== -->
-    <div id="toast-notification" class="fixed top-4 left-1/2 -translate-x-1/2 bg-gray-900/90 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-lg z-50 pointer-events-none opacity-0 flex items-center gap-2">
-        <i class="fa-solid fa-circle-check text-green-400"></i>
-        <span id="toast-text">Action effectuée</span>
+<!-- TOAST -->
+<div id="toast">
+    <i class="fa-solid fa-circle-check" style="color:#4ade80"></i>
+    <span id="toast-text">Action effectuée</span>
+</div>
+
+<!-- OVERLAY MOBILE -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- ═══════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════ -->
+<aside id="app-sidebar">
+
+    <!-- Logo -->
+    <div style="padding:16px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:10px">
+            <div id="logo-wrap" style="width:36px;height:36px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.3)">
+                <img src="logo.png" alt="logo" style="width:100%;height:100%;object-fit:cover"
+                    onerror="document.getElementById('logo-wrap').innerHTML='<div style=\'width:100%;height:100%;background:linear-gradient(135deg,#028540,#22c55e);display:flex;align-items:center;justify-content:center\'><i class=\'fa-solid fa-leaf\' style=\'color:#fff;font-size:17px\'></i></div>'">
+            </div>
+            <span style="font-weight:800;font-size:1.15rem;background:linear-gradient(to right,#fff,#bbf7d0,#fde68a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.01em">AgriVoice</span>
+        </div>
+        <button id="close-sidebar-btn" onclick="closeSidebar()" style="display:none;background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;padding:6px;border-radius:8px" aria-label="Fermer">
+            <i class="fa-solid fa-xmark" style="font-size:17px"></i>
+        </button>
     </div>
 
-    <!-- ===== OVERLAY MOBILE ===== -->
-    <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+    <!-- Nouvelle discussion -->
+    <div style="padding:12px;flex-shrink:0">
+        <button onclick="resetConversation();closeSidebarMobile();"
+            style="width:100%;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:11px 16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s"
+            onmouseover="this.style.background='rgba(255,255,255,.18)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">
+            <i class="fa-solid fa-plus" style="color:#fbbf24;font-size:14px"></i>
+            <span data-i18n="new_question">Nouvelle discussion</span>
+        </button>
+    </div>
 
-    <!-- ===== SIDEBAR ===== -->
-    <aside id="app-sidebar">
+    <!-- Nav -->
+    <nav style="padding:0 10px;flex:1;overflow-y:auto">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;padding:4px 10px 8px" data-i18n="menu_title">Menu</div>
+        <ul id="nav-menu" style="list-style:none;display:flex;flex-direction:column;gap:2px">
+            <li class="nav-item" id="nav-chat"
+                onclick="switchView('view-chat',this);closeSidebarMobile();"
+                style="background:rgba(255,255,255,.15);color:#fff;font-weight:700;padding:11px 12px;border-radius:14px;display:flex;align-items:center;gap:10px;font-size:14px">
+                <i class="fa-solid fa-message" style="color:#fbbf24;width:18px;text-align:center;font-size:14px"></i>
+                <span data-i18n="nav_home">Assistant Vocal</span>
+            </li>
+            <li class="nav-item" id="nav-resources"
+                onclick="switchView('view-resources',this);closeSidebarMobile();"
+                style="color:rgba(255,255,255,.65);padding:11px 12px;border-radius:14px;display:flex;align-items:center;gap:10px;font-size:14px">
+                <i class="fa-solid fa-book-open" style="color:#6ee7b7;width:18px;text-align:center;font-size:14px"></i>
+                <span data-i18n="nav_resources">Guides &amp; Fiches</span>
+            </li>
+            <li class="nav-item" id="nav-profile"
+                onclick="switchView('view-profile',this);closeSidebarMobile();"
+                style="color:rgba(255,255,255,.65);padding:11px 12px;border-radius:14px;display:flex;align-items:center;gap:10px;font-size:14px">
+                <i class="fa-solid fa-user" style="color:#6ee7b7;width:18px;text-align:center;font-size:14px"></i>
+                <span data-i18n="nav_profile">Profil Producteur</span>
+            </li>
+            <li class="nav-item" id="nav-settings"
+                onclick="switchView('view-settings',this);closeSidebarMobile();"
+                style="color:rgba(255,255,255,.65);padding:11px 12px;border-radius:14px;display:flex;align-items:center;gap:10px;font-size:14px">
+                <i class="fa-solid fa-gear" style="color:#6ee7b7;width:18px;text-align:center;font-size:14px"></i>
+                <span data-i18n="nav_settings">Paramètres</span>
+            </li>
+        </ul>
+    </nav>
 
-        <div class="p-4 flex items-center justify-between flex-shrink-0" style="border-bottom:1px solid rgba(255,255,255,0.08)">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-2xl overflow-hidden flex-shrink-0 shadow-md" id="logo-container">
-                    <img src="logo.png" alt="AgriVoice" style="width:100%;height:100%;object-fit:cover"
-                        onerror="document.getElementById('logo-container').innerHTML='<div style=\'width:100%;height:100%;background:linear-gradient(135deg,#028540,#22c55e);display:flex;align-items:center;justify-content:center\'><i class=\'fa-solid fa-leaf\' style=\'color:white;font-size:18px\'></i></div>'">
+    <!-- Footer user -->
+    <div style="padding:14px;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.12);flex-shrink:0;display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#028540,#fbbf24);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">BK</div>
+        <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Bio Kora</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Parakou, Bénin</div>
+        </div>
+    </div>
+</aside>
+
+<!-- ═══════════════════════════════════════
+     MAIN
+══════════════════════════════════════════ -->
+<main id="app-main">
+
+    <!-- TOPBAR MOBILE (hidden on desktop via CSS) -->
+    <header id="mobile-topbar" style="background:rgba(255,255,255,.97);border-bottom:1px solid #e5e7eb;padding:9px 12px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+        <button onclick="openSidebar()" style="background:none;border:none;color:#374151;padding:8px;border-radius:10px;cursor:pointer" aria-label="Menu">
+            <i class="fa-solid fa-bars" style="font-size:18px"></i>
+        </button>
+        <button onclick="switchNextLang()"
+            style="display:inline-flex;align-items:center;gap:6px;padding:6px 13px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:9999px;font-size:12px;font-weight:700;color:#111827;cursor:pointer;font-family:inherit">
+            <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block"></span>
+            <span>AgriVoice</span>
+            <span id="mobile-lang-pill" style="background:#016a33;color:#fff;font-size:10px;font-weight:900;padding:2px 7px;border-radius:5px;text-transform:uppercase">FR</span>
+        </button>
+        <button onclick="resetConversation()" style="background:none;border:none;color:#4b5563;padding:8px;border-radius:10px;cursor:pointer" title="Nouvelle discussion">
+            <i class="fa-solid fa-pen-to-square" style="font-size:17px"></i>
+        </button>
+    </header>
+
+    <!-- TOPBAR DESKTOP (hidden on mobile via CSS) -->
+    <header id="desktop-topbar" style="background:rgba(255,255,255,.93);border-bottom:1px solid #e5e7eb;padding:10px 28px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;flex-shrink:0;backdrop-filter:blur(12px)">
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9999px;font-size:12px;font-weight:700;color:#016a33">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>AgriVoice AI · Flash Lite</span>
+        </div>
+        <div style="display:flex;gap:4px;background:#f3f4f6;padding:3px;border-radius:9999px;border:1px solid #e5e7eb;font-size:12px;font-weight:700">
+            <button onclick="changeLang('fr')"   class="lang-btn" id="btn-lang-fr"   style="padding:4px 14px;border-radius:9999px;font-family:inherit;font-size:12px;font-weight:700;color:#374151">Français</button>
+            <button onclick="changeLang('fon')"  class="lang-btn" id="btn-lang-fon"  style="padding:4px 14px;border-radius:9999px;font-family:inherit;font-size:12px;font-weight:700;color:#374151">Fɔngbe</button>
+            <button onclick="changeLang('yoruba')" class="lang-btn" id="btn-lang-yoruba" style="padding:4px 14px;border-radius:9999px;font-family:inherit;font-size:12px;font-weight:700;color:#374151">Yorùbá</button>
+            <button onclick="changeLang('ewe')"  class="lang-btn" id="btn-lang-ewe"  style="padding:4px 14px;border-radius:9999px;font-family:inherit;font-size:12px;font-weight:700;color:#374151">Éwé</button>
+        </div>
+    </header>
+
+    <!-- ═══ VUE CHAT ═══ -->
+    <div id="view-chat" class="app-view active">
+
+        <div id="chat-container" style="flex:1;overflow-y:auto;padding:24px 16px 160px;display:flex;flex-direction:column;gap:20px;scroll-behavior:smooth">
+
+            <!-- Écran bienvenue -->
+            <div id="welcome-screen" style="margin:auto;max-width:680px;width:100%;padding:28px 0">
+                <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9999px;font-size:12px;font-weight:700;color:#016a33;margin-bottom:18px">
+                    <i class="fa-solid fa-sparkles" style="color:#eab308"></i>
+                    Assistant Agricole Intelligent
                 </div>
-                <span style="font-weight:800;font-size:1.2rem;background:linear-gradient(to right,#fff,#d1fae5,#ffcc00);-webkit-background-clip:text;-webkit-text-fill-color:transparent">AgriVoice</span>
+                <h1 class="grad-text" style="font-size:clamp(1.8rem,5vw,3rem);font-weight:800;letter-spacing:-.02em;margin-bottom:10px;line-height:1.1" data-i18n="welcome_title">Bonjour, Bio</h1>
+                <p style="color:#6b7280;font-size:clamp(.95rem,2.5vw,1.3rem);font-weight:500;margin-bottom:28px;line-height:1.4" data-i18n="welcome_desc">Comment puis-je vous aider pour vos récoltes aujourd'hui ?</p>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px">
+                    <div class="sug-card" onclick="usePromptSuggestion('Mes feuilles de maïs jaunissent et ont des taches, quel traitement appliquer ?')">
+                        <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5">🌽 "Mes feuilles de maïs jaunissent et ont des taches, quel traitement appliquer ?"</p>
+                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af"><span>Diagnostic Maïs</span><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </div>
+                    <div class="sug-card" onclick="usePromptSuggestion('Quel est le prix actuel du maïs et du soja au marché Dantokpa ?')">
+                        <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5">💰 "Quel est le prix actuel du maïs et du soja au marché Dantokpa ?"</p>
+                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af"><span>Prix des Marchés</span><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </div>
+                    <div class="sug-card" onclick="usePromptSuggestion('Comment préparer un bio-pesticide efficace avec des feuilles de Neem ?')">
+                        <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5">🌿 "Comment préparer un bio-pesticide efficace avec des feuilles de Neem ?"</p>
+                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af"><span>Recette Naturelle</span><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </div>
+                    <div class="sug-card" onclick="usePromptSuggestion('Quelles sont les prévisions de pluie et conseils de semis à Parakou ?')">
+                        <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5">🌦️ "Quelles sont les prévisions de pluie et conseils de semis à Parakou ?"</p>
+                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af"><span>Météo &amp; Calendrier</span><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </div>
+                </div>
             </div>
-            <button id="sidebar-close-btn" onclick="closeSidebar()" style="display:none;color:rgba(255,255,255,.6);padding:6px;border-radius:8px;transition:all .15s" aria-label="Fermer">
-                <i class="fa-solid fa-xmark" style="font-size:18px"></i>
-            </button>
+
+            <!-- Template assistant -->
+            <div id="template-assistant" style="display:none;gap:12px;max-width:720px;margin:0 auto;width:100%">
+                <div style="width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,#016a33,#059669);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;box-shadow:0 2px 8px rgba(1,106,51,.2)">
+                    <i class="fa-solid fa-sparkles" style="color:#fff;font-size:12px"></i>
+                </div>
+                <div style="flex:1;overflow:hidden">
+                    <div class="prose message-content" style="font-size:15px;color:#1e293b;word-break:break-word"></div>
+                </div>
+            </div>
+
+            <!-- Template user -->
+            <div id="template-user" style="display:none;gap:12px;max-width:720px;margin:0 auto;width:100%;flex-direction:row-reverse">
+                <div style="flex:1;display:flex;justify-content:flex-end;overflow:hidden">
+                    <div class="message-content" style="background:rgba(209,213,219,.65);color:#111827;border-radius:20px 20px 4px 20px;padding:11px 18px;max-width:84%;word-break:break-word;font-size:14px;font-weight:500"></div>
+                </div>
+            </div>
         </div>
 
-        <div style="padding:12px">
-            <button onclick="resetConversation(); closeSidebarOnMobile();"
-                style="width:100%;background:rgba(255,255,255,.1);color:#fff;display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:16px;font-weight:600;font-size:14px;border:1px solid rgba(255,255,255,.1);transition:background .15s;cursor:pointer">
-                <i class="fa-solid fa-plus" style="color:#ffcc00;font-size:15px"></i>
-                <span data-i18n="new_question">Nouvelle discussion</span>
-            </button>
-        </div>
+        <!-- PROMPT FLOTTANT -->
+        <div style="position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(to top,#f8fafc 65%,transparent);padding:28px 14px 12px;z-index:10;pointer-events:none">
+            <div style="max-width:720px;margin:0 auto;position:relative;pointer-events:auto">
 
-        <nav style="padding:0 12px;flex:1;overflow-y:auto">
-            <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;padding:0 12px" data-i18n="menu_title">Menu</div>
-            <ul id="nav-menu" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:2px">
-                <li onclick="switchView('view-chat', this); closeSidebarOnMobile();"
-                    class="nav-item" style="background:rgba(255,255,255,.15);color:#fff;padding:12px;border-radius:16px;cursor:pointer;font-size:14px;display:flex;align-items:center;font-weight:700">
-                    <i class="fa-solid fa-message" style="margin-right:12px;color:#ffcc00;width:20px;text-align:center;font-size:15px"></i>
-                    <span data-i18n="nav_home">Assistant Vocal</span>
-                </li>
-                <li onclick="switchView('view-resources', this); closeSidebarOnMobile();"
-                    class="nav-item" style="color:rgba(255,255,255,.65);padding:12px;border-radius:16px;cursor:pointer;font-size:14px;display:flex;align-items:center;transition:background .15s">
-                    <i class="fa-solid fa-book-open" style="margin-right:12px;color:#6ee7b7;width:20px;text-align:center;font-size:15px"></i>
-                    <span data-i18n="nav_resources">Guides & Fiches</span>
-                </li>
-                <li onclick="switchView('view-profile', this); closeSidebarOnMobile();"
-                    class="nav-item" style="color:rgba(255,255,255,.65);padding:12px;border-radius:16px;cursor:pointer;font-size:14px;display:flex;align-items:center;transition:background .15s">
-                    <i class="fa-solid fa-user" style="margin-right:12px;color:#6ee7b7;width:20px;text-align:center;font-size:15px"></i>
-                    <span data-i18n="nav_profile">Profil Producteur</span>
-                </li>
-                <li onclick="switchView('view-settings', this); closeSidebarOnMobile();"
-                    class="nav-item" style="color:rgba(255,255,255,.65);padding:12px;border-radius:16px;cursor:pointer;font-size:14px;display:flex;align-items:center;transition:background .15s">
-                    <i class="fa-solid fa-gear" style="margin-right:12px;color:#6ee7b7;width:20px;text-align:center;font-size:15px"></i>
-                    <span data-i18n="nav_settings">Paramètres</span>
-                </li>
-            </ul>
-        </nav>
-
-        <div style="padding:16px;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.15);flex-shrink:0">
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#028540,#ffcc00);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">BK</div>
-                <div style="flex:1;min-width:0">
-                    <div style="font-size:14px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Bio Kora</div>
-                    <div style="font-size:12px;color:rgba(255,255,255,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Parakou, Bénin</div>
-                </div>
-            </div>
-        </div>
-    </aside>
-
-    <!-- ===== MAIN CONTENT ===== -->
-    <main id="app-main">
-
-        <!-- TOPBAR MOBILE -->
-        <header id="mobile-topbar" style="background:rgba(255,255,255,.97);border-bottom:1px solid rgba(229,231,235,.8);padding:10px 12px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;box-shadow:0 1px 3px rgba(0,0,0,.06);flex-shrink:0">
-            <button onclick="openSidebar()" style="color:#374151;padding:8px;border-radius:10px;transition:background .15s;cursor:pointer" aria-label="Menu">
-                <i class="fa-solid fa-bars" style="font-size:18px"></i>
-            </button>
-
-            <button onclick="switchNextLang()"
-                style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(243,244,246,.9);border-radius:9999px;font-size:12px;font-weight:700;color:#1f2937;border:1px solid #e5e7eb;cursor:pointer;transition:background .15s">
-                <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite"></span>
-                <span>AgriVoice</span>
-                <span id="mobile-lang-pill" style="font-size:10px;background:#016a33;color:#fff;padding:2px 6px;border-radius:6px;font-weight:900;text-transform:uppercase">FR</span>
-            </button>
-
-            <button onclick="resetConversation()" style="color:#4b5563;padding:8px;border-radius:10px;cursor:pointer;transition:color .15s" title="Nouvelle discussion">
-                <i class="fa-solid fa-pen-to-square" style="font-size:18px"></i>
-            </button>
-        </header>
-
-        <!-- TOPBAR DESKTOP -->
-        <header id="desktop-topbar" style="background:rgba(255,255,255,.92);border-bottom:1px solid rgba(229,231,235,.7);padding:12px 32px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);flex-shrink:0">
-            <div style="display:flex;align-items:center;gap:10px">
-                <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:9999px;font-size:12px;font-weight:700;background:#f0fdf4;color:#016a33;border:1px solid #bbf7d0">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    <span>AgriVoice AI · Flash Lite</span>
-                </div>
-            </div>
-
-            <div style="display:flex;align-items:center;gap:4px;background:rgba(243,244,246,.8);padding:4px;border-radius:9999px;border:1px solid #e5e7eb;font-size:12px;font-weight:700">
-                <button onclick="changeLang('fr')"   class="lang-btn" id="btn-lang-fr"   style="padding:4px 14px;border-radius:9999px;color:#4b5563;cursor:pointer;transition:all .15s">Français</button>
-                <button onclick="changeLang('fon')"  class="lang-btn" id="btn-lang-fon"  style="padding:4px 14px;border-radius:9999px;color:#4b5563;cursor:pointer;transition:all .15s">Fɔngbe</button>
-                <button onclick="changeLang('yoruba')" class="lang-btn" id="btn-lang-yoruba" style="padding:4px 14px;border-radius:9999px;color:#4b5563;cursor:pointer;transition:all .15s">Yorùbá</button>
-                <button onclick="changeLang('ewe')"  class="lang-btn" id="btn-lang-ewe"  style="padding:4px 14px;border-radius:9999px;color:#4b5563;cursor:pointer;transition:all .15s">Éwé</button>
-            </div>
-        </header>
-
-        <!-- VIEW CHAT -->
-        <div id="view-chat" class="app-view active">
-            <div id="chat-container" style="flex:1;overflow-y:auto;padding:24px 16px 160px;display:flex;flex-direction:column;gap:20px;scroll-behavior:smooth">
-
-                <div id="welcome-screen" style="margin:auto;max-width:680px;width:100%;padding:32px 0">
-                    <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:9999px;background:#f0fdf4;border:1px solid rgba(187,247,208,.7);color:#016a33;font-size:12px;font-weight:700;margin-bottom:20px">
-                        <i class="fa-solid fa-sparkles" style="color:#eab308"></i>
-                        <span>Assistant Agricole Intelligent</span>
-                    </div>
-                    <h1 class="gemini-gradient-text" style="font-size:clamp(2rem,5vw,3.2rem);font-weight:800;margin:0 0 8px;letter-spacing:-.02em" data-i18n="welcome_title">Bonjour, Bio</h1>
-                    <p style="color:#6b7280;font-size:clamp(1rem,2.5vw,1.4rem);font-weight:500;margin:0 0 32px;line-height:1.4" data-i18n="welcome_desc">Comment puis-je vous aider pour vos récoltes aujourd'hui ?</p>
-
-                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
-                        <div class="gemini-card" style="padding:16px;background:#fff;border-radius:16px;cursor:pointer" onclick="usePromptSuggestion('Mes feuilles de maïs jaunissent et ont des taches, quel traitement appliquer ?')">
-                            <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5;margin:0 0 12px">🌽 "Mes feuilles de maïs jaunissent et ont des taches, quel traitement appliquer ?"</p>
-                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af">
-                                <span>Diagnostic Maïs</span><i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </div>
-                        </div>
-                        <div class="gemini-card" style="padding:16px;background:#fff;border-radius:16px;cursor:pointer" onclick="usePromptSuggestion('Quel est le prix actuel du maïs et du soja au marché Dantokpa ?')">
-                            <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5;margin:0 0 12px">💰 "Quel est le prix actuel du maïs et du soja au marché Dantokpa ?"</p>
-                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af">
-                                <span>Prix des Marchés</span><i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </div>
-                        </div>
-                        <div class="gemini-card" style="padding:16px;background:#fff;border-radius:16px;cursor:pointer" onclick="usePromptSuggestion('Comment préparer un bio-pesticide efficace avec des feuilles de Neem ?')">
-                            <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5;margin:0 0 12px">🌿 "Comment préparer un bio-pesticide efficace avec des feuilles de Neem ?"</p>
-                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af">
-                                <span>Recette Naturelle</span><i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </div>
-                        </div>
-                        <div class="gemini-card" style="padding:16px;background:#fff;border-radius:16px;cursor:pointer" onclick="usePromptSuggestion('Quelles sont les prévisions de pluie et conseils de semis à Parakou ?')">
-                            <p style="font-size:13px;font-weight:600;color:#1f2937;line-height:1.5;margin:0 0 12px">🌦️ "Quelles sont les prévisions de pluie et conseils de semis à Parakou ?"</p>
-                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#9ca3af">
-                                <span>Météo & Calendrier</span><i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </div>
-                        </div>
-                    </div>
+                <div id="recording-status" style="display:none;position:absolute;top:-42px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:6px 14px;border-radius:9999px;font-size:12px;font-weight:700;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(220,38,38,.3)">
+                    <span style="width:7px;height:7px;border-radius:50%;background:#fff;display:inline-block"></span>
+                    Écoute… cliquer pour transcrire
                 </div>
 
-                <!-- Template assistant -->
-                <div id="template-assistant" class="hidden" style="display:none;gap:12px;max-width:720px;margin:0 auto;width:100%">
-                    <div style="width:36px;height:36px;border-radius:14px;background:linear-gradient(135deg,#016a33,#059669);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;box-shadow:0 2px 8px rgba(1,106,51,.25)">
-                        <i class="fa-solid fa-sparkles" style="color:#fff;font-size:13px"></i>
+                <form id="chat-form" class="prompt-box" style="padding:8px 10px;display:flex;flex-direction:column;gap:4px">
+                    <div style="display:flex;align-items:flex-end;gap:8px;padding:4px 8px">
+                        <textarea id="user-input" rows="1"
+                            style="flex:1;resize:none;outline:none;padding:5px 2px;background:transparent;font-size:15px;color:#1e293b;font-family:inherit;font-weight:500;line-height:1.5;max-height:130px;overflow-y:auto;border:none;min-height:24px"
+                            placeholder="Posez une question à AgriVoice ou dictez au micro…"></textarea>
                     </div>
-                    <div style="flex:1;overflow:hidden">
-                        <div class="prose message-content" style="font-size:15px;line-height:1.7;color:#1e293b;word-break:break-word"></div>
-                    </div>
-                </div>
-
-                <!-- Template user -->
-                <div id="template-user" class="hidden" style="display:none;gap:12px;max-width:720px;margin:0 auto;width:100%;flex-direction:row-reverse">
-                    <div style="flex:1;display:flex;justify-content:flex-end;overflow:hidden">
-                        <div class="message-content" style="background:rgba(209,213,219,.7);color:#111827;border-radius:20px 20px 4px 20px;padding:12px 18px;max-width:85%;word-break:break-word;font-size:14px;font-weight:500"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PROMPT FLOTTANT -->
-            <div style="position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(to top,#f8fafc 70%,transparent);padding:32px 16px 12px;z-index:10;pointer-events:none">
-                <div style="max-width:720px;margin:0 auto;position:relative;pointer-events:auto">
-                    <div id="recording-status" style="display:none;position:absolute;top:-42px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:6px 14px;border-radius:9999px;font-size:12px;font-weight:700;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(220,38,38,.4)">
-                        <span style="width:8px;height:8px;border-radius:50%;background:#fff;animation:ping 1s infinite"></span>
-                        <span>Écoute… cliquer pour transcrire</span>
-                    </div>
-
-                    <form id="chat-form" class="gemini-prompt-box" style="border-radius:24px;padding:8px 10px;display:flex;flex-direction:column;gap:4px">
-                        <div style="display:flex;align-items:flex-end;gap:8px;padding:4px 8px">
-                            <textarea id="user-input" rows="1"
-                                style="flex:1;resize:none;outline:none;padding:6px 4px;background:transparent;font-size:15px;color:#1e293b;font-family:inherit;font-weight:500;line-height:1.5;max-height:140px;overflow-y:auto;border:none"
-                                placeholder="Posez une question à AgriVoice ou dictez au micro…"></textarea>
-                        </div>
-                        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;border-top:1px solid rgba(229,231,235,.8)">
-                            <button type="button" onclick="switchNextLang()"
-                                style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:9999px;background:#f3f4f6;color:#374151;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s">
-                                <i class="fa-solid fa-globe" style="font-size:11px;color:#9ca3af"></i>
-                                <span id="prompt-lang-label">Français</span>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;border-top:1px solid rgba(229,231,235,.7)">
+                        <button type="button" onclick="switchNextLang()"
+                            style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:9999px;background:#f3f4f6;border:none;color:#374151;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s">
+                            <i class="fa-solid fa-globe" style="font-size:11px;color:#9ca3af"></i>
+                            <span id="prompt-lang-label">Français</span>
+                        </button>
+                        <div style="display:flex;align-items:center;gap:6px">
+                            <button type="button" id="mic-btn"
+                                style="width:40px;height:40px;border-radius:50%;background:#f3f4f6;border:none;color:#4b5563;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s">
+                                <i class="fa-solid fa-microphone" id="mic-icon" style="font-size:16px"></i>
                             </button>
-                            <div style="display:flex;align-items:center;gap:6px">
-                                <button type="button" id="mic-btn"
-                                    style="width:40px;height:40px;border-radius:50%;background:#f3f4f6;color:#4b5563;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s">
-                                    <i class="fa-solid fa-microphone" id="mic-icon" style="font-size:16px"></i>
-                                </button>
-                                <button type="submit" id="send-btn"
-                                    style="width:40px;height:40px;border-radius:50%;background:#016a33;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;box-shadow:0 2px 8px rgba(1,106,51,.3)">
-                                    <i class="fa-solid fa-arrow-up" style="font-size:16px"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    <p style="font-size:11px;text-align:center;color:#9ca3af;margin-top:8px;font-weight:500">
-                        AgriVoice AI peut faire des erreurs. Vérifiez les conseils importants auprès de l'INRAB.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW RESSOURCES -->
-        <div id="view-resources" class="app-view" style="overflow-y:auto">
-            <div style="max-width:720px;margin:0 auto;width:100%;padding:24px 16px 80px">
-                <h2 style="font-size:22px;font-weight:700;color:#014d24;margin:0 0 4px" data-i18n="res_title">Guides & Fiches pratiques audio</h2>
-                <p style="color:#6b7280;font-size:14px;margin:0 0 24px" data-i18n="res_desc">Recherchez une culture, une maladie ou un engrais.</p>
-                <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;padding:12px 16px;margin-bottom:24px;display:flex;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                    <i class="fa-solid fa-magnifying-glass" style="color:#9ca3af;margin-right:12px"></i>
-                    <input type="text" placeholder="Rechercher une culture (Maïs, Soja, Manioc)…" style="flex:1;outline:none;background:transparent;font-size:14px;font-family:inherit">
-                </div>
-                <div style="display:flex;flex-direction:column;gap:16px">
-                    <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-                            <div style="width:40px;height:40px;border-radius:14px;background:#d1fae5;color:#016a33;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">
-                                <i class="fa-solid fa-wheat-awn"></i>
-                            </div>
-                            <div>
-                                <h3 style="font-weight:700;color:#111827;font-size:15px;margin:0 0 2px">Traitement des taches foliaires du Maïs</h3>
-                                <span style="font-size:11px;font-weight:700;color:#016a33">Fon • Yorùbá • Français • Éwé</span>
-                            </div>
-                        </div>
-                        <p style="font-size:13px;color:#4b5563;margin:0 0 16px">Solutions préventives et traitements au cuivre ou mankozèbè validés INRAB.</p>
-                        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f1f5f9;padding-top:12px">
-                            <button onclick="speakText('Pour traiter les taches foliaires du maïs, utilisez un fongicide à base de cuivre ou mankozèbè selon les doses recommandées.', currentLang)"
-                                style="background:#f0fdf4;color:#016a33;padding:6px 16px;border-radius:9999px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s">
-                                <i class="fa-solid fa-volume-high"></i> Écouter la fiche audio
+                            <button type="submit" id="send-btn"
+                                style="width:40px;height:40px;border-radius:50%;background:#016a33;border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;box-shadow:0 2px 8px rgba(1,106,51,.35)">
+                                <i class="fa-solid fa-arrow-up" style="font-size:15px"></i>
                             </button>
-                            <span style="font-size:12px;color:#16a34a;font-weight:600"><i class="fa-solid fa-circle-check" style="margin-right:4px"></i>Validée</span>
                         </div>
                     </div>
-                    <div style="background:#fff;border-radius:16px;padding:20px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-                            <div style="width:40px;height:40px;border-radius:14px;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">
-                                <i class="fa-solid fa-bugs"></i>
-                            </div>
-                            <div>
-                                <h3 style="font-weight:700;color:#111827;font-size:15px;margin:0 0 2px">Lutte contre la chenille légionnaire d'automne</h3>
-                                <span style="font-size:11px;font-weight:700;color:#016a33">Fon • Yorùbá • Français • Éwé</span>
-                            </div>
+                </form>
+                <p style="font-size:11px;text-align:center;color:#9ca3af;margin-top:8px;font-weight:500">
+                    AgriVoice AI peut faire des erreurs. Vérifiez les conseils importants auprès de l'INRAB.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ VUE RESSOURCES ═══ -->
+    <div id="view-resources" class="app-view" style="overflow-y:auto">
+        <div style="max-width:720px;margin:0 auto;padding:24px 16px 80px;width:100%">
+            <h2 style="font-size:22px;font-weight:700;color:#014d24;margin-bottom:4px" data-i18n="res_title">Guides &amp; Fiches pratiques audio</h2>
+            <p style="color:#6b7280;font-size:14px;margin-bottom:24px" data-i18n="res_desc">Recherchez une culture, une maladie ou un engrais.</p>
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:10px 16px;margin-bottom:20px;display:flex;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                <i class="fa-solid fa-magnifying-glass" style="color:#9ca3af;margin-right:12px"></i>
+                <input type="text" placeholder="Rechercher une culture (Maïs, Soja, Manioc)…" style="flex:1;outline:none;background:transparent;font-size:14px;font-family:inherit;border:none">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+                <div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+                        <div style="width:40px;height:40px;border-radius:12px;background:#d1fae5;color:#016a33;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fa-solid fa-wheat-awn"></i></div>
+                        <div>
+                            <h3 style="font-weight:700;color:#111827;font-size:14px;margin-bottom:2px">Traitement des taches foliaires du Maïs</h3>
+                            <span style="font-size:11px;font-weight:700;color:#016a33">Fon • Yorùbá • Français • Éwé</span>
                         </div>
-                        <p style="font-size:13px;color:#4b5563;margin:0 0 16px">Préparation de la solution aqueuse d'extrait de graines de Neem et application au cœur du cornet.</p>
-                        <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f1f5f9;padding-top:12px">
-                            <button onclick="speakText('Contre la chenille légionnaire, pulvérisez un extrait aqueux de neem au coucher du soleil.', currentLang)"
-                                style="background:#f0fdf4;color:#016a33;padding:6px 16px;border-radius:9999px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s">
-                                <i class="fa-solid fa-volume-high"></i> Écouter la fiche audio
-                            </button>
-                            <span style="font-size:12px;color:#16a34a;font-weight:600"><i class="fa-solid fa-circle-check" style="margin-right:4px"></i>Validée</span>
+                    </div>
+                    <p style="font-size:13px;color:#4b5563;margin-bottom:14px">Solutions préventives et traitements au cuivre ou mankozèbè validés INRAB.</p>
+                    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f1f5f9;padding-top:12px">
+                        <button onclick="speakText('Pour traiter les taches foliaires du maïs, utilisez un fongicide à base de cuivre ou mankozèbè.', currentLang)"
+                            style="background:#f0fdf4;color:#016a33;padding:6px 16px;border-radius:9999px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;border:none;font-family:inherit">
+                            <i class="fa-solid fa-volume-high"></i> Écouter la fiche
+                        </button>
+                        <span style="font-size:12px;color:#16a34a;font-weight:600"><i class="fa-solid fa-circle-check" style="margin-right:4px"></i>Validée</span>
+                    </div>
+                </div>
+                <div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+                        <div style="width:40px;height:40px;border-radius:12px;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fa-solid fa-bugs"></i></div>
+                        <div>
+                            <h3 style="font-weight:700;color:#111827;font-size:14px;margin-bottom:2px">Lutte contre la chenille légionnaire d'automne</h3>
+                            <span style="font-size:11px;font-weight:700;color:#016a33">Fon • Yorùbá • Français • Éwé</span>
                         </div>
+                    </div>
+                    <p style="font-size:13px;color:#4b5563;margin-bottom:14px">Préparation de la solution aqueuse d'extrait de graines de Neem.</p>
+                    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f1f5f9;padding-top:12px">
+                        <button onclick="speakText('Contre la chenille légionnaire, pulvérisez un extrait aqueux de neem au coucher du soleil.', currentLang)"
+                            style="background:#f0fdf4;color:#016a33;padding:6px 16px;border-radius:9999px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;border:none;font-family:inherit">
+                            <i class="fa-solid fa-volume-high"></i> Écouter la fiche
+                        </button>
+                        <span style="font-size:12px;color:#16a34a;font-weight:600"><i class="fa-solid fa-circle-check" style="margin-right:4px"></i>Validée</span>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- VIEW PROFIL -->
-        <div id="view-profile" class="app-view" style="overflow-y:auto">
-            <div style="max-width:600px;margin:0 auto;width:100%;padding:24px 16px 80px;display:flex;flex-direction:column;gap:20px">
-                <div style="background:#fff;border-radius:24px;padding:24px;border:1px solid #e5e7eb;box-shadow:0 1px 3px rgba(0,0,0,.04);display:flex;align-items:center;gap:20px">
-                    <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#016a33,#059669);color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;box-shadow:0 4px 12px rgba(1,106,51,.3);flex-shrink:0">BK</div>
-                    <div>
-                        <h2 style="font-size:22px;font-weight:800;color:#111827;margin:0 0 4px">Bio Kora</h2>
-                        <p style="color:#6b7280;font-size:13px;margin:0 0 10px"><i class="fa-solid fa-location-dot" style="margin-right:4px;color:#016a33"></i>Borgou / Parakou, Bénin</p>
-                        <span style="background:#f0fdf4;color:#016a33;font-weight:700;font-size:12px;padding:5px 12px;border-radius:9999px;border:1px solid #bbf7d0">Maïs & Soja • 5 Hectares</span>
-                    </div>
+    <!-- ═══ VUE PROFIL ═══ -->
+    <div id="view-profile" class="app-view" style="overflow-y:auto">
+        <div style="max-width:600px;margin:0 auto;padding:24px 16px 80px;width:100%;display:flex;flex-direction:column;gap:18px">
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:22px;display:flex;align-items:center;gap:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                <div style="width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,#016a33,#059669);color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(1,106,51,.25)">BK</div>
+                <div>
+                    <h2 style="font-size:21px;font-weight:800;color:#111827;margin-bottom:4px">Bio Kora</h2>
+                    <p style="color:#6b7280;font-size:13px;margin-bottom:10px"><i class="fa-solid fa-location-dot" style="color:#016a33;margin-right:4px"></i>Borgou / Parakou, Bénin</p>
+                    <span style="background:#f0fdf4;color:#016a33;font-weight:700;font-size:12px;padding:5px 12px;border-radius:9999px;border:1px solid #bbf7d0">Maïs &amp; Soja • 5 Hectares</span>
                 </div>
-                <div style="background:linear-gradient(135deg,#fffbeb,#f0fdf4);border:1px solid rgba(255,204,0,.3);border-radius:24px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);display:flex;align-items:center;gap:16px">
-                    <div style="width:48px;height:48px;border-radius:16px;background:#016a33;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 2px 8px rgba(1,106,51,.3)">
-                        <i class="fa-solid fa-microphone-lines"></i>
-                    </div>
-                    <div>
-                        <h3 style="font-weight:800;color:#014d24;font-size:15px;margin:0 0 4px">J'aime AgriVoice</h3>
-                        <p style="font-size:12px;color:#4b5563;margin:0">Enregistrez votre voix pour enrichir l'IA agricole hors-ligne et aider votre communauté.</p>
-                    </div>
+            </div>
+            <div style="background:linear-gradient(135deg,#fffbeb,#f0fdf4);border:1px solid rgba(251,191,36,.3);border-radius:20px;padding:18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                <div style="width:46px;height:46px;border-radius:14px;background:#016a33;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 2px 8px rgba(1,106,51,.25)">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                </div>
+                <div>
+                    <h3 style="font-weight:800;color:#014d24;font-size:14px;margin-bottom:4px">J'aime AgriVoice</h3>
+                    <p style="font-size:12px;color:#4b5563">Enregistrez votre voix pour enrichir l'IA agricole hors-ligne et aider votre communauté.</p>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- VIEW PARAMÈTRES -->
-        <div id="view-settings" class="app-view" style="overflow-y:auto">
-            <div style="max-width:600px;margin:0 auto;width:100%;padding:24px 16px 80px;display:flex;flex-direction:column;gap:20px">
-                <h2 style="font-size:19px;font-weight:700;color:#014d24;margin:0" data-i18n="set_lang_title">Langue & Assistant Vocal</h2>
-                <div style="background:#fff;border-radius:16px;border:1px solid #e5e7eb;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                    <div style="padding:16px;display:flex;align-items:center;justify-content:space-between">
-                        <div style="display:flex;align-items:center;gap:12px">
-                            <div style="width:40px;height:40px;border-radius:14px;background:#f0fdf4;color:#016a33;display:flex;align-items:center;justify-content:center;font-weight:700">
-                                <i class="fa-solid fa-language" style="font-size:18px"></i>
-                            </div>
-                            <span style="font-weight:700;color:#1f2937;font-size:14px" data-i18n="set_lang_app">Langue de l'application</span>
-                        </div>
-                        <select id="lang-selector" onchange="changeLang(this.value)"
-                            style="background:#f9fafb;border:1px solid #d1d5db;color:#111827;font-size:14px;border-radius:10px;padding:8px;outline:none;font-weight:600;font-family:inherit">
-                            <option value="fr">Français</option>
-                            <option value="fon">Fon (Fɔngbe)</option>
-                            <option value="yoruba">Yorùbá</option>
-                            <option value="ewe">Éwé / Mina</option>
-                        </select>
+    <!-- ═══ VUE PARAMÈTRES ═══ -->
+    <div id="view-settings" class="app-view" style="overflow-y:auto">
+        <div style="max-width:580px;margin:0 auto;padding:24px 16px 80px;width:100%;display:flex;flex-direction:column;gap:18px">
+            <h2 style="font-size:19px;font-weight:700;color:#014d24" data-i18n="set_lang_title">Langue &amp; Assistant Vocal</h2>
+            <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                <div style="padding:16px;display:flex;align-items:center;justify-content:space-between">
+                    <div style="display:flex;align-items:center;gap:12px">
+                        <div style="width:40px;height:40px;border-radius:12px;background:#f0fdf4;color:#016a33;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-language" style="font-size:18px"></i></div>
+                        <span style="font-weight:700;color:#1f2937;font-size:14px" data-i18n="set_lang_app">Langue de l'application</span>
                     </div>
+                    <select id="lang-selector" onchange="changeLang(this.value)"
+                        style="background:#f9fafb;border:1px solid #d1d5db;color:#111827;font-size:14px;border-radius:10px;padding:7px 10px;outline:none;font-weight:600;font-family:inherit">
+                        <option value="fr">Français</option>
+                        <option value="fon">Fon (Fɔngbe)</option>
+                        <option value="yoruba">Yorùbá</option>
+                        <option value="ewe">Éwé / Mina</option>
+                    </select>
                 </div>
             </div>
         </div>
+    </div>
 
-    </main>
+</main>
 
-    <script src="config.js"></script>
+<!-- ═══════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════ -->
+<script>
+/* Sidebar helpers — disponibles avant script.js */
+function openSidebar() {
+    document.getElementById('app-sidebar').classList.add('open');
+    document.getElementById('sidebar-overlay').classList.add('open');
+    document.getElementById('close-sidebar-btn').style.display = 'flex';
+}
+function closeSidebar() {
+    document.getElementById('app-sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+    document.getElementById('close-sidebar-btn').style.display = 'none';
+}
+function closeSidebarMobile() { if (window.innerWidth < 768) closeSidebar(); }
+/* Rétrocompat pour script.js */
+function toggleSidebar() {
+    document.getElementById('app-sidebar').classList.contains('open') ? closeSidebar() : openSidebar();
+}
+</script>
 
-    <script type="module">
-        import { InferenceClient } from 'https://cdn.jsdelivr.net/npm/@huggingface/inference@4.13.30/+esm';
-        const hfToken = window.CONFIG?.HF_TOKEN || "";
-        window.hf = new InferenceClient(hfToken);
-        window.hf.provider = "hf-inference";
-    </script>
+<script src="config.js"></script>
 
-    <script type="module">
-        import { Client } from 'https://cdn.jsdelivr.net/npm/@gradio/client@2.7.0/+esm';
-        window.gradioClient = Client;
-    </script>
+<script type="module">
+    import { InferenceClient } from 'https://cdn.jsdelivr.net/npm/@huggingface/inference@4.13.30/+esm';
+    const hfToken = window.CONFIG?.HF_TOKEN || "";
+    window.hf = new InferenceClient(hfToken);
+    window.hf.provider = "hf-inference";
+</script>
 
-    <script src="script.js?v=31"></script>
+<script type="module">
+    import { Client } from 'https://cdn.jsdelivr.net/npm/@gradio/client@2.7.0/+esm';
+    window.gradioClient = Client;
+</script>
 
-    <script>
-        /* --- Sidebar mobile helpers ---
-           Ces fonctions sont globales et appelées depuis HTML inline.
-           script.js peut aussi les appeler via toggleSidebar() (compatibilité). */
-        function openSidebar() {
-            document.getElementById('app-sidebar').classList.add('sidebar-open');
-            document.getElementById('sidebar-overlay').classList.add('overlay-visible');
-            var btn = document.getElementById('sidebar-close-btn');
-            if (btn) btn.style.display = 'flex';
-        }
-        function closeSidebar() {
-            document.getElementById('app-sidebar').classList.remove('sidebar-open');
-            document.getElementById('sidebar-overlay').classList.remove('overlay-visible');
-            var btn = document.getElementById('sidebar-close-btn');
-            if (btn) btn.style.display = 'none';
-        }
-        function closeSidebarOnMobile() {
-            if (window.innerWidth < 768) closeSidebar();
-        }
-        /* Rétrocompat : si script.js appelle toggleSidebar() */
-        function toggleSidebar() {
-            var s = document.getElementById('app-sidebar');
-            if (s.classList.contains('sidebar-open')) closeSidebar();
-            else openSidebar();
-        }
-    </script>
+<script src="script.js?v=32"></script>
+
 </body>
 </html>

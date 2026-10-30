@@ -1,8 +1,8 @@
 /* =====================================================
    AGRIVOICE AI — CORE APPLICATION SCRIPT
-   - STT: Gemini Multimodal Audio (Français, Fon, Yorùbá, Éwé) + Gradio Fon
-   - LLM: Google Gemini Flash Lite (Agri-Brain)
-   - TTS: Gemini TTS (Voix Kore) + MMS-TTS Fon
+   - STT: STT multimodal (Français, Fon, Yorùbá, Éwé) + Gradio Fon
+   - LLM: Moteur IA (Agri-Brain)
+   - TTS: TTS IA (Voix Kore) + MMS-TTS Fon
 ===================================================== */
 
 // Clé de secours pour garantir le fonctionnement partout (Vercel, local, GitHub Pages)
@@ -188,7 +188,7 @@ function usePromptSuggestion(text) {
 
 /* -----------------------------------------------------
    3. ENREGISTREMENT AUDIO & RECONNAISSANCE VOCALE (STT)
-   Architecture : Gemini Multimodal Audio (universel, gratuit, ultra-précis)
+   Architecture : STT multimodal (universel, gratuit, ultra-précis)
    + Fallback Gradio Fon avec timeout
 ------------------------------------------------------ */
 const micBtn = document.getElementById('mic-btn');
@@ -311,11 +311,11 @@ async function transcribeAudio(audioBlob, mimeType) {
                 return fonGradioText.trim();
             }
         } catch (e) {
-            console.warn("Gradio Fon indisponible, bascule sur Gemini Multimodal STT:", e.message);
+            console.warn("Gradio Fon indisponible, bascule sur STT multimodal:", e.message);
         }
     }
 
-    // 2. GEMINI MULTIMODAL AUDIO (Universel pour toutes les langues)
+    // 2. STT MULTIMODAL (Universel pour toutes les langues)
     try {
         const base64Audio = await blobToBase64(audioBlob);
         const cleanMime = (mimeType || 'audio/webm').split(';')[0];
@@ -404,7 +404,7 @@ function applyTranscribedText(text) {
 }
 
 /* -----------------------------------------------------
-   4. CERVEAU AGRICOLE : GOOGLE GEMINI FLASH LITE (LLM)
+   4. CERVEAU AGRICOLE : MOTEUR IA (LLM)
 ------------------------------------------------------ */
 const GEMINI_MODELS = [
     "gemini-2.5-flash-lite",
@@ -462,18 +462,18 @@ if (chatForm) {
         );
 
         try {
-            const botReply = await askGemini(text, currentLang);
+            const botReply = await askAI(text, currentLang);
             document.getElementById(loaderId)?.remove();
             addMessage(botReply, 'assistant', false, true);
         } catch (err) {
-            console.error("Erreur Gemini:", err);
+            console.error("Erreur IA:", err);
             document.getElementById(loaderId)?.remove();
             addMessage(`Désolé, une erreur est survenue : ${err.message || "Vérifiez votre connexion internet."}`, 'assistant');
         }
     });
 }
 
-async function askGemini(userText, lang) {
+async function askAI(userText, lang) {
     const sysPrompt = SYSTEM_PROMPTS[lang] || SYSTEM_PROMPTS.fr;
 
     conversationHistory.push({
@@ -625,7 +625,7 @@ function addMessage(text, role, isHtml = false, withTTS = false) {
 }
 
 /* -----------------------------------------------------
-   5. SYNTHÈSE VOCALE NATURELLE (GEMINI TTS & META MMS FON)
+   5. SYNTHÈSE VOCALE NATURELLE (TTS IA & META MMS FON)
 ------------------------------------------------------ */
 const GEMINI_TTS_MODELS = [
     "gemini-2.5-flash-preview-tts",
@@ -696,11 +696,11 @@ async function speakText(text, lang, btnElement) {
                 return;
             }
         } catch (fonErr) {
-            console.warn("Gradio Fon indisponible, bascule Gemini TTS:", fonErr.message);
+            console.warn("Gradio Fon indisponible, bascule TTS IA:", fonErr.message);
         }
     }
 
-    // 2. GEMINI TTS (Voix Kore — Français, Yorùbá, Éwé & fallback Fon)
+    // 2. TTS IA (Voix Kore — Français, Yorùbá, Éwé & fallback Fon)
     try {
         const ttsPayload = {
             contents: [{

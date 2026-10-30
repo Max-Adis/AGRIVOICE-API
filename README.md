@@ -8,10 +8,10 @@
 
 | Langue | Code | Reconnaissance Vocale (STT) | Cerveau IA (LLM) | Synthèse Vocale (TTS) |
 | :--- | :---: | :---: | :---: | :---: |
-| **Français** | `fr` | Whisper Large V3 Turbo | Gemini Flash Lite | Gemini TTS (Voix "Kore" 24 kHz) |
-| **Yorùbá** | `yoruba` | Whisper Large V3 Turbo | Gemini Flash Lite | Gemini TTS (Voix "Kore" 24 kHz) |
-| **Éwé / Mina** | `ewe` | Whisper Large V3 Turbo | Gemini Flash Lite | Gemini TTS (Voix "Kore" 24 kHz) |
-| **Fongbè (Fon)** | `fon` | MMS-ASR Fon (`Max-Adis/agrivoice-fon-asr`) | Gemini Flash Lite | MMS-TTS Fon |
+| **Français** | `fr` | Whisper Large V3 Turbo | IA AgriVoice | Voix IA naturelle (24 kHz) |
+| **Yorùbá** | `yoruba` | Whisper Large V3 Turbo | IA AgriVoice | Voix IA naturelle (24 kHz) |
+| **Éwé / Mina** | `ewe` | Whisper Large V3 Turbo | IA AgriVoice | Voix IA naturelle (24 kHz) |
+| **Fongbè (Fon)** | `fon` | MMS-ASR Fon (`Max-Adis/agrivoice-fon-asr`) | IA AgriVoice | MMS-TTS Fon |
 
 ---
 
@@ -20,7 +20,7 @@
 - 🎙️ **Interaction Vocale Naturelle** : Posez votre question en parlant, AgriVoice vous écoute et vous répond oralement.
 - 🌾 **Recommandations Agricoles Spécialisées** : Traitements phytosanitaires, bio-pesticides (neem, cendre), calendrier cultural, fertilisation, stockage hermétique (sacs PICS), données INRAB.
 - 📚 **Guides & Fiches Pratiques Audio** : Conseils audio par culture (Maïs, Soja, Manioc...) et thématique.
-- 📱 **Interface 100% Responsive Style Google Gemini** : Optimisée pour smartphones, tablettes et ordinateurs.
+- 📱 **Interface 100% Responsive** : Optimisée pour smartphones, tablettes et ordinateurs.
 - ⚡ **Latence Ultra-Faible** : Décodage PCM direct 24 kHz via Web Audio API.
 
 ---
@@ -53,8 +53,8 @@ http://localhost:8000
 ## 📂 Structure du Projet
 
 ```text
-├── index.html          # Interface utilisateur web moderne (Style Google Gemini)
-├── script.js           # Logique IA : STT, Gemini LLM, Gemini/MMS TTS, i18n
+├── index.html          # Interface utilisateur web moderne
+├── script.js           # Logique IA : STT, LLM, TTS, i18n
 ├── style.css           # Thème graphique et animations
 ├── logo.png            # Logo AgriVoice
 ├── vercel.json         # Configuration déploiement Vercel (Static Web App)

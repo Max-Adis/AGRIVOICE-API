@@ -1,5 +1,5 @@
 /* =====================================================
-   AGRIVOICE — THEME GOOGLE GEMINI STYLE (BRANDED)
+   AGRIVOICE — THEME STYLE (BRANDED)
    Version 3.0 — Layout desktop/mobile propre
 ===================================================== */
 
@@ -107,11 +107,11 @@ body {
     flex: 1;
     flex-direction: column;
     overflow: hidden;
-    animation: geminiFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: avFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .app-view.active { display: flex; }
 
-@keyframes geminiFadeIn {
+@keyframes avFadeIn {
     from { opacity: 0; transform: translateY(5px); }
     to   { opacity: 1; transform: translateY(0); }
 }
@@ -156,7 +156,7 @@ body {
 /* =====================================================
    GRADIENT TEXTE AGRIVOICE
 ===================================================== */
-.gemini-gradient-text {
+.av-gradient-text {
     background: linear-gradient(135deg, #016a33 0%, #028540 40%, #22c55e 75%, #eab308 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -166,21 +166,21 @@ body {
 /* =====================================================
    CARTES DE SUGGESTION
 ===================================================== */
-.gemini-card {
+.av-card {
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     border: 1px solid rgba(226,232,240,.9);
 }
-.gemini-card:hover {
+.av-card:hover {
     transform: translateY(-2px);
     border-color: rgba(1,106,51,.3);
     box-shadow: 0 8px 24px -6px rgba(1,106,51,.1);
 }
-.gemini-card:active { transform: scale(0.98); }
+.av-card:active { transform: scale(0.98); }
 
 /* =====================================================
    CAPSULE PROMPT FLOTTANTE
 ===================================================== */
-.gemini-prompt-box {
+.av-prompt-box {
     background: rgba(255,255,255,.97);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
@@ -188,7 +188,7 @@ body {
     box-shadow: 0 8px 28px -8px rgba(0,0,0,.08), 0 2px 8px -2px rgba(0,0,0,.03);
     transition: border-color .2s, box-shadow .2s;
 }
-.gemini-prompt-box:focus-within {
+.av-prompt-box:focus-within {
     border-color: #016a33;
     box-shadow: 0 10px 32px -8px rgba(1,106,51,.16), 0 0 0 3px rgba(1,106,51,.09);
 }
@@ -204,7 +204,7 @@ body {
    MESSAGES CHAT
 ===================================================== */
 .message-enter {
-    animation: geminiFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: avFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 .prose a { color: #016a33; text-decoration: underline; }
 .prose strong { color: #0f172a; }

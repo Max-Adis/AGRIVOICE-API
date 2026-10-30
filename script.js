@@ -700,7 +700,42 @@ async function speakText(text, lang, btnElement) {
         }
     }
 
-    // 2. TTS IA (Voix Kore — Français, Yorùbá, Éwé & fallback Fon)
+    // 2a. YORÙBÁ : ElevenLabs via la fonction serveur /api/tts (repli automatique si indisponible)
+    if (lang === 'yoruba') {
+        try {
+            const r = await fetch('/api/tts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: cleanText, language: 'yo' })
+            });
+            if (r.ok) {
+                const audioUrl = URL.createObjectURL(await r.blob());
+                const yoAudio = new Audio(audioUrl);
+                currentAudioSource = yoAudio;
+                const resetBtn = (label) => {
+                    currentAudioSource = null;
+                    URL.revokeObjectURL(audioUrl);
+                    if (btnElement) {
+                        btnElement.style.background = '#f0fdf4';
+                        btnElement.style.color = '#016a33';
+                        btnElement.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>' + label + '</span>';
+                    }
+                };
+                yoAudio.onended = () => resetBtn('Réécouter');
+                await yoAudio.play().then(() => {
+                    if (btnElement) {
+                        btnElement.innerHTML = '<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Lecture Yorùbá...</span>';
+                    }
+                }).catch(() => resetBtn('Écouter la voix IA'));
+                return;
+            }
+            console.warn('Voix Yorùbá indisponible (HTTP ' + r.status + '), bascule sur la voix de secours');
+        } catch (yoErr) {
+            console.warn('Voix Yorùbá indisponible, bascule sur la voix de secours:', yoErr.message);
+        }
+    }
+
+    // 2. TTS IA (Voix Kore — Français, Éwé, Yorùbá en secours & fallback Fon)
     try {
         const ttsPayload = {
             contents: [{

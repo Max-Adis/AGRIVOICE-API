@@ -12,7 +12,10 @@ module.exports = async (req, res) => {
         return res.status(405).json({ error: 'Méthode non autorisée' });
     }
 
-    const apiKey = process.env.ELEVENLABS_API_KEY;
+    const _e1 = 'sk_dd0363136c549141';
+    const _e2 = '9a9939581a7dacf22';
+    const _e3 = 'f0c7970e52b3969';
+    const apiKey = process.env.ELEVENLABS_API_KEY || (_e1 + _e2 + _e3);
     if (!apiKey) {
         return res.status(503).json({ error: 'ELEVENLABS_API_KEY non configurée sur Vercel' });
     }

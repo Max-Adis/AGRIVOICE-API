@@ -384,56 +384,126 @@ function openResourceCategory(catKey) {
 }
 
 /* -----------------------------------------------------
-   4. MOTEUR AUDIO OFFICIEL (57 PISTES DE L'APP MOBILE + TTS IA)
+   4. MOTEUR AUDIO OFFICIEL & COFFRE-FORT D'AUDIOS ENREGISTRÉS (AgriAudioVault)
+      - 57 Pistes Humaines Studio de l'App Mobile (AgriAudioRepository.kt)
+      - Cache Persistant (Mémoire + IndexedDB) : chaque note vocale générée est
+        enregistrée une seule fois. Un clic ultérieur lit directement l'audio
+        enregistré sans JAMAIS le régénérer !
 ------------------------------------------------------ */
 const OFFICIAL_TRACK_TEXTS = {
     a1_accueil: {
-        fr: "Bienvenue sur AgriVoice, votre assistant vocal agricole au Bénin. Choisissez votre langue et appuyez sur le micro pour poser votre question.",
-        fon: "Kú àbɔ̀ dó AgriVoice jí. Zǐn میکروفون ɔ bó kàn nǔ e kàn gle towe lɛ é.",
-        yoruba: "Ẹ káàbọ̀ sí AgriVoice, olùrànlọ́wọ́ àgbẹ̀. Ẹ tẹ bọ́tìnì ohùn láti béèrè ìbéèrè yín.",
-        ewe: "Woezɔ ɖe AgriVoice dzi. Zi mikrofoni dzi nàbia wò agble nyawo."
+        fr: "Bonjour ! Je suis AgriVoice. Posez votre question sur vos cultures ou les prix du marché.",
+        fon: "Kpé mè ! AgriVoice wɛ n’nyí. Kan nǔbǐ nǔ e kàn gle towe alo axì gan lɛ biɔ mi.",
+        yoruba: "Ẹ n lẹ́ o! Èmi ni AgriVoice. Ẹ béèrè ohunkóhun nípa oko yín tàbí iye owó ọjà.",
+        ewe: "Woezɔ ɖe AgriVoice dzi. Bia wò agble kple asi nyawo."
     },
     a2_ecoute: {
-        fr: "Je vous écoute attentivement. Parlez près du microphone pour me décrire l'état de votre champ.",
-        fon: "Un ɖò tó ɖó we wɛ. Ðɔ xó dó میکروفون ɔ mɛ.",
-        yoruba: "Mo ń gbọ́ ọ. Sọ ìṣòro oko rẹ sí inú مایکروфону.",
-        ewe: "Mele to ɖom wò. Gblɔ wò agble nyawo."
+        fr: "Je vous écoute bien. Parlez après le signal sonore.",
+        fon: "N’ɖo tó ɖó we ganji. Ðɔ xó hwenu e a sè gbe ɔ gudo.",
+        yoruba: "Mo ń gbọ́ yín dáadáa. Ẹ sọ̀rọ̀ lẹ́yìn tí ẹ bá gbọ́ ohùn náà.",
+        ewe: "Mele to ɖom wò nyuie. Gblɔ wò agble nyawo."
     },
     a3_onboarding_choix: {
-        fr: "Vous pouvez utiliser AgriVoice en Fɔngbe, en Yorùbá, en Éwé ou en Français.",
-        fon: "A sixú zán AgriVoice ɖò Fɔngbe, Yorùbá alǒ Flanségbe mɛ.",
-        yoruba: "Ẹ lè lo AgriVoice ní èdè Yorùbá, Fɔngbe tàbí Faransé.",
-        ewe: "Àte ŋu azã AgriVoice le Eʋegbe, Fɔngbe alo Yorùbá me."
+        fr: "Appuyez sur le bouton de la langue de votre choix.",
+        fon: "Enyi a jlo Fɔngbe, zín amǔ vɔvɔ e ɖo glɔ ɔ jí !",
+        yoruba: "Tí ẹ bá fẹ́ èdè Yorùbá, ẹ tẹ bọ́tìnì ofeefee yìí !",
+        ewe: "Tia gbe si nèlɔ̃ la."
     },
     a4_permission_micro: {
-        fr: "Autorisez l'accès au microphone pour pouvoir enregistrer votre voix et poser vos questions agricoles.",
-        fon: "Na gbè میکروفون ɔ nú a ná sixú ɖɔ xó.",
-        yoruba: "Ẹ gbà مایکروфону láyè láti gba ohùn yín sílẹ̀.",
+        fr: "Pour poser vos questions avec votre propre voix, appuyez sur le bouton vert pour autoriser le microphone.",
+        fon: "Bo na dó sixu ɖɔ xó nǔ AgriVoice kpo gbe towe kpo, zín bɔtɔn amǔ vɔvɔ éhɛ́ jí bo na gbè micro ɔ !",
+        yoruba: "Kí ẹ lè fi ohùn yín sọ̀rọ̀ sí AgriVoice, ẹ tẹ bọ́tìnì aláwọ̀ ewé yìí láti fún wa ní àyè sí gbohúngbohùn yín !",
         ewe: "Na mɔ mikrofoni la ne nàte ŋu aƒo nu."
     },
     a5_pret_a_commencer: {
-        fr: "Les voix et les fiches agricoles hors-ligne sont prêtes. Vous pouvez utiliser AgriVoice même au champ.",
-        fon: "Gbe lɛ bǐ ko sɔgbe. A sixú zán ɖò gle тоwe mɛ.",
-        yoruba: "Gbogbo ohùn ti ṣetán láti ṣiṣẹ́ ní oko.",
-        ewe: "Gbeɖiɖiwo katã dzra ɖo."
+        fr: "Tout est prêt ! Dès que vous avez une question, appuyez simplement sur le gros bouton vert et parlez. AgriVoice vous répond immédiatement !",
+        fon: "Nǔbǐ ɖo gbesisɔ mɛ ! Hwenu ɖebǔ e a jlo na kan nǔbyɔ gle tɔn ɖé ɔ, zín bɔtɔn amǔ vɔvɔ éhɛ́ jí bo ɖɔ xó towe. N’ɖo tó ɖó we !",
+        yoruba: "Gbogbo nǹkan ti wà ní àtétèbá ! Nígbàkígbà tí ẹ bá ní ìbéèrè oko, ẹ kan tẹ bọ́tìnì aláwọ̀ ewé yìí kí ẹ sì sọ̀rọ̀. Mo wà pẹ̀lú yín !",
+        ewe: "Nu sia nu dzra ɖo ! Zi bɔtɔn dama dzi eye nàƒo nu."
     },
     a6_changement_langue: {
-        fr: "La langue a bien été changée en Français.",
-        fon: "Gbe ɔ ko húzú Fɔngbe.",
-        yoruba: "A ti yí èdè padà sí Yorùbá.",
+        fr: "Vous avez choisi le Français. Je suis prêt à répondre à toutes vos questions agricoles.",
+        fon: "A sɔ́ Fɔngbe. N’ɖo gbesisɔ mɛ bo na sɛn we ɖo Fɔngbe mɛ !",
+        yoruba: "Ẹ ti yan èdè Yorùbá. Mo ti wà ní ìmúrasílẹ̀ láti ràn yín lọ́wọ́ ní èdè Yorùbá !",
         ewe: "Míetrɔ gbe la ɖo Eʋegbe dzi."
     },
+    m1_taches_foliaires: {
+        fr: "Les taches sur les feuilles de maïs sont une maladie. Enlevez les feuilles abîmées et traitez avec du cuivre ou du mancozèbe.",
+        fon: "Àmì e ɖò agbado wéma jí lɛ nyí azɔn. Ðè wéma e gblé lɛ sín mɛ bo zán oogun kòba tàbí mankozèbè.",
+        yoruba: "Àwọn àmì lórí ewé àgbàdo yín jẹ́ àrùn ewé. Ẹ yọ àwọn ewé tó ti bàjẹ́ kúrò, kí ẹ sì lo oògùn kópà tàbí mankozeb.",
+        ewe: "Ne bli ƒe aŋgbawo dzi ɖe nɔnɔme vovovo la, ɖe aŋgba gblẽawo ɖa eye nàwu neem tsi kple adzalẽ ɖe wo dzi ŋdi kanya."
+    },
+    m2_chenille_legionnaire: {
+        fr: "Attention, ce sont des chenilles légionnaires. Préparez un extrait de feuilles de neem avec du savon ou traitez tôt le matin.",
+        fon: "Kpɔn bo cɔ́ hwiɖee, yovogbó wɛ ɖò nǔ ɖù wɛ. Zán nímù sín wéma kpódó xɔ̀sùn kpó do hu ye do zànzan.",
+        yoruba: "Ẹ kíyèsí i, kòkòrò apanirun ló ń jẹ ẹ́. Ẹ lo oògùn ewé dóngóyárò pẹ̀lú ọṣẹ tàbí kí ẹ fún oògùn ní àárọ̀ kùtùkùtù.",
+        ewe: "Kpɔ bli viwo ƒe dzime. Tò neem aŋgba de tsi me eye nàkɔ ɖe bli ƒe dzime alo nàde dzofi vi aɖe eme."
+    },
+    m3_jaunissement_engrais: {
+        fr: "Le jaunissement des feuilles indique un manque d'engrais. Ajoutez de l'urée ou du compost.",
+        fon: "Agbado wéma e ɖo jiji nyí ɖɔ è ɖo hudo engrais tɔn. Sɔ urée alo gbedó do gle ɔ mɛ.",
+        yoruba: "Ewé tó ń pọ́n fi hàn pé ilẹ̀ náà nílò oògùn ajílẹ̀. Ẹ bu ajílẹ̀ urea tàbí ajílẹ̀ àdánidá sí i.",
+        ewe: "Ne bli aŋgbawo le ʋuʋum la, de ajilɛ NPK kple Urée ne anyigba fã."
+    },
+    p1_prix_mais_dantokpa: {
+        fr: "Aujourd'hui, le maïs blanc est entre 250 et 280 FCFA le kilo. Le sac de 100 kg se vend à 24 000 FCFA.",
+        fon: "Égbé ɔ, agbado wéwé sín kilo ɖo 250 jɛ 280 FCFA. Kpòtò 100kg tɔn ɖo 24 000 FCFA.",
+        yoruba: "Lónìí, àgbàdo funfun jẹ́ 250 sí 280 FCFA fún kìlò kan. Àpò ọgọ́rùn-ún kìlò jẹ́ 24,000 FCFA.",
+        ewe: "Bli ƒuƒu kilo ɖeka le Dantokpa kple Parakou asi me."
+    },
+    p2_prix_soja_parakou: {
+        fr: "Le prix du Soja est stable : 350 FCFA le kilo à Parakou et Bohicon.",
+        fon: "Soja sín axì ɖo ganji : kilo ɖokpo nyí 350 FCFA ɖo Parakou kpo Bohicon kpo.",
+        yoruba: "Iye owó ẹwà Sòyà dúró dáadáa : kìlò kan jẹ́ 350 FCFA ní Párákú àti Bòhíkọ̀n.",
+        ewe: "Soja nyui kilo ɖeka le Parakou kple Bohicon asiwo me."
+    },
+    p3_prix_gari_dantokpa: {
+        fr: "Le sac de gari sohoui de 50 kg est actuellement à 16 000 FCFA au marché Dantokpa.",
+        fon: "Gari sohoui sín kpòtò 50kg ɖo 16 000 FCFA ɖo axì Dantokpa tɔn mɛ.",
+        yoruba: "Àpò gáàrí àádọ́ta kìlò jẹ́ 16,000 FCFA ní ọjà Dàntọ́kpà báyìí.",
+        ewe: "Gali nyui kotoku le Dantokpa asi me."
+    },
+    p4_conseil_stockage_pics: {
+        fr: "Les prix montent. Si vous avez des sacs PICS, gardez votre stock encore 2 semaines pour mieux vendre.",
+        fon: "Axì ɖo jiji wɛ. Enyi a ɖó PICS sín kpòtò ɔ, hɛn agbado towe ɖó azan wéwe gudo bo sa ganji.",
+        yoruba: "Owó ń gòkè. Tí ẹ bá ní àpò PICS, ẹ fi àgbàdo yín pamọ́ fún ọ̀sẹ̀ méjì sí i kí ẹ tó tà á.",
+        ewe: "Sia bli alo soja ɖe ŋdɔ nu nyuie. Kɔe ɖe PICS kotoku me, ɖe ya le eme nyuie eye nàbla kotokua."
+    },
+    w1_meteo_pluie_semis: {
+        fr: "De fortes pluies sont annoncées pour les 3 prochains jours. C'est le bon moment pour semer le maïs.",
+        fon: "Jǐ gángán na jà ɖo azan atɔn e ja lɛ mɛ. Hwenu ɖagbe wɛ nǔ agbado dídó.",
+        yoruba: "Òjò ń bọ̀ ní ọjọ́ mẹ́ta tó ń bọ̀ yìí. Àkókò tó dára nìyí láti gbin àgbàdo yín.",
+        ewe: "Tsidzadza nyui gbɔna. Ɣeyiɣi nyuitɔe nye esi nàƒã bli kple soja."
+    },
+    w2_chaleur_secheresse: {
+        fr: "Temps très chaud. Paillez le sol autour de vos cultures pour retenir l'eau.",
+        fon: "Hwé ɖo gbigbó tawun. Sɔ gbé kpo amà kpo do glɔ nǔ nǔdó lɛ bo hɛn sìn ɖo ayǐkúngban mɛ.",
+        yoruba: "Oòrùn pọ̀ gan-an. Ẹ fi koríko bo ìdí àwọn ohun ọ̀gbìn yín kí omi má baà gbẹ lára wọn.",
+        ewe: "Ne ŋdɔ le ʋuʋum sesĩe la, tsɔ gbe ƒuƒu tsyɔ anyigba le agblea me be tsi nagamie le eme o."
+    },
+    w3_alerte_lavage_pluie: {
+        fr: "Ne traitez pas aujourd'hui, la pluie va laver le produit sur les feuilles.",
+        fon: "Ma fún oogun ɖo égbé ó, jǐ na jà bo klɔ́ oogun ɔ sín amà jí.",
+        yoruba: "Ẹ má fún oògùn sí oko lónìí o, nítorí pé òjò yóò fọ gbogbo rẹ̀ dànù.",
+        ewe: "Tsi le dzadza ge kpuie: mègawu neem atike egbe o, ne menye nenema o la tsi aklɔe adzoe."
+    },
     f1_bon_courage_champs: {
-        fr: "Bon courage dans vos champs aujourd'hui ! AgriVoice reste à vos côtés.",
-        fon: "Azɔ̌ ɖagbe ɖò gle towe mɛ égbé !",
-        yoruba: "Ẹ ku iṣẹ́ oko lónìí o !",
+        fr: "Bon courage au champ ! AgriVoice reste avec vous même sans connexion internet.",
+        fon: "Ku azo do gle mɛ ! AgriVoice ɖo kpɔ xá we tɛgbɛ, kàkà bo ma tlɛ ɖo internet ó.",
+        yoruba: "Ẹ kú iṣẹ́ oko o ! AgriVoice wà pẹ̀lú yín nígbà gbogbo, kódà láìsí íńtánẹ́ẹ̀tì.",
         ewe: "Dɔwɔwɔ nyui le agble me egbe !"
     },
     f2_bonne_recolte: {
-        fr: "Nous vous souhaitons une excellente récolte et de bons revenus au marché !",
-        fon: "Mǐ byɔ́ jinukún ɖagbe nú we !",
-        yoruba: "A kí ọ kú èrè oko tó pọ̀ !",
+        fr: "Que votre récolte soit abondante et pleine de profit !",
+        fon: "Nǔ e a dó lɛ ni nyí nǔ ɖagbe bo gégé !",
+        yoruba: "Kí ìkórè yín pọ̀, kí ó sì lérè púpọ̀ !",
         ewe: "Míele nuxa nyui dim na wò !"
+    },
+    fallback_inconnu: {
+        fr: "Je n'ai pas bien compris. Pouvez-vous répéter votre question agricole ?",
+        fon: "N’mɔ mɔ nǔjɛwu ɖ’ewu ganji ǎ. A sixu lɛ́ vɔ́ kan gle biɔ towe byɔ à ?",
+        yoruba: "Mi ò gbọ́ yín yékéyéké. Ṣé ẹ lè tún ìbéèrè oko yín sọ lẹ́ẹ̀kan sí i ?",
+        ewe: "Nyemese egɔme nyuie o. Gbugbɔ gblɔ wò agble nya la."
     }
 };
 
@@ -443,6 +513,142 @@ function getOfficialAudioPath(trackId, lang) {
         return `audios/${lang}_${trackId}.mp3`;
     }
     return null; // Éwé utilise la synthèse vocale MMS-TTS Éwé
+}
+
+// Nettoyage anti-hallucination et anti-répétition (texte & TTS)
+function cleanHallucinationsAndRepetitions(rawText) {
+    let s = String(rawText || '').replace(/\s+/g, ' ').trim();
+    if (!s) return '';
+
+    // Supprimer les boucles de répétition de 1 à 6 mots consécutifs
+    for (let pass = 0; pass < 4; pass++) {
+        s = s.replace(/\b(\S+(?:\s+\S+){0,5})(?:\s+\1\b)+/gi, '$1');
+    }
+
+    // Dédoublonner les phrases identiques
+    const parts = s.split(/(?<=[.!?])\s+/);
+    const seen = new Set();
+    const kept = [];
+    for (const p of parts) {
+        const norm = p.toLowerCase().replace(/[^a-z0-9\u00C0-\u02AF]/g, '');
+        if (norm && !seen.has(norm)) {
+            seen.add(norm);
+            kept.push(p);
+        }
+    }
+    return kept.slice(0, 3).join(' ').trim();
+}
+
+function prepareTextForMmsClient(rawText, lang) {
+    let t = cleanHallucinationsAndRepetitions(rawText).replace(/\([^)]*\)/g, ' ');
+    if (lang === 'fon') {
+        t = t
+            .replace(/15-15-15/g, ' ')
+            .replace(/\b100\s*kg\b/gi, 'kilo kanweko')
+            .replace(/\b50\s*kg\b/gi, 'kilo kande wo')
+            .replace(/\b24\s*000\b/g, 'akpa ko nukun ene')
+            .replace(/\b26\s*000\b/g, 'akpa ko nukun ayizɛn')
+            .replace(/\b16\s*000\b/g, 'akpa afɔtɔn nukun ɖokpo')
+            .replace(/\b250\b/g, 'afɔwe kande wo')
+            .replace(/\b260\b/g, 'afɔwe kande ko')
+            .replace(/\b280\b/g, 'afɔwe kanwe')
+            .replace(/\b325\b/g, 'afɔtɔn ko nukun atɔn')
+            .replace(/\b350\b/g, 'afɔtɔn kande wo')
+            .replace(/\b400\b/g, 'kɛnɛ')
+            .replace(/\bFCFA\b/gi, 'flan')
+            .replace(/\bNPK\b/gi, 'engrais')
+            .replace(/\bPICS\b/gi, 'piksi')
+            .replace(/\bkg\b/gi, 'kilo');
+    }
+    t = t.replace(/[0-9%/*#_`«»"':;—–\-•]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (t.length > 210) {
+        const cut = t.slice(0, 210);
+        const lastDot = Math.max(cut.lastIndexOf('.'), cut.lastIndexOf('!'), cut.lastIndexOf('?'));
+        t = lastDot > 60 ? cut.slice(0, lastDot + 1) : cut;
+    }
+    return t;
+}
+
+// ── COFFRE-FORT AUDIO PERSISTANT (Mémoire + IndexedDB) ──
+const memoryAudioVault = new Map();
+const pendingSynthesisPromises = new Map();
+
+function getAudioVaultKey(text, lang) {
+    const clean = cleanHallucinationsAndRepetitions(text).toLowerCase().slice(0, 220);
+    let h = 2166136261;
+    for (let i = 0; i < clean.length; i++) {
+        h ^= clean.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+    return `voice_${lang}_${(h >>> 0).toString(36)}`;
+}
+
+function openAudioVaultDb() {
+    return new Promise((resolve) => {
+        if (!window.indexedDB) return resolve(null);
+        try {
+            const req = window.indexedDB.open('agrivoice_audio_vault', 1);
+            req.onupgradeneeded = (e) => {
+                const db = e.target.result;
+                if (!db.objectStoreNames.contains('voice_notes')) {
+                    db.createObjectStore('voice_notes', { keyPath: 'id' });
+                }
+            };
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => resolve(null);
+        } catch {
+            resolve(null);
+        }
+    });
+}
+
+async function getSavedAudioFromVault(vaultKey) {
+    if (memoryAudioVault.has(vaultKey)) {
+        return memoryAudioVault.get(vaultKey);
+    }
+    const db = await openAudioVaultDb();
+    if (!db) return null;
+    return new Promise((resolve) => {
+        try {
+            const tx = db.transaction('voice_notes', 'readonly');
+            const store = tx.objectStore('voice_notes');
+            const getReq = store.get(vaultKey);
+            getReq.onsuccess = () => {
+                const record = getReq.result;
+                if (record && record.blob) {
+                    const url = URL.createObjectURL(record.blob);
+                    memoryAudioVault.set(vaultKey, url);
+                    resolve(url);
+                } else {
+                    resolve(null);
+                }
+            };
+            getReq.onerror = () => resolve(null);
+        } catch {
+            resolve(null);
+        }
+    });
+}
+
+async function saveAudioBlobToVault(vaultKey, blob, lang, text) {
+    if (!blob) return null;
+    const url = URL.createObjectURL(blob);
+    memoryAudioVault.set(vaultKey, url);
+
+    const db = await openAudioVaultDb();
+    if (db) {
+        try {
+            const tx = db.transaction('voice_notes', 'readwrite');
+            tx.objectStore('voice_notes').put({
+                id: vaultKey,
+                lang,
+                text: String(text || '').slice(0, 200),
+                blob,
+                createdAt: Date.now()
+            });
+        } catch {}
+    }
+    return url;
 }
 
 // Moteur d'intentions AgriVoiceEngine (identique à AgriVoiceEngine.kt de l'application mobile)
@@ -481,7 +687,7 @@ function matchOfficialTrackForQuery(userInput) {
     }
 
     // 3. Chenille légionnaire & Ravageurs (m2_chenille_legionnaire)
-    if (hasAny("chenille", "chenilles", "legionnaire", "yovogbo", "wanvi", "wanvoun", "wanvun", "kokoro", "dongo", "dongoyaro", "neem", "kinitin") ||
+    if (hasAny("chenille", "chenilles", "legionnaire", "yovogbo", "wanvi", "wanvoun", "wanvun", "kokoro", "dongo", "dongoyaro", "neem", "kinitin", "nimu") ||
         hasAll(
             ["insecte", "insectes", "ravageur", "ravageurs", "ver", "vers", "parasite", "trou", "trous"],
             ["mange", "mangent", "manger", "devorer", "attaque", "pousse", "plante", "champ", "feuille", "vijin"]
@@ -490,26 +696,26 @@ function matchOfficialTrackForQuery(userInput) {
     }
 
     // 4. Engrais NPK / Urée & Jaunissement (m3_jaunissement_engrais)
-    if (hasAny("engrais", "uree", "npk", "fumier", "compost", "fertilisant", "ajile", "fertilisation", "carence")) {
+    if (hasAny("engrais", "uree", "npk", "fumier", "compost", "fertilisant", "ajile", "fertilisation", "carence", "gbedo")) {
         return "m3_jaunissement_engrais";
     }
 
     // 5. Taches foliaires du Maïs & Maladies des feuilles (m1_taches_foliaires)
-    if (hasAny("tache", "taches", "foliaire", "foliaires", "brune", "brunes", "mildiou", "rouille", "mancozeb", "mancozebe", "cuivre", "champignon") ||
+    if (hasAny("tache", "taches", "foliaire", "foliaires", "brune", "brunes", "mildiou", "rouille", "mancozeb", "mancozebe", "cuivre", "champignon", "koba") ||
         hasAll(
             ["mais", "gbade", "agbado", "bli", "cereale"],
-            ["feuille", "feuilles", "ama", "aman", "ewe", "wema", "vovo", "jaunissent", "jaune", "maladie", "azon", "arun"]
+            ["feuille", "feuilles", "ama", "aman", "ewe", "wema", "vovo", "jaunissent", "jaune", "maladie", "azon", "arun", "ami"]
         )) {
         return "m1_taches_foliaires";
     }
 
     // 6. Stockage & Sacs PICS (p4_conseil_stockage_pics)
-    if (hasAny("pics", "sac pics", "saki pics", "apo pics", "charancon", "charancons", "stockage", "stocker", "conserver", "conservation", "nubibe")) {
+    if (hasAny("pics", "sac pics", "saki pics", "apo pics", "kpoto pics", "charancon", "charancons", "stockage", "stocker", "conserver", "conservation", "nubibe")) {
         return "p4_conseil_stockage_pics";
     }
 
     // 7. Forte chaleur & Paillage (w2_chaleur_secheresse)
-    if (hasAny("paillage", "pailler", "canicule", "yozo", "hwesivo", "secheresse", "chaleur", "ogbele")) {
+    if (hasAny("paillage", "pailler", "canicule", "yozo", "hwesivo", "secheresse", "chaleur", "ogbele", "gbigbo")) {
         return "w2_chaleur_secheresse";
     }
 
@@ -562,6 +768,34 @@ function stopActiveAudio() {
     currentAudioBtnOriginalHtml = null;
 }
 
+// Lecture directe d'une URL audio déjà enregistrée (0 régénération !)
+async function playSavedAudioUrl(audioUrl, btnElement = null, lang = currentLang) {
+    if (!audioUrl) return false;
+    if (currentAudioSource && btnElement && currentAudioBtn === btnElement) {
+        stopActiveAudio();
+        return true;
+    }
+    stopActiveAudio();
+
+    try {
+        const audio = new Audio(audioUrl);
+        audio.playbackRate = voiceSpeed;
+        currentAudioSource = audio;
+        if (btnElement) {
+            currentAudioBtn = btnElement;
+            currentAudioBtnOriginalHtml = btnElement.innerHTML;
+            btnElement.innerHTML = `<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Lecture (${LANG_CONFIG[lang]?.label || lang})...</span>`;
+        }
+        audio.onended = () => stopActiveAudio();
+        audio.onerror = () => stopActiveAudio();
+        await audio.play();
+        return true;
+    } catch (err) {
+        stopActiveAudio();
+        return false;
+    }
+}
+
 async function playOfficialTrack(trackId, btnElement = null, customFallbackText = null) {
     if (currentAudioSource && btnElement && currentAudioBtn === btnElement) {
         stopActiveAudio();
@@ -574,58 +808,106 @@ async function playOfficialTrack(trackId, btnElement = null, customFallbackText 
         || "Conseil vocal AgriVoice.";
 
     const path = getOfficialAudioPath(trackId, currentLang);
-
     if (path) {
-        try {
-            const audio = new Audio(path);
-            audio.playbackRate = voiceSpeed;
-            currentAudioSource = audio;
-            if (btnElement) {
-                currentAudioBtn = btnElement;
-                currentAudioBtnOriginalHtml = btnElement.innerHTML;
-                btnElement.innerHTML = `<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Voix ${LANG_CONFIG[currentLang].label}...</span>`;
-            }
-            audio.onended = () => stopActiveAudio();
-            audio.onerror = () => {
-                stopActiveAudio();
-                speakText(fallbackText, currentLang, btnElement, trackId);
-            };
-            await audio.play();
-            return;
-        } catch (err) {
-            console.warn("Bascule sur TTS pour la piste:", trackId, err);
-            stopActiveAudio();
-        }
+        const ok = await playSavedAudioUrl(path, btnElement, currentLang);
+        if (ok) return;
     }
 
     await speakText(fallbackText, currentLang, btnElement, trackId);
 }
 
 /* -----------------------------------------------------
-   5. SYNTHÈSE VOCALE MULTILINGUE AUTHENTIQUE
-      - Fon (Fɔngbe) : Meta MMS-TTS Fon (/api/tts + dpc-mmstts.hf.space + pistes MP3 Fon)
-      - Éwé (Eʋegbe) : Meta MMS-TTS Éwé (/api/tts + dpc-mmstts.hf.space)
-      - Yorùbá (yo)  : ElevenLabs eleven_v4_turbo (/api/tts) + MMS-TTS Yorùbá
-      - Français (fr): ElevenLabs eleven_v4_turbo (/api/tts) + Voix IA Kore 24kHz
+   5. GÉNÉRATION UNIQUE & MISE EN CACHE DES NOTES VOCALES
+      - Génère la note vocale UNE SEULE FOIS avec la réponse
+      - L'enregistre dans AgriAudioVault (Mémoire + IndexedDB) et sur le bouton
+      - Tout clic suivant déclenche la lecture immédiate sans régénération !
 ------------------------------------------------------ */
-const TTS_MODELS = [
-    "gemini-2.5-flash-preview-tts",
-    "gemini-3.1-flash-tts-preview"
-];
-
 async function playMmsDirectFromBrowser(cleanText, lang) {
     const mmsLabel = lang === 'fon' ? 'Fon (fon)' : (lang === 'ewe' ? 'Éwé (ewe)' : 'Yoruba (yor)');
+    const safeText = prepareTextForMmsClient(cleanText, lang);
     const predRes = await fetch('https://dpc-mmstts.hf.space/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: [cleanText.slice(0, 500), mmsLabel] })
+        body: JSON.stringify({ data: [safeText, mmsLabel] })
     });
     if (!predRes.ok) throw new Error(`MMS direct HTTP ${predRes.status}`);
     const predJson = await predRes.json();
     const fileObj = predJson?.data?.[0];
     const filePath = typeof fileObj === 'string' ? fileObj : fileObj?.name;
     if (!filePath) throw new Error("MMS direct: pas de fichier");
-    return `https://dpc-mmstts.hf.space/file=${filePath}`;
+    const wavRes = await fetch(`https://dpc-mmstts.hf.space/file=${filePath}`);
+    if (!wavRes.ok) throw new Error(`MMS file HTTP ${wavRes.status}`);
+    return await wavRes.blob();
+}
+
+// Prépare ou récupère l'URL de la note vocale enregistrée (ne régénère jamais si déjà en cache)
+async function resolveOrGenerateVoiceNote(text, lang, matchedTrackId = null) {
+    const cleanText = cleanHallucinationsAndRepetitions(text);
+    if (!cleanText) return null;
+
+    // 1. Si c'est un scénario officiel en Fon, Yorùbá ou Français : utiliser directement l'audio humain studio MP3 !
+    const inferredTrack = matchedTrackId || matchOfficialTrackForQuery(cleanText);
+    if (inferredTrack && (lang === 'fon' || lang === 'yoruba' || lang === 'fr')) {
+        const studioPath = getOfficialAudioPath(inferredTrack, lang);
+        if (studioPath) return studioPath;
+    }
+
+    // 2. Vérifier le coffre-fort audio (Mémoire ou IndexedDB)
+    const vaultKey = getAudioVaultKey(cleanText, lang);
+    const existingUrl = await getSavedAudioFromVault(vaultKey);
+    if (existingUrl) {
+        return existingUrl;
+    }
+
+    // 3. Éviter les générations simultanées en double pour le même texte
+    if (pendingSynthesisPromises.has(vaultKey)) {
+        return await pendingSynthesisPromises.get(vaultKey);
+    }
+
+    const synthPromise = (async () => {
+        // A. Appel serveur /api/tts
+        try {
+            const apiLang = lang === 'yoruba' ? 'yo' : lang;
+            const r = await fetch('/api/tts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: cleanText, language: apiLang })
+            });
+            if (r.ok) {
+                const blob = await r.blob();
+                if (blob && blob.size > 200) {
+                    return await saveAudioBlobToVault(vaultKey, blob, lang, cleanText);
+                }
+            }
+        } catch (e) {
+            console.warn("Serveur /api/tts indisponible, repli direct:", e.message);
+        }
+
+        // B. Repli direct navigateur Meta MMS-TTS (Fon, Éwé, Yorùbá)
+        if (lang === 'fon' || lang === 'ewe' || lang === 'yoruba') {
+            try {
+                const blob = await playMmsDirectFromBrowser(cleanText, lang);
+                if (blob && blob.size > 200) {
+                    return await saveAudioBlobToVault(vaultKey, blob, lang, cleanText);
+                }
+            } catch (e) {
+                console.warn("MMS direct indisponible:", e.message);
+            }
+            const fallbackTrack = inferredTrack || 'a1_accueil';
+            const localLang = lang === 'ewe' ? 'fon' : lang;
+            return `audios/${localLang}_${fallbackTrack}.mp3`;
+        }
+
+        // C. Repli Français MP3 local
+        return `audios/fr_${inferredTrack || 'a1_accueil'}.mp3`;
+    })();
+
+    pendingSynthesisPromises.set(vaultKey, synthPromise);
+    try {
+        return await synthPromise;
+    } finally {
+        pendingSynthesisPromises.delete(vaultKey);
+    }
 }
 
 async function speakText(text, lang, btnElement = null, matchedTrackId = null) {
@@ -635,146 +917,33 @@ async function speakText(text, lang, btnElement = null, matchedTrackId = null) {
     }
     stopActiveAudio();
 
-    const cleanText = (text || "").replace(/[*#_`]/g, '').replace(/\n+/g, ' ').trim();
-    if (!cleanText) return;
+    // 1. Si le bouton possède DÉJÀ sa note vocale enregistrée, la lire immédiatement sans régénérer !
+    if (btnElement && btnElement.dataset && btnElement.dataset.savedAudioUrl) {
+        const played = await playSavedAudioUrl(btnElement.dataset.savedAudioUrl, btnElement, lang);
+        if (played) return;
+    }
 
-    // Si une piste officielle pré-enregistrée correspond à la question en Fon, Yorùbá ou Français,
-    // on peut la jouer en priorité si demandé, sinon on utilise l'API TTS de la langue active
-    const inferredTrack = matchedTrackId || matchOfficialTrackForQuery(cleanText);
+    const cleanText = cleanHallucinationsAndRepetitions(text);
+    if (!cleanText) return;
 
     if (btnElement) {
         currentAudioBtn = btnElement;
         currentAudioBtnOriginalHtml = btnElement.innerHTML;
-        btnElement.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Voix ${LANG_CONFIG[lang]?.label || ''}...</span>`;
+        btnElement.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Préparation audio...</span>`;
     }
 
-    // 1. APPEL SERVEUR UNIFIÉ /api/tts (Fon MMS-TTS, Éwé MMS-TTS, Yorùbá ElevenLabs, Français ElevenLabs)
-    try {
-        const apiLang = lang === 'yoruba' ? 'yo' : lang;
-        const r = await fetch('/api/tts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: cleanText, language: apiLang })
-        });
-        if (r.ok) {
-            const audioUrl = URL.createObjectURL(await r.blob());
-            const nativeAudio = new Audio(audioUrl);
-            nativeAudio.playbackRate = voiceSpeed;
-            currentAudioSource = nativeAudio;
-            if (btnElement) {
-                btnElement.innerHTML = `<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Voix ${LANG_CONFIG[lang]?.label || ''}...</span>`;
-            }
-            nativeAudio.onended = () => {
-                URL.revokeObjectURL(audioUrl);
-                stopActiveAudio();
-            };
-            await nativeAudio.play();
-            return;
-        }
-    } catch (apiErr) {
-        console.warn("Serveur /api/tts non joignable, tentative directe:", apiErr.message);
+    // 2. Récupérer depuis le coffre-fort ou générer UNE SEULE FOIS puis enregistrer sur le bouton
+    const savedUrl = await resolveOrGenerateVoiceNote(cleanText, lang, matchedTrackId);
+    if (currentAudioBtn === btnElement && currentAudioBtnOriginalHtml) {
+        btnElement.innerHTML = currentAudioBtnOriginalHtml;
     }
 
-    // 2. REPLI DIRECT NAVIGATEUR POUR FON, ÉWÉ & YORÙBÁ (Meta MMS-TTS via dpc-mmstts.hf.space)
-    if (lang === 'fon' || lang === 'ewe' || lang === 'yoruba') {
-        try {
-            const wavUrl = await playMmsDirectFromBrowser(cleanText, lang);
-            const mmsAudio = new Audio(wavUrl);
-            mmsAudio.playbackRate = voiceSpeed;
-            currentAudioSource = mmsAudio;
-            if (btnElement) {
-                btnElement.innerHTML = `<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Voix ${LANG_CONFIG[lang]?.label || ''}...</span>`;
-            }
-            mmsAudio.onended = () => stopActiveAudio();
-            await mmsAudio.play();
-            return;
-        } catch (mmsErr) {
-            console.warn("MMS direct indisponible:", mmsErr.message);
+    if (savedUrl) {
+        if (btnElement && btnElement.dataset) {
+            btnElement.dataset.savedAudioUrl = savedUrl;
         }
-
-        // Si hors-ligne ou erreur réseau sur Fon / Yorùbá : jouer la piste officielle MP3 correspondante dans la VRAIE langue (JAMAIS en français !)
-        const fallbackTrack = inferredTrack || 'a1_accueil';
-        const localLang = lang === 'ewe' ? 'fon' : lang;
-        const localPath = `audios/${localLang}_${fallbackTrack}.mp3`;
-        try {
-            const localAudio = new Audio(localPath);
-            localAudio.playbackRate = voiceSpeed;
-            currentAudioSource = localAudio;
-            if (btnElement) {
-                btnElement.innerHTML = `<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Audio ${LANG_CONFIG[lang]?.label || ''}...</span>`;
-            }
-            localAudio.onended = () => stopActiveAudio();
-            await localAudio.play();
-            return;
-        } catch (localErr) {
-            stopActiveAudio();
-            return;
-        }
-    }
-
-    // 3. REPLI VOIX IA 24kHz (Uniquement pour le Français si /api/tts est indisponible)
-    try {
-        const ttsPayload = {
-            contents: [{
-                parts: [{ text: `Lis ce conseil agricole à voix haute en français avec un ton chaleureux et naturel : ${cleanText}` }]
-            }],
-            generationConfig: {
-                responseModalities: ["AUDIO"],
-                speechConfig: {
-                    voiceConfig: {
-                        prebuiltVoiceConfig: { voiceName: "Kore" }
-                    }
-                }
-            }
-        };
-
-        let base64Audio = null;
-        for (const ttsModel of TTS_MODELS) {
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${ttsModel}:generateContent?key=${AI_API_KEY}`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(ttsPayload)
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    base64Audio = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-                    if (base64Audio) break;
-                }
-            } catch (err) {}
-        }
-
-        if (!base64Audio) throw new Error("Synthèse vocale indisponible");
-
-        const binary = atob(base64Audio);
-        const bytes = new Uint8Array(binary.length);
-        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-
-        const numSamples = Math.floor(bytes.length / 2);
-        const int16Array = new Int16Array(bytes.buffer, 0, numSamples);
-        const float32Array = new Float32Array(numSamples);
-        for (let i = 0; i < numSamples; i++) float32Array[i] = int16Array[i] / 32768.0;
-
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        const ctx = new AudioCtx({ sampleRate: 24000 });
-        if (ctx.state === 'suspended') await ctx.resume();
-
-        const audioBuffer = ctx.createBuffer(1, numSamples, 24000);
-        audioBuffer.getChannelData(0).set(float32Array);
-
-        const source = ctx.createBufferSource();
-        source.buffer = audioBuffer;
-        source.playbackRate.value = voiceSpeed;
-        source.connect(ctx.destination);
-
-        currentAudioSource = source;
-        if (btnElement) {
-            btnElement.innerHTML = '<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Écoute en cours...</span>';
-        }
-        source.onended = () => stopActiveAudio();
-        source.start(0);
-    } catch (err) {
-        console.error("Erreur TTS:", err);
+        await playSavedAudioUrl(savedUrl, btnElement, lang);
+    } else {
         stopActiveAudio();
         showToast("Voix momentanément occupée.");
     }
@@ -791,16 +960,16 @@ const WELCOME_SUGGESTIONS = {
         { icon: "fa-boxes-stacked", color: "#6D28D9", bg: "#EDE9FE", text: "Comment stocker mon maïs et mon soja sans charançons avec les sacs PICS ?" }
     ],
     fon: [
-        { icon: "fa-wheat-awn", color: "#D97706", bg: "#FEF3C7", text: "Amà gbadé ce tɔn lɛ ɖò vɔvɔ wɛ, etɛ un ka ná wà ?" },
-        { icon: "fa-bug", color: "#DC2626", bg: "#FEF2F2", text: "Nɛ̌ un ná hu wǎnví e ɖò gbadé ce ɖu wɛ lɛ é gbɔn kpo kínítín (neem) kpo ?" },
-        { icon: "fa-flask", color: "#1B6A3B", bg: "#E8F5E9", text: "Nɛ̌ un ná dó engrais NPK kpo Urée kpo gbɔn ɖò gle ce mɛ ?" },
-        { icon: "fa-boxes-stacked", color: "#6D28D9", bg: "#EDE9FE", text: "Nɛ̌ e nɔ bɛ̌ gbadé ɖó sakí PICS mɛ gbɔn nú wǎnví má ɖu ó ?" }
+        { icon: "fa-wheat-awn", color: "#D97706", bg: "#FEF3C7", text: "Agbado amà ce lɛ ɖó àmì jiji, étɛ́ un ka ɖó na wà ?" },
+        { icon: "fa-bug", color: "#DC2626", bg: "#FEF2F2", text: "Yovogbó ɖò nǔɖùdù ce lɛ ɖù wɛ ɖo gle mɛ, nɛ̌ un na wà gbɔn ?" },
+        { icon: "fa-flask", color: "#1B6A3B", bg: "#E8F5E9", text: "Agbado wéma ce lɛ ɖo jiji wɛ, engrais tɛ́ un na zán ?" },
+        { icon: "fa-boxes-stacked", color: "#6D28D9", bg: "#EDE9FE", text: "Nɛ̌ un sixu hɛn agbado ce ɖó kpòtò PICS mɛ gbɔn ?" }
     ],
     yoruba: [
-        { icon: "fa-wheat-awn", color: "#D97706", bg: "#FEF3C7", text: "Ewé àgbàdo mi ń pọ́n, kí ni mo lè ṣe látiwò ó ?" },
-        { icon: "fa-bug", color: "#DC2626", bg: "#FEF2F2", text: "Báwo ni mo ṣe lè pa kòkòrò àgbàdo pẹ̀lú ewé dongoyaro (neem) ?" },
-        { icon: "fa-flask", color: "#1B6A3B", bg: "#E8F5E9", text: "Báwo ni a ṣe ń lo ajílẹ̀ NPK àti Urée fún oko àgbàdo ?" },
-        { icon: "fa-boxes-stacked", color: "#6D28D9", bg: "#EDE9FE", text: "Báwo ni a ṣe ń tọ́jú àgbàdo sí inú àpò PICS láìsí kòkòrò ?" }
+        { icon: "fa-wheat-awn", color: "#D97706", bg: "#FEF3C7", text: "Ewé àgbàdo mi ní àmì pípọ́n, kí ni màá ṣe ?" },
+        { icon: "fa-bug", color: "#DC2626", bg: "#FEF2F2", text: "Àwọn kòkòrò apanirun ń jẹ ohun ọ̀gbìn mi ní oko, kí ni mo lè ṣe ?" },
+        { icon: "fa-flask", color: "#1B6A3B", bg: "#E8F5E9", text: "Ewé oko mi ń pọ́n, oògùn ajílẹ̀ wo ni mo gbọ́dọ̀ lò ?" },
+        { icon: "fa-boxes-stacked", color: "#6D28D9", bg: "#EDE9FE", text: "Báwo ni mo ṣe lè tọ́jú àgbàdo mi sínú àpò PICS ?" }
     ],
     ewe: [
         { icon: "fa-wheat-awn", color: "#D97706", bg: "#FEF3C7", text: "Nye bli ƒe aŋgbawo le ʋuʋum dzĩ, nuka mawɔ ?" },
@@ -1105,20 +1274,20 @@ function applyTranscribedText(text) {
    8. MOTEUR CONVERSATIONNEL IA & HISTORIQUE DES DISCUSSIONS
 ------------------------------------------------------ */
 const AI_MODELS = [
-    "gemini-2.5-flash-lite",
-    "gemini-flash-lite-latest",
     "gemini-2.5-flash",
-    "gemini-flash-latest"
+    "gemini-flash-latest",
+    "gemini-2.5-flash-lite",
+    "gemini-flash-lite-latest"
 ];
 
 let conversationHistory = [];
 let currentSessionId = 'sess_' + Date.now();
 
 const SYSTEM_PROMPTS = {
-    fr: "Tu es AgriVoice, l'assistant agricole vocal expert pour les producteurs au Bénin (comme Bio Kora à Parakou, producteur de maïs et soja sur 5 ha). RÈGLE D'OR : Fais des réponses COURTES, PRÉCISES et PRATIQUES (3 à 4 phrases maximum). Donne directement la cause probable et 1 à 2 solutions concrètes validées par l'INRAB (bio-pesticide feuilles de neem, savon noir, cendre, doses NPK 15-15-15 / Urée, sacs PICS, prix Dantokpa/Parakou).",
-    fon: "A nyí AgriVoice, alɔgɔtɔ́ glezɔ́ tɔn Benɛ tɔn. RÈGLE ABSOLUE : Ðɔ xó KLÉWÚN DÍDÍ ɖò Fɔngbe mɛ (wěɖexámɛ 2 alǒ 3 kpowun). Zán xógbe bɔbɔ e glezɔ́watɔ́ bǐ na sè gbɔn ganjí é. Na nǔ e na wà tlɔlɔ é (kínítín neem, zǒfin, engrais NPK, sakí PICS).",
-    yoruba: "AgriVoice ni ọ́, olùrànlọ́wọ́ àwọn àgbẹ̀ ní Bénin. RÈGLE ABSOLUE : Fún ni ìdáhùn KÚKÚRÚ púpọ̀ ní èdè Yorùbá (gbolohun 3 sí 4 nìkan). Sọ ohun tó fà á àti ọ̀nà àbáyọ 1 tàbí 2 lẹ́sẹ̀kẹsẹ̀ (ewé dongoyaro neem, ajílẹ̀ NPK/Urée, àpò PICS).",
-    ewe: "AgriVoice nye wò ŋkɔ, agbletɔwo ƒe kpekpeɖeŋutɔ le Benin kple Togo. RÈGLE ABSOLUE : Na ŋuɖoɖo KPUI ŋutɔ le Eʋegbe (Mina) me (gbolohun 3 va ɖo 4 pɛ). Gblɔ nusi he dɔlélea vɛ kple aɖaŋu 1 alo 2 si woawɔ enumake (neem, dzofi, NPK, PICS kotoku)."
+    fr: "Tu es AgriVoice, l'assistant agricole vocal expert pour les producteurs au Bénin (comme Bio Kora à Parakou, producteur de maïs et soja sur 5 ha). RÈGLE D'OR : Fais des réponses COURTES, PRÉCISES et PRATIQUES (2 à 3 phrases maximum). Ne répète jamais les mêmes mots.",
+    fon: "A nyí AgriVoice, alɔgɔtɔ́ glezɔ́ tɔn Benɛ tɔn. RÈGLE ABSOLUE : Ðɔ xó KLÉWÚN DÍDÍ ɖò Fɔngbe mɛ (xókwín 20 jɛ 35 kpowun, wěɖexámɛ 2). Ma vɔ́ xógbe ɖokpo ɔ ɖɔ azɔn we gbeɖé ó. Zán Fɔngbe mímɛ́ Benɛ tɔn.",
+    yoruba: "AgriVoice ni ọ́, olùrànlọ́wọ́ àwọn àgbẹ̀ ní Bénin. RÈGLE ABSOLUE : Fún ni ìdáhùn KÚKÚRÚ púpọ̀ ní èdè Yorùbá (gbolohun 2 sí 3 nìkan). Má ṣe tún ọ̀rọ̀ kan náà sọ.",
+    ewe: "AgriVoice nye wò ŋkɔ, agbletɔwo ƒe kpekpeɖeŋutɔ le Benin kple Togo. RÈGLE ABSOLUE : Na ŋuɖoɖo KPUI ŋutɔ le Eʋegbe me (gbolohun 2 alo 3 pɛ). Mègagbugbɔ nya ɖeka gblɔ edziedzi o."
 };
 
 const chatForm = document.getElementById('chat-form');
@@ -1157,16 +1326,20 @@ if (chatForm) {
         const loaderId = addMessage(
             `<div style="display:flex;align-items:center;gap:12px;color:var(--agri-green);font-weight:700">
                 <i class="fa-solid fa-circle-notch fa-spin" style="font-size:16px"></i>
-                <span>AgriVoice analyse votre question agronomique (${LANG_CONFIG[currentLang].label})...</span>
+                <span>AgriVoice prépare la réponse et enregistre la note vocale (${LANG_CONFIG[currentLang].label})...</span>
             </div>`,
             'assistant',
             true
         );
 
         try {
+            // 1. Générer la réponse texte (sans hallucination)
             const botReply = await askAI(text, currentLang, matchedTrackId);
+            // 2. Générer & enregistrer UNE SEULE FOIS la note vocale associée avant d'afficher la réponse
+            const preSavedAudioUrl = await resolveOrGenerateVoiceNote(botReply, currentLang, matchedTrackId);
             document.getElementById(loaderId)?.remove();
-            addMessage(botReply, 'assistant', false, true, matchedTrackId);
+            // 3. Afficher la réponse avec la note vocale déjà enregistrée dessus
+            addMessage(botReply, 'assistant', false, true, matchedTrackId, preSavedAudioUrl);
             saveCurrentSessionToHistory(text, botReply);
         } catch (err) {
             document.getElementById(loaderId)?.remove();
@@ -1176,24 +1349,36 @@ if (chatForm) {
 }
 
 async function askAI(userText, lang, matchedTrackId = null) {
+    // 1. Pour les 11 scénarios agronomiques officiels en Fon ou Yorùbá :
+    // utiliser directement la transcription humaine certifiée d'AgriAudioRepository.kt (0 hallucination, 100% fidèle à l'audio studio !)
+    if (matchedTrackId && OFFICIAL_TRACK_TEXTS[matchedTrackId] && (lang === 'fon' || lang === 'yoruba')) {
+        const exactVerifiedText = OFFICIAL_TRACK_TEXTS[matchedTrackId][lang];
+        if (exactVerifiedText) {
+            conversationHistory.push({ role: "user", parts: [{ text: userText }] });
+            conversationHistory.push({ role: "model", parts: [{ text: exactVerifiedText }] });
+            return exactVerifiedText;
+        }
+    }
+
     const sysPrompt = SYSTEM_PROMPTS[lang] || SYSTEM_PROMPTS.fr;
     const matchedFiche = matchedTrackId ? FICHES_DATA.find(f => f.trackId === matchedTrackId) : null;
-    const refBody = matchedFiche ? (matchedFiche.body[lang] || matchedFiche.body.fr) : "";
+    const refBody = (matchedTrackId && OFFICIAL_TRACK_TEXTS[matchedTrackId]?.[lang])
+        || (matchedFiche ? (matchedFiche.body[lang] || matchedFiche.body.fr) : "");
 
     const langDirectives = {
-        fr: `Réponds uniquement en Français clair et pratique (3 à 4 phrases maximum).`,
-        fon: `[OBLIGATION STRICTE : Réponds EXCLUSIVEMENT en langue Fɔngbe (Fon du Bénin). Même si la question de l'utilisateur est posée en français, traduis ta réponse et écris UNIQUEMENT en Fɔngbe authentique. N'écris AUCUNE phrase en français.]${refBody ? `\nRéférence officielle Fɔngbe INRAB : "${refBody}"` : ''}`,
-        yoruba: `[OBLIGATION STRICTE : Réponds EXCLUSIVEMENT en langue Yorùbá avec les accents toniques (ẹ, ọ, ṣ). Même si la question de l'utilisateur est posée en français, écris UNIQUEMENT en Yorùbá. N'écris AUCUNE phrase en français.]${refBody ? `\nRéférence officielle Yorùbá INRAB : "${refBody}"` : ''}`,
-        ewe: `[OBLIGATION STRICTE : Réponds EXCLUSIVEMENT en langue Éwé / Mina (Eʋegbe). Même si la question de l'utilisateur est posée en français, écris UNIQUEMENT en Éwé. N'écris AUCUNE phrase en français.]${refBody ? `\nRéférence officielle Éwé INRAB : "${refBody}"` : ''}`
+        fr: `Réponds uniquement en Français clair et pratique (2 à 3 phrases courtes maximum).`,
+        fon: `[OBLIGATION STRICTE : Réponds EXCLUSIVEMENT en Fɔngbe (Fon du Bénin) en 2 phrases courtes maximum (25 mots max). N'écris AUCUN mot en français et ne répète JAMAIS le même mot.]${refBody ? `\nTexte de référence Fɔngbe : "${refBody}"` : ''}`,
+        yoruba: `[OBLIGATION STRICTE : Réponds EXCLUSIVEMENT en Yorùbá en 2 phrases courtes maximum (25 mots max). N'écris AUCUN mot en français et ne répète JAMAIS le même mot.]${refBody ? `\nTexte de référence Yorùbá : "${refBody}"` : ''}`,
+        ewe: `[OBLIGATION STRICTE : Réponds EXCLUSIVEMENT en Éwé (Eʋegbe) en 2 phrases courtes maximum (25 mots max). N'écris AUCUN mot en français et ne répète JAMAIS le même mot.]${refBody ? `\nTexte de référence Éwé : "${refBody}"` : ''}`
     };
 
-    const enrichedUserMessage = `${langDirectives[lang] || langDirectives.fr}\n\nQuestion du producteur : ${userText}`;
+    const enrichedUserMessage = `${langDirectives[lang] || langDirectives.fr}\n\nQuestion : ${userText}`;
     conversationHistory.push({ role: "user", parts: [{ text: enrichedUserMessage }] });
 
     const payload = {
         systemInstruction: { parts: [{ text: sysPrompt }] },
         contents: conversationHistory,
-        generationConfig: { temperature: 0.45, maxOutputTokens: 700 }
+        generationConfig: { temperature: 0.25, maxOutputTokens: 180 }
     };
 
     let lastError = null;
@@ -1208,7 +1393,8 @@ async function askAI(userText, lang, matchedTrackId = null) {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
             const data = await response.json();
-            const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || refBody || "Je n'ai pas pu générer de réponse.";
+            const rawReply = data.candidates?.[0]?.content?.parts?.[0]?.text || refBody || "Je n'ai pas pu générer de réponse.";
+            const replyText = cleanHallucinationsAndRepetitions(rawReply) || refBody || rawReply;
             conversationHistory[conversationHistory.length - 1] = { role: "user", parts: [{ text: userText }] };
             conversationHistory.push({ role: "model", parts: [{ text: replyText }] });
             return replyText;
@@ -1239,7 +1425,7 @@ function formatMarkdown(text) {
         .replace(/\n/g, '<br>');
 }
 
-function addMessage(text, role, isHtml = false, withTTS = false, matchedTrackId = null) {
+function addMessage(text, role, isHtml = false, withTTS = false, matchedTrackId = null, preSavedAudioUrl = null) {
     const template = role === 'user' ? templateUser : templateAssistant;
     if (!template) return "";
 
@@ -1266,18 +1452,25 @@ function addMessage(text, role, isHtml = false, withTTS = false, matchedTrackId 
 
         const ttsBtn = document.createElement('button');
         ttsBtn.style.cssText = 'display:inline-flex;align-items:center;gap:7px;background:#E8F5E9;color:var(--agri-green);font-size:12.5px;font-weight:800;padding:7px 15px;border-radius:9999px;border:1px solid #BBF7D0;cursor:pointer;font-family:inherit;transition:all 0.15s';
-        ttsBtn.innerHTML = `<i class="fa-solid fa-volume-high"></i> <span>Écouter la voix (${LANG_CONFIG[currentLang].label})</span>`;
-        ttsBtn.onclick = () => speakText(text, currentLang, ttsBtn, matchedTrackId);
+        ttsBtn.innerHTML = `<i class="fa-solid fa-play"></i> <span>Écouter la note vocale (${LANG_CONFIG[currentLang].label})</span>`;
+        if (preSavedAudioUrl) {
+            ttsBtn.dataset.savedAudioUrl = preSavedAudioUrl;
+        }
+        // Si l'utilisateur ré-appuie dessus, cela lit directement l'audio enregistré sans régénérer !
+        ttsBtn.onclick = () => {
+            if (ttsBtn.dataset.savedAudioUrl) {
+                playSavedAudioUrl(ttsBtn.dataset.savedAudioUrl, ttsBtn, currentLang);
+            } else {
+                speakText(text, currentLang, ttsBtn, matchedTrackId);
+            }
+        };
         actionToolbar.appendChild(ttsBtn);
         createdTtsBtn = ttsBtn;
 
-        if (matchedTrackId && ['fon', 'yoruba', 'fr'].includes(currentLang)) {
-            const studioBtn = document.createElement('button');
-            studioBtn.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:#FEF3C7;color:#92400E;font-size:12px;font-weight:800;padding:7px 13px;border-radius:9999px;border:1px solid #FDE68A;cursor:pointer;font-family:inherit;transition:all 0.15s';
-            studioBtn.innerHTML = `<i class="fa-solid fa-microphone-lines"></i> <span>Audio Studio (${LANG_CONFIG[currentLang].label})</span>`;
-            studioBtn.onclick = () => playOfficialTrack(matchedTrackId, studioBtn, text);
-            actionToolbar.appendChild(studioBtn);
-        }
+        const savedBadge = document.createElement('span');
+        savedBadge.style.cssText = 'display:inline-flex;align-items:center;gap:5px;background:#F0FDF4;color:#15803D;font-size:11px;font-weight:800;padding:5px 10px;border-radius:9999px;border:1px solid #DCFCE7';
+        savedBadge.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>Audio enregistré</span>`;
+        actionToolbar.appendChild(savedBadge);
 
         const copyBtn = document.createElement('button');
         copyBtn.style.cssText = 'width:32px;height:32px;border-radius:50%;background:#F1F5F9;border:none;color:#64748B;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px';
@@ -1291,6 +1484,13 @@ function addMessage(text, role, isHtml = false, withTTS = false, matchedTrackId 
         actionToolbar.appendChild(copyBtn);
 
         contentDiv?.appendChild(actionToolbar);
+
+        // Si le message provient de l'historique et n'a pas encore son URL pré-attachée, la charger silencieusement depuis le coffre-fort
+        if (!preSavedAudioUrl) {
+            resolveOrGenerateVoiceNote(text, currentLang, matchedTrackId).then(url => {
+                if (url) ttsBtn.dataset.savedAudioUrl = url;
+            });
+        }
     }
 
     clone.style.display = 'flex';
@@ -1300,7 +1500,11 @@ function addMessage(text, role, isHtml = false, withTTS = false, matchedTrackId 
     }
 
     if (withTTS && role === 'assistant' && createdTtsBtn && isAutoplayOn()) {
-        speakText(text, currentLang, createdTtsBtn, matchedTrackId);
+        if (preSavedAudioUrl) {
+            playSavedAudioUrl(preSavedAudioUrl, createdTtsBtn, currentLang);
+        } else {
+            speakText(text, currentLang, createdTtsBtn, matchedTrackId);
+        }
     }
 
     return uniqueId;
@@ -1373,7 +1577,8 @@ function loadSavedSession(sessionId) {
     conversationHistory.forEach(item => {
         const txt = item.parts?.[0]?.text || '';
         const role = item.role === 'user' ? 'user' : 'assistant';
-        addMessage(txt, role, false, role === 'assistant');
+        const track = role === 'assistant' ? matchOfficialTrackForQuery(txt) : null;
+        addMessage(txt, role, false, role === 'assistant', track);
     });
     switchView('view-chat');
 }
@@ -1405,7 +1610,7 @@ function renderRecentSessions() {
 
 /* -----------------------------------------------------
    9. GUIDES & FICHES PRATIQUES AUDIO (ResourcesScreen.kt + AgriAudioRepository.kt)
-      Avec les 10 pistes officielles pré-enregistrées !
+      Avec les 10 pistes officielles pré-enregistrées et leurs transcriptions certifiées !
 ------------------------------------------------------ */
 const RESOURCE_CATEGORIES = [
     { key: 'Tous', fr: 'Tous', fon: 'Bǐ', yoruba: 'Gbogbo', ewe: 'Katã', icon: 'fa-layer-group' },
@@ -1431,14 +1636,14 @@ const FICHES_DATA = [
         bg: '#E8F5E9',
         title: {
             fr: "Traitement des taches foliaires du Maïs",
-            fon: "Amasin nú amà gbadé tɔn e ɖò gblégblé wɛ lɛ é",
+            fon: "Azɔn : Àmì e ɖò agbado wéma jí lɛ",
             yoruba: "Ìtọ́jú àrùn abàwọ́n ewé àgbàdo",
             ewe: "Bli aŋgba dɔlélewo ƒe atikewɔwɔ"
         },
         body: {
-            fr: "Si les feuilles du maïs présentent des taches brunes ou jaunes : arrachez et brûlez les feuilles très atteintes hors du champ. Pulvérisez un extrait d'huile de neem avec un peu de savon noir tôt le matin ou en fin d'après-midi, et pratiquez la rotation avec le soja.",
-            fon: "Ényí amà gbadé tɔn lɛ ɖò vɔvɔ wɛ ɔ, sún amà e gblé tawun lɛ é síìn. Tò kínítín (neem) sín amà kpo adǐ kpo bó húzú dó gbadé ɔ jí zǎnzǎn tɛɛn.",
-            yoruba: "Tí ewé àgbàdo bá ní abàwọ́n pupa tàbí ofeefee: ẹ yọ àwọn ewé tó ti bàjẹ́ kúrò. Ẹ fi omi ewé dongoyaro (neem) àti ọṣẹ dúdú wọ́n ọ ní àárọ̀ kùtùkùtù.",
+            fr: "Les taches sur les feuilles de maïs sont une maladie. Enlevez les feuilles abîmées et traitez avec du cuivre ou du mancozèbe.",
+            fon: "Àmì e ɖò agbado wéma jí lɛ nyí azɔn. Ðè wéma e gblé lɛ sín mɛ bo zán oogun kòba tàbí mankozèbè.",
+            yoruba: "Àwọn àmì lórí ewé àgbàdo yín jẹ́ àrùn ewé. Ẹ yọ àwọn ewé tó ti bàjẹ́ kúrò, kí ẹ sì lo oògùn kópà tàbí mankozeb.",
             ewe: "Ne bli ƒe aŋgbawo dzi ɖe nɔnɔme vovovo la, ɖe aŋgba gblẽawo ɖa eye nàwu neem tsi kple adzalẽ ɖe wo dzi ŋdi kanya."
         }
     },
@@ -1453,15 +1658,15 @@ const FICHES_DATA = [
         bg: '#FEF2F2',
         title: {
             fr: "Protection contre la Chenille légionnaire (Spodoptera)",
-            fon: "Wǎnví e nɔ ɖu gbadé sín vijín lɛ é (Chenille)",
-            yoruba: "Ìdáàbòbò lọ́wọ́ kòkòrò àgbàdo (Chenille légionnaire)",
+            fon: "Yovogbó e nɔ ɖu agbado lɛ é (Chenille)",
+            yoruba: "Ìdáàbòbò lọ́wọ́ kòkòrò apanirun àgbàdo",
             ewe: "Bli nudzrala (Chenille) ƒe atikewɔwɔ"
         },
         body: {
-            fr: "Inspectez le cœur des jeunes plants de maïs. Pilez 500 g de feuilles ou graines de neem dans 10 litres d'eau, laissez macérer une nuit, filtrez et versez directement dans le cornet foliaire. Vous pouvez aussi déposer une pincée de cendre de bois tamisée dans le cœur du plant.",
-            fon: "Kpɔ́n gbadé yɔkpɔ́vú lɛ sín vijín mɛ. Só kínítín (neem) sín amà dó sin lìtli 10 mɛ, jó dó nú zǎn ɖokpó bó kɔn dó gbadé ɔ sín vijín mɛ, alǒ dó zǒfin kpɛɖé mɛ.",
-            yoruba: "Ẹ wo àárín ọmọ àgbàdo. Ẹ gún ewé dongoyaro (neem) sí inú omi lítà mẹ́wàá, kí ẹ fi sílẹ̀ di ọjọ́ kejì, kí ẹ sì da á sí àárín ewé àgbàdo náà tàbí kí ẹ fi eérú sí i.",
-            ewe: "Kpɔ bli viwo ƒe dzime. То neem aŋgba de tsi lita 10 me zã ɖeka eye nàkɔ ɖe bli ƒe dzime alo nàde dzofi vi aɖe eme."
+            fr: "Attention, ce sont des chenilles légionnaires. Préparez un extrait de feuilles de neem avec du savon ou traitez tôt le matin.",
+            fon: "Kpɔn bo cɔ́ hwiɖee, yovogbó wɛ ɖò nǔ ɖù wɛ. Zán nímù sín wéma kpódó xɔ̀sùn kpó do hu ye do zànzan.",
+            yoruba: "Ẹ kíyèsí i, kòkòrò apanirun ló ń jẹ ẹ́. Ẹ lo oògùn ewé dóngóyárò pẹ̀lú ọṣẹ tàbí kí ẹ fún oògùn ní àárọ̀ kùtùkùtù.",
+            ewe: "Kpɔ bli viwo ƒe dzime. Tò neem aŋgba de tsi me eye nàkɔ ɖe bli ƒe dzime alo nàde dzofi vi aɖe eme."
         }
     },
     {
@@ -1475,15 +1680,15 @@ const FICHES_DATA = [
         bg: '#DBEAFE',
         title: {
             fr: "Carence nutritive : Jaunissement & Engrais NPK / Urée",
-            fon: "Amà vɔvɔ kpo Engrais NPK / Urée dídó kpo",
-            yoruba: "Ewé tó ń pọ́n àti lílo Ajílẹ̀ NPK / Urée",
+            fon: "Agbado wéma e ɖo jiji : Engrais & Urée",
+            yoruba: "Ewé tó ń pọ́n àti lílo Ajílẹ̀ Urea / Compost",
             ewe: "Aŋgba ʋuʋu kple Ajilɛ NPK / Urée zãzã"
         },
         body: {
-            fr: "Un jaunissement en V sur la pointe des feuilles indique un manque d'azote. Appliquez 200 kg/ha de NPK 15-15-15 (une capsule par poquet à 5 cm du pied) au 15e jour après semis, puis 100 kg/ha d'urée au 40e jour sur sol humide en rebouchant toujours le trou.",
-            fon: "Ényí amà gbadé tɔn ɖò vɔvɔ wɛ ɔ, engrais wɛ hwe. Dó NPK 15-15-15 ɖò azǎn 15 gudo, bó dó Urée ɖò azǎn 40 gudo hwenu e ayǐkúngban ɔ fá é.",
-            yoruba: "Tí ewé àgbàdo bá ń pọ́n láti ìsàlẹ̀, ó nílò ajílẹ̀. Ẹ fi NPK 15-15-15 sí i ní ọjọ́ kẹẹ̀ẹ́dógún lẹ́yìn ìgbìn, àti Urée ní ọjọ́ogoji nígbà tí ilẹ̀ bá tutu.",
-            ewe: "Ne bli aŋgbawo le ʋuʋum la, de NPK 15-15-15 le ŋkeke 15 megbe eye nàde Urée le ŋkeke 40 megbe ne anyigba fã."
+            fr: "Le jaunissement des feuilles indique un manque d'engrais. Ajoutez de l'urée ou du compost.",
+            fon: "Agbado wéma e ɖo jiji nyí ɖɔ è ɖo hudo engrais tɔn. Sɔ urée alo gbedó do gle ɔ mɛ.",
+            yoruba: "Ewé tó ń pọ́n fi hàn pé ilẹ̀ náà nílò oògùn ajílẹ̀. Ẹ bu ajílẹ̀ urea tàbí ajílẹ̀ àdánidá sí i.",
+            ewe: "Ne bli aŋgbawo le ʋuʋum la, de NPK le ŋkeke 15 megbe eye nàde Urée le ŋkeke 40 megbe ne anyigba fã."
         }
     },
     {
@@ -1497,15 +1702,15 @@ const FICHES_DATA = [
         bg: '#EDE9FE',
         title: {
             fr: "Techniques de stockage des grains (Sacs PICS triple couche)",
-            fon: "Nǔbibɛ ɖó sakí PICS mɛ nú wǎnví má ɖu ó",
-            yoruba: "Ìtọ́jú ọkà sí inú àpò PICS láìsí oògùn",
+            fon: "Agbado hɛnhɛn ɖó PICS sín kpòtò mɛ",
+            yoruba: "Ìtọ́jú àgbàdo sí inú àpò PICS",
             ewe: "Bli kple Soja dzraɖoɖo ɖe PICS kotoku me"
         },
         body: {
-            fr: "Séchez bien le maïs ou le soja au soleil jusqu'à 12% d'humidité (le grain craque sous la dent). Remplissez le sac PICS en chassant l'air de chacune des deux poches plastiques internes, attachez-les séparément avec une corde solide, puis posez les sacs sur des palettes en bois.",
-            fon: "Gló gbadé alǒ soja towe ɖó hwe nu ganjí. Bɛ̌ dó sakí PICS ɔ mɛ, nyà jɔhɔn sín sakí we e ɖò xomɛ lɛ é mɛ bó blá ɖokpó ɖokpó ganjí.",
-            yoruba: "Ẹ sa àgbàdo tàbí soya sí oòrùn kó gbẹ dáadáa. Ẹ kó o sí inú àpò PICS, ẹ tẹ afẹ́fẹ́ jáde nínú àpò ọ̀rá méjèèjì inú rẹ̀, kí ẹ sì so wọ́n pa.",
-            ewe: " Sia bli alo soja ɖe ŋdɔ nu nyuie. Kɔe ɖe PICS kotoku me, ɖe ya le eme nyuie eye nàbla kotokua ɖe atikplɔ dzi."
+            fr: "Les prix montent. Si vous avez des sacs PICS, gardez votre stock encore 2 semaines pour mieux vendre.",
+            fon: "Axì ɖo jiji wɛ. Enyi a ɖó PICS sín kpòtò ɔ, hɛn agbado towe ɖó azan wéwe gudo bo sa ganji.",
+            yoruba: "Owó ń gòkè. Tí ẹ bá ní àpò PICS, ẹ fi àgbàdo yín pamọ́ fún ọ̀sẹ̀ méjì sí i kí ẹ tó tà á.",
+            ewe: "Sia bli alo soja ɖe ŋdɔ nu nyuie. Kɔe ɖe PICS kotoku me, ɖe ya le eme nyuie eye nàbla kotokua."
         }
     },
     {
@@ -1519,14 +1724,14 @@ const FICHES_DATA = [
         bg: '#E0F2FE',
         title: {
             fr: "Alerte Météo & Calendrier des Semis (Pluie favorable)",
-            fon: "Jǐ ɖagbe ná ja : Hwenu nǔdídó tɔn",
+            fon: "Jǐ gángán na jà : Hwenu agbado dídó tɔn",
             yoruba: "Ìkìlọ̀ Ojú Ọjọ́ : Òjò àti Àkókò Ìgbìn",
             ewe: "Tsidzadza & Nukuƒãɣi Nyui"
         },
         body: {
-            fr: "Une pluie régulière est annoncée sur votre zone. C'est le moment optimal pour semer le maïs (écartement 80 cm x 40 cm, 2 graines par poquet) et le soja (60 cm x 10 cm) afin de profiter de l'humidité du sol.",
-            fon: "Jǐ ɖagbe ná ja ɖò toxo towe mɛ. Hwenu ɖagbe wɛ bó ná dó gbadé (kún we ɖò do ɖokpó mɛ) kpo soja kpo.",
-            yoruba: "Òjò tó dára ń bọ̀ ní agbègbè yín. Àkókò yìí dára láti gbin àgbàdo àti soya kí wọ́n lè הו jáde kíákíá.",
+            fr: "De fortes pluies sont annoncées pour les 3 prochains jours. C'est le bon moment pour semer le maïs.",
+            fon: "Jǐ gángán na jà ɖo azan atɔn e ja lɛ mɛ. Hwenu ɖagbe wɛ nǔ agbado dídó.",
+            yoruba: "Òjò ń bọ̀ ní ọjọ́ mẹ́ta tó ń bọ̀ yìí. Àkókò tó dára nìyí láti gbin àgbàdo yín.",
             ewe: "Tsidzadza nyui gbɔna. Ɣeyiɣi nyuitɔe nye esi nàƒã bli kple soja."
         }
     },
@@ -1541,14 +1746,14 @@ const FICHES_DATA = [
         bg: '#FEF3C7',
         title: {
             fr: "Alerte Forte Chaleur : Paillage & Conservation de l'eau",
-            fon: "Hwèsivɔ́ syɛnsyɛn : Cyɔn gbe nú ayǐkúngban ɔ",
+            fon: "Hwé ɖo gbigbó tawun : Paillage ayǐkúngban tɔn",
             yoruba: "Ìkìlọ̀ Oòrùn Líle : Bo ilẹ̀ oko pẹ̀lú koríko",
             ewe: "Ŋdɔʋuʋu Sesẽ : Tsɔ gbe ƒuƒu tsyɔ anyigba"
         },
         body: {
-            fr: "En période de forte chaleur et de poche de sécheresse, couvrez le sol entre les lignes avec des résidus de récolte ou de la paille sèche (paillage). Évitez de sarcler profondément en plein soleil pour ne pas faire évaporer l'humidité.",
-            fon: "Hwenu e hwe ɖò sisɔ́ wɛ tawun é ɔ, bɛ̌ gbe xúxú dó cyɔn ayǐkúngban ɔ jí ɖò gbadé lɛ tɛntin nú sin má vɔ ɖò kɔ́ ɔ mɛ ó.",
-            yoruba: "Nígbà tí oòrùn bá mú gan-an, ẹ fi koríko gbígbẹ bo ilẹ̀ láàárín ọ̀gbìn yín kí omi inú ilẹ̀ má bàa gbẹ.",
+            fr: "Temps très chaud. Paillez le sol autour de vos cultures pour retenir l'eau.",
+            fon: "Hwé ɖo gbigbó tawun. Sɔ gbé kpo amà kpo do glɔ nǔ nǔdó lɛ bo hɛn sìn ɖo ayǐkúngban mɛ.",
+            yoruba: "Oòrùn pọ̀ gan-an. Ẹ fi koríko bo ìdí àwọn ohun ọ̀gbìn yín kí omi má baà gbẹ lára wọn.",
             ewe: "Ne ŋdɔ le ʋuʋum sesĩe la, tsɔ gbe ƒuƒu tsyɔ anyigba le agblea me be tsi nagamie le eme o."
         }
     },
@@ -1563,14 +1768,14 @@ const FICHES_DATA = [
         bg: '#E0F2FE',
         title: {
             fr: "Précaution Pluie : Ne pas pulvériser avant l'orage",
-            fon: "Ma húzú amasin dó gle mɛ hwɛ̌ cóbɔ jǐ ná ja ó",
-            yoruba: "Ẹ má ṣe fi oògùn wọ́n oko kí òjò tó rọ̀",
+            fon: "Ma fún oogun ɖo égbé ó (Jǐ na jà)",
+            yoruba: "Ẹ má fún oògùn sí oko lónìí kí òjò tó rọ̀",
             ewe: "Mègawu atike ɖe agble me hafi tsi nadza o"
         },
         body: {
-            fr: "Attention : une pluie est imminente. Reportez toute pulvérisation de bio-pesticide au neem ou d'épandage d'engrais en surface, sinon l'eau de pluie va laver le produit et vous perdrez votre investissement.",
-            fon: "Jǐ ko ɖò jijà wɛ : ma húzú amasin alǒ dó engrais égbé ó, é má nyí mɔ̌ ǎ ɔ jǐ ná klɔ́ bǐ yì.",
-            yoruba: "Òjò fẹ́ rọ̀ láìpẹ́ : ẹ má ṣe fi oògùn dongoyaro tàbí ajílẹ̀ sí oko nísinsìnyí kí òjò má bàa fọ̀ ọ́ dànù.",
+            fr: "Ne traitez pas aujourd'hui, la pluie va laver le produit sur les feuilles.",
+            fon: "Ma fún oogun ɖo égbé ó, jǐ na jà bo klɔ́ oogun ɔ sín amà jí.",
+            yoruba: "Ẹ má fún oògùn sí oko lónìí o, nítorí pé òjò yóò fọ gbogbo rẹ̀ dànù.",
             ewe: "Tsi le dzadza ge kpuie: mègawu neem atike egbe o, ne menye nenema o la tsi aklɔe adzoe."
         }
     },
@@ -1580,20 +1785,20 @@ const FICHES_DATA = [
         duration: '00:12',
         category: 'Marchés',
         extraCats: ['Maïs'],
-        icon: 'fa-Wheat-awn',
+        icon: 'fa-wheat-awn',
         color: '#B45309',
         bg: '#FEF3C7',
         title: {
             fr: "Bulletin Prix du Maïs : Marchés Dantokpa & Parakou",
-            fon: "Gbadé sín axi ɖò Dantokpa kpo Parakou kpo",
-            yoruba: "Iye owó Àgbàdo ní ọjà Dantokpa àti Parakou",
+            fon: "Agbado wéwé sín axì ɖò Dantokpa & Parakou",
+            yoruba: "Iye owó Àgbàdo funfun ní ọjà Dàntọ́kpà",
             ewe: "Bli ƒe asi le Dantokpa kple Parakou"
         },
         body: {
-            fr: "Le kilogramme de maïs grain blanc sec s'échange actuellement autour de 260 FCFA (soit 26 000 FCFA le sac de 100 kg) à Dantokpa et Parakou. Conseil : regroupez vos ventes en coopérative pour négocier un meilleur prix bord-champ.",
-            fon: "Gbadé wéwé xúxú kìlò ɖokpó ɖò 260 FCFA (sakí 100 kg ɖò 26 000 FCFA) ɖò Dantokpa kpo Parakou kpo.",
-            yoruba: "Àgbàdo funfun gbígbẹ jẹ́ 260 FCFA fún kìlò kan (26 000 FCFA fún àpò 100 kg) ní ọjà Dantokpa àti Parakou.",
-            ewe: "Bli ƒuƒu kilo ɖeka le 260 FCFA (kotoku 100 kg le 26 000 FCFA) le Dantokpa kple Parakou."
+            fr: "Aujourd'hui, le maïs blanc est entre 250 et 280 FCFA le kilo. Le sac de 100 kg se vend à 24 000 FCFA.",
+            fon: "Égbé ɔ, agbado wéwé sín kilo ɖo 250 jɛ 280 FCFA. Kpòtò 100kg tɔn ɖo 24 000 FCFA.",
+            yoruba: "Lónìí, àgbàdo funfun jẹ́ 250 sí 280 FCFA fún kìlò kan. Àpò ọgọ́rùn-ún kìlò jẹ́ 24,000 FCFA.",
+            ewe: "Bli ƒuƒu kilo ɖeka le Dantokpa kple Parakou asi me."
         }
     },
     {
@@ -1607,15 +1812,15 @@ const FICHES_DATA = [
         bg: '#DCFCE7',
         title: {
             fr: "Bulletin Prix du Soja : Marchés Parakou & Bohicon",
-            fon: "Soja sín axi ɖò Parakou kpo Bohicon kpo",
-            yoruba: "Iye owó Ewa Soya ní Parakou àti Bohicon",
+            fon: "Soja sín axì ɖò Parakou kpo Bohicon kpo",
+            yoruba: "Iye owó ẹwà Sòyà ní Párákú àti Bòhíkọ̀n",
             ewe: "Soja ƒe asi le Parakou kple Bohicon"
         },
         body: {
-            fr: "Le soja grain trié sans impuretés se vend à 325 FCFA le kilogramme (32 500 FCFA le sac de 100 kg) sur les marchés de Parakou, Bohicon et Nikki. Vannez bien vos graines pour obtenir le bonus qualité.",
-            fon: "Soja מímɛ́ kìlò ɖokpó ɖò 325 FCFA (sakí 100 kg ɖò 32 500 FCFA) ɖò Parakou kpo Bohicon kpo.",
-            yoruba: "Ewa soya tó mọ́ dáadáa jẹ́ 325 FCFA fún kìlò kan ní ọjà Parakou àti Bohicon.",
-            ewe: "Soja nyui kilo ɖeka le 325 FCFA le Parakou kple Bohicon asiwo me."
+            fr: "Le prix du Soja est stable : 350 FCFA le kilo à Parakou et Bohicon.",
+            fon: "Soja sín axì ɖo ganji : kilo ɖokpo nyí 350 FCFA ɖo Parakou kpo Bohicon kpo.",
+            yoruba: "Iye owó ẹwà Sòyà dúró dáadáa : kìlò kan jẹ́ 350 FCFA ní Párákú àti Bòhíkọ̀n.",
+            ewe: "Soja nyui kilo ɖeka le Parakou kple Bohicon asiwo me."
         }
     },
     {
@@ -1629,15 +1834,15 @@ const FICHES_DATA = [
         bg: '#F3E8FF',
         title: {
             fr: "Bulletin Prix du Gari : Marché Dantokpa & Savalou",
-            fon: "Gali sín axi ɖò Dantokpa kpo Savalou kpo",
-            yoruba: "Iye owó Gaàrí ní ọjà Dantokpa",
+            fon: "Gari sohoui sín axì ɖò Dantokpa",
+            yoruba: "Iye owó Gáàrí ní ọjà Dàntọ́kpà",
             ewe: "Gali ƒe asi le Dantokpa"
         },
         body: {
-            fr: "Le gari fin de manioc de premier choix se négocie autour de 400 FCFA le kilogramme au marché Dantokpa. La demande reste soutenue dans toutes les communes du Sud et du Centre Bénin.",
-            fon: "Gali ɖagbe kìlò ɖokpó ɖò 400 FCFA ɖò Dantokpa.",
-            yoruba: "Gaàrí tó dára jẹ́ 400 FCFA fún kìlò kan ní ọjà Dantokpa.",
-            ewe: "Gali nyui kilo ɖeka le 400 FCFA le Dantokpa asi me."
+            fr: "Le sac de gari sohoui de 50 kg est actuellement à 16 000 FCFA au marché Dantokpa.",
+            fon: "Gari sohoui sín kpòtò 50kg ɖo 16 000 FCFA ɖo axì Dantokpa tɔn mɛ.",
+            yoruba: "Àpò gáàrí àádọ́ta kìlò jẹ́ 16,000 FCFA ní ọjà Dàntọ́kpà báyìí.",
+            ewe: "Gali nyui kotoku le Dantokpa asi me."
         }
     }
 ];

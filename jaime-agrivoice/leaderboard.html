@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>J'aime AgriVoice — Classement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/custom.css?v=2.6" />
+  <style>
+    .podium-bar {
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      flex: 1; max-width: 120px; min-width: 0;
+    }
+    .podium-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--green-light); border: 3px solid var(--green-mid);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 1.1rem; color: var(--green);
+      flex-shrink: 0;
+    }
+    .podium-avatar.rank-1 { width:60px;height:60px;border-color:#FBBF24;background:#FEF3C7;color:#78350F;font-size:1.25rem; }
+    .podium-avatar.rank-2 { border-color:#CBD5E1;background:#F1F5F9;color:#334155; }
+    .podium-avatar.rank-3 { border-color:#C4956A;background:#FEF2E8;color:#431407; }
+    .podium-name { font-size: .78rem; font-weight: 800; text-align: center; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+    .podium-count { font-size: .75rem; font-weight: 700; color: var(--green); white-space: nowrap; }
+    .podium-block {
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+      border-radius: 10px 10px 0 0; width: 100%;
+    }
+    .podium-block.r1 { background: linear-gradient(to top, #FCD34D22, #FCD34D66); min-height: 64px; }
+    .podium-block.r2 { background: linear-gradient(to top, #CBD5E133, #CBD5E155); min-height: 44px; }
+    .podium-block.r3 { background: linear-gradient(to top, #C4956A22, #C4956A44); min-height: 32px; }
+    .filter-lang-btn { padding:6px 14px;border-radius:999px;font-size:.75rem;font-weight:700;cursor:pointer;transition:.15s;border:1.5px solid var(--border);background:var(--surface);color:var(--muted); white-space:nowrap; }
+    .filter-lang-btn.active { background:var(--green);color:#fff;border-color:var(--green); }
+    .filter-lang-btn:hover:not(.active) { border-color:var(--green);color:var(--green); }
+
+    /* ── Responsive Leaderboard ── */
+    @media (max-width: 860px) {
+      body { padding-bottom: 80px; }
+      .nav-links { display: none !important; }
+      #podiumDonutRow { grid-template-columns: 1fr !important; }
+      .filter-lang-container {
+        overflow-x: auto;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+    @media (max-width: 640px) {
+      .container { padding: 0 .875rem; }
+      .podium-avatar { width: 44px; height: 44px; font-size: .95rem; }
+      .podium-avatar.rank-1 { width: 52px; height: 52px; font-size: 1.1rem; }
+      .podium-bar { max-width: 90px; }
+      .podium-name { font-size: .7rem; }
+      .podium-count { font-size: .68rem; }
+      .lb-row { padding: .75rem 1rem; gap: .75rem; }
+      .lb-name { font-size: .85rem; }
+      .lb-validated { font-size: .95rem; }
+    }
+
+    /* ─── Carte Surprise : Personnalisation de pseudo ─── */
+    .surprise-card {
+      background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 50%, #FDE68A 100%);
+      border: 2px solid #F59E0B;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.22), 0 4px 6px -2px rgba(217, 119, 6, 0.08);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      position: relative;
+      overflow: hidden;
+      animation: surprisePopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes surprisePopIn {
+      0% { opacity: 0; transform: translateY(-16px) scale(0.96); }
+      70% { transform: translateY(2px) scale(1.01); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .surprise-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #D97706;
+      color: #FFF;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      margin-bottom: 0.5rem;
+    }
+    .surprise-card-body {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .surprise-card-icon {
+      font-size: 2.2rem;
+      line-height: 1;
+      filter: drop-shadow(0 2px 4px rgba(217, 119, 6, 0.3));
+    }
+    .surprise-card-content {
+      flex: 1;
+      min-width: 220px;
+    }
+    .surprise-card-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #78350F;
+      margin: 0 0 0.25rem 0;
+    }
+    .surprise-card-text {
+      font-size: 0.8rem;
+      color: #92400E;
+      margin: 0;
+      line-height: 1.4;
+    }
+    .surprise-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-surprise-primary {
+      background: linear-gradient(135deg, #196E3F 0%, #11502C 100%);
+      color: #FFFFFF;
+      border: none;
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius-sm);
+      font-weight: 800;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 10px rgba(25, 110, 63, 0.3);
+      transition: all 0.2s;
+    }
+    .btn-surprise-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(25, 110, 63, 0.4);
+    }
+    .btn-surprise-dismiss {
+      background: transparent;
+      border: 1px solid #D97706;
+      color: #92400E;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-surprise-dismiss:hover {
+      background: rgba(217, 119, 6, 0.1);
+    }
+    .nav-user-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(25, 110, 63, 0.08);
+      border: 1px solid rgba(25, 110, 63, 0.2);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-user-badge:hover {
+      background: rgba(25, 110, 63, 0.15);
+      border-color: var(--green);
+    }
+    .btn-edit-name {
+      background: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      color: #FFF;
+      font-size: 0.82rem;
+      border-radius: 999px;
+      padding: 3px 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+    .btn-edit-name:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="assets/logo.png" alt="AgriVoice" />
+      <div class="nav-logo-text">
+        <p>J'aime AgriVoice</p>
+        <span>Collecte Vocale Agricole</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+          <line x1="12" y1="19" x2="12" y2="22"></line>
+        </svg>
+        Enregistrer
+      </a>
+      <a href="leaderboard.html" class="nav-link active">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+          <path d="M4 22h16"></path>
+          <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+          <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+          <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+        </svg>
+        Classement
+      </a>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div class="nav-user-badge" id="navUserBadge" onclick="openNameModal()" title="Modifier mon prénom / pseudo">
+        <span id="navUserName">...</span>
+        <button type="button" id="btnEditPencilNav" class="btn-edit-pencil" title="Modifier mon nom" aria-label="Modifier mon nom" onclick="event.stopPropagation(); openNameModal()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        </button>
+      </div>
+      <div id="navScore" class="nav-score" style="display:none">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span id="navScoreVal">0</span> validés
+      </div>
+      <button onclick="logout()" class="nav-link" style="background:none;border:none;cursor:pointer;padding:8px;color:var(--muted);" title="Se déconnecter">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     CARTE CADEAU & SURPRISE : MODALE POP-UP INTERSTITIELLE (PLEIN ÉCRAN)
+═══════════════════════════════════════════════════════════════════ -->
+<div id="giftPopupModal" class="gift-popup-overlay" style="display:none;" onclick="if(event.target===this) dismissGiftPopup()">
+  <div class="gift-popup-dialog">
+    <div class="gift-popup-card">
+      <div class="gift-popup-header">
+        <div class="gift-popup-badge">🎁 Surprise & Récompenses</div>
+        <button type="button" onclick="dismissGiftPopup()" class="gift-popup-close" title="Fermer" aria-label="Fermer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="gift-popup-body">
+        <h2 class="gift-popup-title">Prenez votre vraie place sur le podium !</h2>
+        <p class="gift-popup-text">
+          Vous participez actuellement avec l'identifiant temporaire <strong id="giftPopupCurrentName" class="gift-popup-name-tag">Contributeur_XXX</strong>.
+        </p>
+        <p class="gift-popup-subtext">
+          Personnalisez votre prénom ou pseudo pour suivre vos points en direct, monter sur le podium et tenter de remporter des <strong>recharges et récompenses</strong> !
+        </p>
+
+        <form id="giftPopupForm" action="javascript:void(0);" onsubmit="event.preventDefault(); handleGiftPopupSubmit(event); return false;">
+          <div class="gift-input-group">
+            <label for="giftNameInput" class="gift-input-label">Votre prénom ou pseudo</label>
+            <div class="gift-input-container">
+              <svg class="gift-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <input id="giftNameInput" class="gift-input-field" type="text" placeholder="Ex: Linda, Max, Fatima..." maxlength="30" autocomplete="nickname" required />
+            </div>
+          </div>
+
+          <div id="giftPopupMsg" style="display:none; font-size:0.8rem; font-weight:700; margin-bottom:1rem; padding:0.6rem 0.8rem; border-radius:8px;"></div>
+
+          <div class="gift-popup-actions">
+            <button type="button" onclick="handleGiftPopupSubmit(event)" id="btnGiftSave" class="btn-gift-submit">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span id="btnGiftSaveLabel">Enregistrer mon nom</span>
+            </button>
+            <button type="button" onclick="dismissGiftPopup()" class="btn-gift-later">
+              Plus tard
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-overlay"></div>
+  <div class="container">
+    <div class="hero-inner">
+      <div style="flex:1; min-width:260px;">
+        <div class="hero-tag">
+          <span class="hero-tag-dot"></span>
+          <span>CHAMPIONS DE LA COLLECTE</span>
+        </div>
+        <h1 class="hero-title">Classement des Contributeurs</h1>
+        <p class="hero-sub">Seuls les enregistrements audios validés par nos administrateurs comptent dans le classement officiel.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-val" id="hSent">—</div><div class="hero-stat-lbl">Total envoyés</div></div>
+        <div class="hero-stat"><div class="hero-stat-val" id="hValidated">—</div><div class="hero-stat-lbl">Validés</div></div>
+        <div class="hero-stat"><div class="hero-stat-val" id="hRank">—</div><div class="hero-stat-lbl">Mon rang</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENU -->
+<div class="container" style="padding-top:1.5rem;padding-bottom:2rem">
+  <div style="display:grid;grid-template-columns:1fr;gap:1.25rem">
+
+    <!-- ── BANNIÈRE D'ALERTE AUDIOS REJETÉS & CONSEILS QUALITÉ ── -->
+    <div id="rejectedAlertBanner" class="rejected-alert-banner" style="display:none;">
+      <div class="rejected-alert-header">
+        <div class="rejected-alert-title-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span>Conseils d'enregistrement : <span id="rejectedCountText">0</span> audio(s) à réenregistrer</span>
+        </div>
+        <button type="button" onclick="dismissRejectedBanner()" class="rejected-alert-close" title="Fermer ce rappel" aria-label="Fermer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <p class="rejected-alert-desc">
+        Certains enregistrements audio n'ont pas pu être validés lors de la modération (bruits ambiants ou mot incomplet). Votre profil reste bien actif et connecté ! Pour faire progresser votre score et <strong>grimper sur le podium</strong> :
+      </p>
+
+      <div class="rejected-tips-grid">
+        <div class="rejected-tip-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="22"></line>
+          </svg>
+          <span><strong>1. Évitez les bruits :</strong> Isolez-vous du vent, des conversations et du bruit ambiant.</span>
+        </div>
+        <div class="rejected-tip-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <span><strong>2. Réécoutez avant d'envoyer :</strong> Assurez-vous que l'audio est parfaitement clair.</span>
+        </div>
+        <div class="rejected-tip-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span><strong>3. Prononciation nette :</strong> Parlez à 15 cm du micro d'un ton clair et naturel.</span>
+        </div>
+      </div>
+
+      <div class="rejected-alert-actions">
+        <button type="button" onclick="dismissRejectedBanner()" class="btn-rejected-ack">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>J'ai compris, je ferai attention</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid principal -->
+    <div style="display:grid;grid-template-columns:1fr;gap:1.25rem" id="mainGrid">
+
+      <!-- Podium + Donut -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem" id="podiumDonutRow">
+
+        <!-- Podium top 3 -->
+        <div class="card" style="overflow:hidden" id="podiumCard">
+          <div class="card-header-clean">
+            <div class="card-title-clean">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                <path d="M4 22h16"></path>
+                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+              </svg>
+              <span>Top 3 — Contributeurs d'élite</span>
+            </div>
+            <span style="font-size:0.75rem; color:var(--green); font-weight:800; background:var(--green-light); padding:3px 10px; border-radius:999px;">Validés</span>
+          </div>
+          <div id="podium" style="padding:1.5rem 1rem 1rem;display:flex;align-items:flex-end;justify-content:center;gap:1.25rem;min-height:210px">
+            <p style="font-size:.85rem;color:var(--muted-light);margin:auto">Chargement…</p>
+          </div>
+        </div>
+
+        <!-- Donut -->
+        <div class="card" style="overflow:hidden">
+          <div class="card-header-clean">
+            <div class="card-title-clean">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              <span>Répartition par langue</span>
+            </div>
+            <span style="font-size:0.72rem; color:var(--muted); font-weight:600;">Audios collectés</span>
+          </div>
+          <div style="padding:1.25rem">
+            <div style="position:relative;height:140px;margin-bottom:1rem">
+              <canvas id="langChart"></canvas>
+            </div>
+            <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap">
+              <span style="font-size:.75rem;font-weight:800;display:flex;align-items:center;gap:6px;background:var(--green-light);color:var(--green);padding:4px 10px;border-radius:999px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#196E3F;display:inline-block"></span>Fɔngbe
+              </span>
+              <span style="font-size:.75rem;font-weight:800;display:flex;align-items:center;gap:6px;background:#FEF3C7;color:#D97706;padding:4px 10px;border-radius:999px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#D97706;display:inline-block"></span>Yorùbá
+              </span>
+              <span style="font-size:.75rem;font-weight:800;display:flex;align-items:center;gap:6px;background:#EFF6FF;color:#2563EB;padding:4px 10px;border-radius:999px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#2563EB;display:inline-block"></span>Français
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Classement complet -->
+      <div class="card" style="overflow:hidden">
+        <div class="card-header-clean">
+          <div class="card-title-clean">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <line x1="8" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="8" y1="18" x2="21" y2="18"></line>
+              <line x1="3" y1="6" x2="3.01" y2="6"></line>
+              <line x1="3" y1="12" x2="3.01" y2="12"></line>
+              <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+            <span>Classement complet</span>
+          </div>
+          <span style="font-size:0.75rem; color:var(--muted); font-weight:700;">Seuls les audios validés comptent</span>
+        </div>
+        <div id="lbList" style="max-height:420px;overflow-y:auto">
+          <p style="text-align:center;padding:2rem;font-size:.85rem;color:var(--muted-light)">Chargement…</p>
+        </div>
+      </div>
+
+      <!-- Objectifs par mot -->
+      <div class="card" style="overflow:hidden">
+        <div class="card-header-clean" style="flex-wrap:wrap; gap:8px;">
+          <div class="card-title-clean">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+            <span>Objectifs de collecte par mot</span>
+          </div>
+          <div class="filter-lang-container" style="display:flex;gap:.4rem" id="langFilterBtns">
+            <button class="filter-lang-btn active" onclick="filterWordLang('fon')" id="flb-fon">Fɔngbe</button>
+            <button class="filter-lang-btn" onclick="filterWordLang('yoruba')" id="flb-yoruba">Yorùbá</button>
+            <button class="filter-lang-btn" onclick="filterWordLang('french')" id="flb-french">Français</button>
+          </div>
+        </div>
+        <div id="wordProgress" style="padding:1rem 1.25rem;display:flex;flex-direction:column;gap:.85rem;max-height:360px;overflow-y:auto"></div>
+      </div>
+
+      <!-- Mon score -->
+      <div style="background:linear-gradient(135deg,var(--green-dark),var(--green));border-radius:var(--radius-lg);padding:1.5rem;color:#fff">
+        <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.6);margin-bottom:.5rem">Ma contribution</p>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+          <div style="display:inline-flex; align-items:center; gap:8px;">
+            <p style="font-size:1.1rem;font-weight:900" id="myDisplayName">—</p>
+            <button onclick="openNameModal()" class="btn-edit-pencil" title="Modifier mon nom" aria-label="Modifier mon nom">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div style="display:flex;gap:1.5rem;margin-top:.75rem;flex-wrap:wrap">
+          <div>
+            <p style="font-size:2rem;font-weight:900;color:#4ADE80" id="myValidatedCount">0</p>
+            <p style="font-size:.72rem;color:rgba(255,255,255,.6);font-weight:600">Audios validés</p>
+          </div>
+          <div>
+            <p style="font-size:2rem;font-weight:900;color:rgba(255,255,255,.7)" id="mySentCount">0</p>
+            <p style="font-size:.72rem;color:rgba(255,255,255,.5);font-weight:600">Envoyés au total</p>
+          </div>
+          <div id="myRejectedBox" style="display:none;">
+            <p style="font-size:2rem;font-weight:900;color:#FCA5A5" id="myRejectedCount">0</p>
+            <p style="font-size:.72rem;color:rgba(255,255,255,.6);font-weight:600">Non validés</p>
+          </div>
+        </div>
+        <a href="index.html" style="display:block;margin-top:1rem;padding:.625rem;background:rgba(255,255,255,0.18);border-radius:var(--radius);text-align:center;font-weight:800;font-size:.83rem;color:#fff;text-decoration:none;transition:.15s" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.18)'">
+          Enregistrer maintenant
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     BARRE DE NAVIGATION FLOTTANTE EN BAS (MOBILE)
+═══════════════════════════════════════════════════════════════════ -->
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <a href="index.html" class="bottom-nav-item">
+      <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+        <line x1="12" y1="19" x2="12" y2="22"></line>
+      </svg>
+      <span>Enregistrer</span>
+    </a>
+    <a href="leaderboard.html" class="bottom-nav-item active">
+      <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+        <path d="M4 22h16"></path>
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+      </svg>
+      <span>Classement</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     MODALE CHANGEMENT DE PSEUDO / PRÉNOM
+═══════════════════════════════════════════════════════════════════ -->
+<div id="nameModal" class="modal-overlay" style="display:none;" onclick="if(event.target===this) closeNameModal()">
+  <div class="modal-dialog">
+    <!-- Header avec branding AgriVoice -->
+    <div class="modal-header-brand">
+      <div class="modal-header-top">
+        <div>
+          <div class="modal-brand-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+            </svg>
+            <span>Profil Contributeur</span>
+          </div>
+          <h2 class="modal-title">Modifier mon nom</h2>
+          <p class="modal-subtitle">Votre prénom ou pseudo sera visible sur le classement public et associé à vos enregistrements.</p>
+        </div>
+        <button type="button" onclick="closeNameModal()" class="modal-close-btn" aria-label="Fermer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Body formulaire -->
+    <form id="nameChangeForm" class="modal-body" action="javascript:void(0);" onsubmit="event.preventDefault(); handleNameChangeSubmit(event); return false;">
+      <div class="modal-input-wrapper">
+        <label for="modalNameInput" class="modal-input-label">Prénom ou Pseudo</label>
+        <div class="modal-input-container">
+          <svg class="modal-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <input id="modalNameInput" class="modal-input-field" type="text" placeholder="Ex: Linda, Max, Fatima..." maxlength="30" autocomplete="nickname" required />
+        </div>
+      </div>
+
+      <div class="modal-info-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+        </svg>
+        <p class="modal-info-text">
+          <strong>Synchronisation automatique :</strong> tous vos audios déjà envoyés et vos points seront instantanément transférés sous ce nouveau nom.
+        </p>
+      </div>
+
+      <div id="modalSyncMsg" style="display:none; font-size:0.8rem; font-weight:700; margin-bottom:1rem; padding:0.6rem 0.8rem; border-radius:8px;"></div>
+
+      <div class="modal-actions">
+        <button type="button" onclick="closeNameModal()" class="btn-modal-cancel">Annuler</button>
+        <button type="button" onclick="handleNameChangeSubmit(event)" id="btnModalSave" class="btn-modal-submit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span id="btnModalSaveLabel">Enregistrer</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { getTopContributors, getGlobalStats, getContributionCounts, getOrCreateSession, getSessionScore, getContributorName, syncContributorName, getUserRejectedContributions } from './js/supabase-client.js';
+import { getPromptsByLanguage } from './js/word-prompts.js';
+
+const session = getOrCreateSession();
+let wordCounts = {};
+let currentWordLang = 'fon';
+
+window.filterWordLang = filterWordLang;
+window.openNameModal = openNameModal;
+window.closeNameModal = closeNameModal;
+window.handleNameChangeSubmit = handleNameChangeSubmit;
+window.checkAndShowGiftPopup = checkAndShowGiftPopup;
+window.dismissGiftPopup = dismissGiftPopup;
+window.handleGiftPopupSubmit = handleGiftPopupSubmit;
+window.dismissRejectedBanner = dismissRejectedBanner;
+
+function isStandardOrAnonymousName(name) {
+  if (!name) return true;
+  const n = name.trim().toLowerCase();
+  return n === 'anonyme' || n.startsWith('contributeur_') || n.startsWith('anonyme_');
+}
+
+function checkAndShowGiftPopup() {
+  const current = (getContributorName() || '').trim();
+  const modal = document.getElementById('giftPopupModal');
+  if (!modal) return;
+  
+  if (!isStandardOrAnonymousName(current)) {
+    modal.style.display = 'none';
+    return;
+  }
+  
+  const dismissedAt = localStorage.getItem('agrivoice_gift_popup_dismissed_at');
+  const now = Date.now();
+  if (dismissedAt && (now - parseInt(dismissedAt, 10)) < 180000) {
+    modal.style.display = 'none';
+    return;
+  }
+  
+  const curNameEl = document.getElementById('giftPopupCurrentName');
+  if (curNameEl) curNameEl.textContent = current || 'Anonyme';
+  const input = document.getElementById('giftNameInput');
+  if (input) input.value = isStandardOrAnonymousName(current) ? '' : current;
+  const msg = document.getElementById('giftPopupMsg');
+  if (msg) msg.style.display = 'none';
+  
+  modal.style.display = 'flex';
+}
+
+function dismissGiftPopup() {
+  localStorage.setItem('agrivoice_gift_popup_dismissed_at', Date.now().toString());
+  const modal = document.getElementById('giftPopupModal');
+  if (modal) modal.style.display = 'none';
+  
+  showToast("Vous pourrez modifier votre nom à tout moment en cliquant sur le crayon à côté de votre pseudo en haut.", false);
+  highlightPencilIcons();
+}
+
+function highlightPencilIcons() {
+  const pencils = document.querySelectorAll('.btn-edit-pencil');
+  pencils.forEach(p => {
+    p.classList.remove('pencil-highlight');
+    void p.offsetWidth;
+    p.classList.add('pencil-highlight');
+    setTimeout(() => p.classList.remove('pencil-highlight'), 3500);
+  });
+}
+
+async function handleGiftPopupSubmit(e) {
+  e.preventDefault();
+  const input = document.getElementById('giftNameInput');
+  const newName = (input?.value || '').trim();
+  const msg = document.getElementById('giftPopupMsg');
+  const btn = document.getElementById('btnGiftSave');
+  const btnLbl = document.getElementById('btnGiftSaveLabel');
+
+  if (!newName) {
+    if (msg) {
+      msg.textContent = 'Veuillez saisir votre prénom ou pseudo.';
+      msg.style.color = 'var(--red)';
+      msg.style.display = 'block';
+    }
+    return;
+  }
+
+  const oldName = getContributorName();
+  if (btn) btn.disabled = true;
+  if (btnLbl) btnLbl.textContent = 'Enregistrement...';
+
+  try {
+    const res = await syncContributorName(session, newName, oldName);
+    if (res.success) {
+      const navUserEl = document.getElementById('navUserName');
+      if (navUserEl) navUserEl.textContent = newName;
+      
+      localStorage.removeItem('agrivoice_gift_popup_dismissed_at');
+      const modal = document.getElementById('giftPopupModal');
+      if (modal) modal.style.display = 'none';
+      
+      showToast(`Bravo ${newName} ! Vos audios et votre classement sont synchronisés !`);
+      await init();
+    } else {
+      if (msg) {
+        msg.textContent = res.error || 'Erreur lors de la synchronisation.';
+        msg.style.color = 'var(--red)';
+        msg.style.display = 'block';
+      }
+    }
+  } catch (err) {
+    if (msg) {
+      msg.textContent = 'Erreur : ' + (err.message || 'vérifiez votre connexion');
+      msg.style.color = 'var(--red)';
+      msg.style.display = 'block';
+    }
+  } finally {
+    if (btn) btn.disabled = false;
+    if (btnLbl) btnLbl.textContent = 'Enregistrer mon nom';
+  }
+}
+
+function openNameModal() {
+  const current = getContributorName() || '';
+  const input = document.getElementById('modalNameInput');
+  const msg = document.getElementById('modalSyncMsg');
+  if (msg) msg.style.display = 'none';
+  if (input) {
+    input.value = isStandardOrAnonymousName(current) ? '' : current;
+  }
+  const modal = document.getElementById('nameModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    setTimeout(() => { if (input) input.focus(); }, 100);
+  }
+}
+
+function closeNameModal() {
+  const modal = document.getElementById('nameModal');
+  if (modal) modal.style.display = 'none';
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeNameModal();
+    const giftModal = document.getElementById('giftPopupModal');
+    if (giftModal && giftModal.style.display !== 'none') dismissGiftPopup();
+  }
+});
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.className = `toast ${isError ? 'error' : ''} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+async function handleNameChangeSubmit(e) {
+  e.preventDefault();
+  const input = document.getElementById('modalNameInput');
+  const newName = (input?.value || '').trim();
+  const msg = document.getElementById('modalSyncMsg');
+  const btn = document.getElementById('btnModalSave');
+  const btnLbl = document.getElementById('btnModalSaveLabel');
+
+  if (!newName) {
+    if (msg) {
+      msg.textContent = 'Veuillez saisir votre prénom ou pseudo.';
+      msg.style.color = 'var(--red)';
+      msg.style.display = 'block';
+    }
+    return;
+  }
+
+  const oldName = getContributorName();
+  if (btn) btn.disabled = true;
+  if (btnLbl) btnLbl.textContent = 'Synchronisation en cours...';
+
+  try {
+    const res = await syncContributorName(session, newName, oldName);
+    if (res.success) {
+      const navUserEl = document.getElementById('navUserName');
+      if (navUserEl) navUserEl.textContent = newName;
+      
+      localStorage.removeItem('agrivoice_gift_popup_dismissed_at');
+      
+      closeNameModal();
+      showToast(`Bravo ${newName} ! Vos audios et votre classement sont synchronisés !`);
+      
+      await init();
+    } else {
+      if (msg) {
+        msg.textContent = res.error || 'Erreur lors de la synchronisation.';
+        msg.style.color = 'var(--red)';
+        msg.style.display = 'block';
+      }
+    }
+  } catch (err) {
+    if (msg) {
+      msg.textContent = 'Erreur : ' + (err.message || 'vérifiez votre connexion');
+      msg.style.color = 'var(--red)';
+      msg.style.display = 'block';
+    }
+  } finally {
+    if (btn) btn.disabled = false;
+    if (btnLbl) btnLbl.textContent = 'Enregistrer & Mettre à jour';
+  }
+}
+
+async function init() {
+  if (window.innerWidth < 600) {
+    const row = document.getElementById('podiumDonutRow');
+    if (row) row.style.gridTemplateColumns = '1fr';
+  }
+
+  const currentName = getContributorName();
+  const navUserEl = document.getElementById('navUserName');
+  if (navUserEl && currentName) navUserEl.textContent = currentName;
+
+  setTimeout(() => checkAndShowGiftPopup(), 600);
+
+  const [stats, top, counts, myVal, mySent, rejectedRes] = await Promise.all([
+    getGlobalStats(),
+    getTopContributors(100),
+    getContributionCounts(),
+    getSessionScore(session, 'validated', currentName),
+    getSessionScore(session, 'all', currentName),
+    getUserRejectedContributions(session, currentName)
+  ]);
+
+  wordCounts = counts;
+
+  const currentClean = (currentName || '').trim().toLowerCase();
+  const myRankIdx = (top || []).findIndex(t => 
+    (t.sessionList && t.sessionList.includes(session)) ||
+    t.session === session ||
+    (currentClean && t.name && t.name.toLowerCase() === currentClean)
+  );
+  const myRank = myRankIdx >= 0 ? (myRankIdx + 1) + (myRankIdx === 0 ? 'er' : 'e') : '—';
+  
+  const hSentEl = document.getElementById('hSent');
+  const hValEl  = document.getElementById('hValidated');
+  const hRankEl = document.getElementById('hRank');
+
+  if (hSentEl) hSentEl.textContent = mySent;
+  if (hValEl)  hValEl.textContent  = myVal;
+  if (hRankEl) hRankEl.textContent = myRank;
+
+  // Perso
+  const myDisplayEl = document.getElementById('myDisplayName');
+  if (myDisplayEl) myDisplayEl.textContent = currentName || 'Contributeur anonyme';
+  
+  const myValCountEl = document.getElementById('myValidatedCount');
+  if (myValCountEl) myValCountEl.textContent = myVal;
+  
+  const mySentCountEl = document.getElementById('mySentCount');
+  if (mySentCountEl) mySentCountEl.textContent = mySent;
+
+  // Gestion des audios rejetés & conseils qualité
+  const rejectedList = rejectedRes?.data || [];
+  const rejBanner = document.getElementById('rejectedAlertBanner');
+  const rejCountEl = document.getElementById('rejectedCountText');
+  const rejBox = document.getElementById('myRejectedBox');
+  const myRejCountEl = document.getElementById('myRejectedCount');
+
+  if (rejectedList.length > 0) {
+    const rejCount = rejectedList.length;
+    if (rejCountEl) rejCountEl.textContent = rejCount;
+    if (myRejCountEl) myRejCountEl.textContent = rejCount;
+    if (rejBox) rejBox.style.display = 'block';
+
+    const ackCount = parseInt(localStorage.getItem('agrivoice_rejected_ack_count') || '0', 10);
+    if (rejBanner && rejCount > ackCount) {
+      rejBanner.style.display = 'block';
+    }
+  } else {
+    if (rejBanner) rejBanner.style.display = 'none';
+    if (rejBox) rejBox.style.display = 'none';
+  }
+
+  // Charts + listes
+  buildDonut(stats.byLang);
+  buildPodium(top);
+  buildLeaderboard(top);
+  filterWordLang('fon');
+}
+
+function dismissRejectedBanner() {
+  const banner = document.getElementById('rejectedAlertBanner');
+  if (banner) {
+    banner.style.opacity = '0';
+    banner.style.transform = 'translateY(-8px)';
+    banner.style.transition = 'all 0.25s ease';
+    setTimeout(() => { banner.style.display = 'none'; banner.style.opacity = '1'; banner.style.transform = 'none'; }, 250);
+  }
+  const countText = document.getElementById('rejectedCountText')?.textContent || '1';
+  localStorage.setItem('agrivoice_rejected_ack_count', countText);
+  showToast("Conseils bien pris en compte !", false);
+}
+
+// Donut langue
+function buildDonut(byLang) {
+  const ctx = document.getElementById('langChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Fɔngbe','Yorùbá','Français'],
+      datasets: [{
+        data: [byLang?.fon||1, byLang?.yoruba||1, byLang?.french||1],
+        backgroundColor: ['#196E3F','#D97706','#2563EB'],
+        borderWidth: 3, borderColor: '#fff', hoverOffset: 4,
+      }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'72%', plugins:{ legend:{ display:false } } }
+  });
+}
+
+// Podium
+function buildPodium(list) {
+  const el = document.getElementById('podium');
+  if (!list || list.length === 0) {
+    el.innerHTML = '<p style="font-size:.85rem;color:var(--muted-light);margin:auto">Aucun contributeur pour l\'instant.</p>';
+    return;
+  }
+  const top3 = list.slice(0, 3);
+  const order = top3.length >= 2 ? [top3[1], top3[0], top3[2]].filter(Boolean) : top3;
+  const rankClass = (pos) => pos === 0 ? 'rank-2' : pos === 1 ? 'rank-1' : 'rank-3';
+  const blockClass = (pos) => pos === 0 ? 'r2' : pos === 1 ? 'r1' : 'r3';
+  const initials = (name) => (name||'?').substring(0,1).toUpperCase();
+  const medal = ['2e','1er','3e'];
+
+  el.innerHTML = order.map((item, i) => {
+    const isFirst = i === 1;
+    const isSecond = i === 0;
+    return `
+      <div class="podium-bar" style="${isFirst ? 'transform: translateY(-8px);' : ''}">
+        <div class="podium-avatar ${rankClass(i)}">
+          ${initials(item.name)}
+        </div>
+        <p class="podium-name" title="${item.name || 'Anonyme'}">${item.name || 'Anonyme'}</p>
+        <span style="font-size:0.75rem; font-weight:800; color:var(--green); background:var(--green-light); padding:2px 8px; border-radius:999px;">
+          ${item.validated || 0} validés
+        </span>
+        <div class="podium-block ${blockClass(i)}" style="padding:.6rem .4rem;width:100%; border-radius:10px 10px 0 0;">
+          <p style="font-size:.78rem;font-weight:900;color:var(--green-dark)">${medal[i]}</p>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Classement complet
+function buildLeaderboard(list) {
+  const el = document.getElementById('lbList');
+  if (!list || list.length === 0) {
+    el.innerHTML = '<p style="text-align:center;padding:2rem;font-size:.85rem;color:var(--muted-light)">Aucune donnée.</p>';
+    return;
+  }
+  const currentClean = (getContributorName() || '').trim().toLowerCase();
+  el.innerHTML = list.map((item, i) => {
+    const isMe = (item.sessionList && item.sessionList.includes(session)) || 
+                 item.session === session ||
+                 (currentClean && item.name && item.name.toLowerCase() === currentClean);
+    const rankColors = ['rank-1','rank-2','rank-3'];
+    const rankCls = i < 3 ? rankColors[i] : 'rank-n';
+    const pendingText = item.pending > 0 ? `${item.pending} en attente` : '';
+    return `
+      <div class="lb-row ${isMe ? 'me' : ''}">
+        <div class="lb-rank ${rankCls}">${i + 1}</div>
+        <div style="flex:1;min-width:0">
+          <p class="lb-name">
+            ${item.name || 'Anonyme'}
+            ${isMe ? '<span class="lb-me-tag">Moi</span>' : ''}
+          </p>
+          ${pendingText ? `<p class="lb-pending">${pendingText} de validation</p>` : ''}
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <p class="lb-validated">${item.validated || 0}</p>
+          <p class="lb-pending">validés</p>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Objectifs par mot
+function filterWordLang(lang) {
+  currentWordLang = lang;
+  ['fon','yoruba','french'].forEach(l => {
+    const btn = document.getElementById('flb-' + l);
+    if (btn) btn.className = `filter-lang-btn ${l === lang ? 'active' : ''}`;
+  });
+
+  const prompts = getPromptsByLanguage(lang);
+  const color   = { fon:'#196E3F', yoruba:'#D97706', french:'#2563EB' }[lang];
+  const el      = document.getElementById('wordProgress');
+  el.innerHTML  = prompts.map(p => {
+    const cnt = wordCounts[p.id] || 0;
+    const pct = Math.min(100, Math.round(cnt / p.targetCount * 100));
+    return `
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="display:flex;align-items:center;gap:.5rem;min-width:0;flex:1">
+            <span style="font-weight:800;font-size:.85rem;color:var(--text);white-space:nowrap">${p.word}</span>
+            <span style="font-size:.68rem;color:var(--muted-light);flex-shrink:0">${p.category}</span>
+          </div>
+          <span style="font-weight:900;font-size:.82rem;color:${color};flex-shrink:0;margin-left:.5rem">${cnt}/${p.targetCount}</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+init();
+window.logout = function() {
+  localStorage.removeItem("agrivoice_contributor_name");
+  window.location.href = 'index.html';
+};
+</script>
+</body>
+</html>

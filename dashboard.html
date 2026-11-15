@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-[#F8FAF9]">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>AgriVoice • Centre de Télémétrie & Données Vocales</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- JSZip pour export ZIP d'audios -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Plus Jakarta Sans Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="logo.png" />
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        agri: {
+                            base: '#F8FAF9',
+                            surface: '#FFFFFF',
+                            mint: '#EBF5F0',
+                            mintdark: '#D9ECE1',
+                            forest: '#12472B',
+                            dark: '#0B2919',
+                            fon: '#196E3F',
+                            yoruba: '#D97706',
+                            francais: '#2563EB',
+                            border: '#E2ECE6',
+                        }
+                    },
+                    boxShadow: {
+                        'app': '0 4px 20px -2px rgba(18, 71, 43, 0.06), 0 2px 6px -1px rgba(18, 71, 43, 0.04)',
+                        'app-lg': '0 12px 30px -4px rgba(18, 71, 43, 0.1), 0 4px 12px -2px rgba(18, 71, 43, 0.05)',
+                        'button': '0 4px 14px 0 rgba(25, 110, 63, 0.25)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        html, body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #F8FAF9;
+            color: #12472B;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #EBF5F0; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #BBD9C8; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #8DC4A3; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes pulseConcentric {
+            0% { transform: scale(0.95); opacity: 0.6; }
+            50% { transform: scale(1.05); opacity: 0.2; }
+            100% { transform: scale(0.95); opacity: 0.6; }
+        }
+        .avatar-ring {
+            animation: pulseConcentric 3s ease-in-out infinite;
+        }
+        
+        @keyframes soundWave {
+            0%, 100% { height: 6px; }
+            50% { height: 26px; }
+        }
+        .wave-bar.playing, .adm-wave-bar.playing { animation: soundWave 1.2s ease-in-out infinite; }
+        .wave-bar.playing:nth-child(2), .adm-wave-bar.playing:nth-child(2) { animation-delay: 0.15s; }
+        .wave-bar.playing:nth-child(3), .adm-wave-bar.playing:nth-child(3) { animation-delay: 0.3s; }
+        .wave-bar.playing:nth-child(4), .adm-wave-bar.playing:nth-child(4) { animation-delay: 0.45s; }
+        .wave-bar.playing:nth-child(5), .adm-wave-bar.playing:nth-child(5) { animation-delay: 0.6s; }
+        .wave-bar.playing:nth-child(6), .adm-wave-bar.playing:nth-child(6) { animation-delay: 0.2s; }
+        .wave-bar.playing:nth-child(7), .adm-wave-bar.playing:nth-child(7) { animation-delay: 0.5s; }
+        .adm-wave-bar.playing:nth-child(8) { animation-delay: 0.35s; }
+        .adm-wave-bar.playing:nth-child(9) { animation-delay: 0.1s; }
+        .adm-wave-bar.playing:nth-child(10) { animation-delay: 0.4s; }
+        .adm-wave-bar.playing:nth-child(11) { animation-delay: 0.65s; }
+        .adm-wave-bar.playing:nth-child(12) { animation-delay: 0.25s; }
+        
+        /* Landscape Banner Background */
+        .landscape-hero-bg {
+            background-image: url('agriculteur_banner.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center right;
+        }
+        @media (max-width: 640px) {
+            .landscape-hero-bg {
+                background-position: 75% center;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased flex flex-col selection:bg-agri-fon selection:text-white">
+
+    <!-- TOP HEADER RESPONSIVE AVEC ONGLETS INTÉGRÉS -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-[#E2ECE6] shadow-sm">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between py-2.5 md:py-0 md:h-20 gap-2.5">
+                
+                <!-- BRANDING & LOGO + ACTIONS SUR MOBILE -->
+                <div class="flex items-center justify-between w-full md:w-auto">
+                    <div class="flex items-center space-x-2.5 shrink-0">
+                        <img src="logo.png" alt="AgriVoice" class="w-9 sm:w-10 h-9 sm:h-10 rounded-full object-cover border-2 border-white shadow-md">
+                        <h1 class="text-base sm:text-xl font-black tracking-tight text-[#12472B]">
+                            Agri<span class="text-agri-fon">Voice</span>
+                        </h1>
+                    </div>
+                    
+                    <div class="flex items-center md:hidden">
+                        <button onclick="exportFullDataset()" class="inline-flex items-center gap-1.5 bg-gradient-to-tr from-[#12472B] to-[#196E3F] text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-sm active:scale-95">
+                            <i data-lucide="download-cloud" class="w-4 h-4"></i>
+                            <span>Exporter ZIP</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ONGLETS DE NAVIGATION DÉFILABLES SUR MOBILE -->
+                <div class="w-full md:w-auto overflow-x-auto no-scrollbar py-0.5">
+                    <nav class="flex space-x-1 sm:space-x-1.5 p-1 bg-slate-100/90 rounded-xl md:rounded-2xl border border-slate-200/80 shadow-inner w-max mx-auto md:mx-0" id="nav-tabs">
+                        
+                        <button onclick="switchTab('tab-overview')" class="tab-btn active px-3.5 py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center gap-2 bg-white text-[#12472B] shadow-sm border border-slate-200/60" data-tab="tab-overview">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                            <span class="whitespace-nowrap">Vue d'Ensemble & KPI</span>
+                        </button>
+
+                        <button onclick="switchTab('tab-unanswered')" class="tab-btn px-3.5 py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center gap-2 text-slate-500 hover:bg-slate-200/50" data-tab="tab-unanswered">
+                            <i data-lucide="message-square-warning" class="w-4 h-4 text-agri-yoruba"></i>
+                            <span class="whitespace-nowrap">Questions Sans Réponse</span>
+                            <span class="bg-amber-100 text-amber-900 text-[9px] px-1.5 py-0.2 rounded-full font-black border border-amber-200">214</span>
+                        </button>
+
+                        <button onclick="switchTab('tab-crowdsource')" class="tab-btn px-3.5 py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center gap-2 text-slate-500 hover:bg-slate-200/50" data-tab="tab-crowdsource">
+                            <i data-lucide="mic-vocal" class="w-4 h-4 text-agri-fon"></i>
+                            <span class="whitespace-nowrap">Studio « J'aime AgriVoice »</span>
+                            <span class="bg-emerald-100 text-emerald-900 text-[9px] px-1.5 py-0.2 rounded-full font-black border border-emerald-200" id="badge-total-contribs">...</span>
+                        </button>
+                        
+                    </nav>
+                </div>
+
+                <!-- ACTIONS RAPIDES (DESKTOP) -->
+                <div class="hidden md:flex items-center">
+                    <button onclick="exportFullDataset()" class="inline-flex items-center gap-2.5 bg-gradient-to-tr from-[#12472B] to-[#196E3F] hover:from-[#0f3b23] hover:to-[#155d34] text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-md shadow-emerald-900/20 transition-all active:scale-95">
+                        <i data-lucide="download-cloud" class="w-5 h-5"></i>
+                        <span>Exporter Dataset (ZIP)</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER RESPONSIVE -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
+
+        <!-- ========================================== -->
+        <!-- TAB 1 : VUE D'ENSEMBLE & KPI               -->
+        <!-- ========================================== -->
+        <section id="tab-overview" class="tab-content space-y-6 sm:space-y-8 block">
+
+            <!-- HERO BANNER DU PRODUCTEUR RESPONSIVE -->
+            <div class="landscape-hero-bg relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-app border border-[#E2ECE6] min-h-[260px] sm:min-h-[340px] flex items-center">
+                <!-- Dégradé lumineux doux pour lisibilité parfaite sur mobile et desktop -->
+                <div class="absolute inset-0 bg-gradient-to-r from-white via-white/95 via-70% to-white/40 sm:via-white/90 sm:via-55% sm:to-transparent"></div>
+                
+                <div class="relative z-10 p-5 sm:p-10 max-w-2xl">
+                    <div class="inline-flex items-center gap-1.5 sm:gap-2 bg-[#EBF5F0] text-agri-forest border border-[#D9ECE1] px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-bold mb-3 sm:mb-4 shadow-xs">
+                        <i data-lucide="sprout" class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-agri-fon"></i>
+                        <span>Intelligence Artificielle Vocale au Cœur du Champ</span>
+                    </div>
+                    
+                    <h2 class="text-xl sm:text-3xl lg:text-4xl font-black text-[#12472B] tracking-tight leading-snug sm:leading-tight">
+                        Donner une voix technologique à chaque producteur béninois
+                    </h2>
+                    
+                    <p class="text-[11px] sm:text-sm text-slate-700 mt-2 sm:mt-3 font-medium leading-relaxed max-w-xl">
+                        Plateforme d'analyse des questions rurales sans réponse et collecte communautaire pour enrichir les modèles TinyML 100% hors-ligne en <strong>Fɔngbe</strong> et <strong>Yorùbá</strong>.
+                    </p>
+
+                    <div class="mt-4 sm:mt-6 flex flex-wrap items-center gap-2 sm:gap-3">
+                        <div class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl border border-[#E2ECE6] shadow-xs">
+                            <span class="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-agri-fon"></span>
+                            <span class="text-[11px] sm:text-xs font-bold text-[#12472B]">Fɔngbe (54.2%)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl border border-[#E2ECE6] shadow-xs">
+                            <span class="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-agri-yoruba"></span>
+                            <span class="text-[11px] sm:text-xs font-bold text-amber-900">Yorùbá (32.6%)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 bg-white/95 backdrop-blur-md px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl border border-[#E2ECE6] shadow-xs">
+                            <span class="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-agri-francais"></span>
+                            <span class="text-[11px] sm:text-xs font-bold text-blue-900">Français (13.2%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION DES 3 FLUX VOCAUX -->
+            <div>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-1">
+                    <div>
+                        <h3 class="text-base sm:text-lg font-black text-[#12472B] flex items-center gap-2">
+                            <i data-lucide="volume-2" class="w-4 sm:w-5 h-4 sm:h-5 text-agri-fon"></i>
+                            Répartition des Flux Vocaux par Langue
+                        </h3>
+                        <p class="text-[11px] sm:text-xs text-slate-500">Touchez l'icône haut-parleur pour écouter la voix réelle</p>
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-bold text-agri-forest bg-[#EBF5F0] px-3 py-1 rounded-full border border-[#D9ECE1] self-start sm:self-auto">
+                        1 842 Requêtes Terrains
+                    </span>
+                </div>
+
+                <!-- 3 CARTES COULEURS OFFICIELLES RESPONSIVE -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-5">
+                    
+                    <!-- CARTE FONGBE -->
+                    <div class="bg-agri-fon rounded-2xl sm:rounded-3xl p-4 sm:p-5 text-white shadow-app hover:shadow-app-lg transition flex flex-col justify-between relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <button onclick="playDirectAudio('audios/fon_a1_accueil.aac')" class="w-9 sm:w-10 h-9 sm:h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition active:scale-95 shadow-sm" title="Écouter l'accueil en Fɔngbe">
+                                <i data-lucide="volume-2" class="w-4 sm:w-5 h-4 sm:h-5 text-white"></i>
+                            </button>
+                            <span class="bg-white/20 text-white text-[10px] sm:text-[11px] font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full backdrop-blur-md">Fɔn</span>
+                        </div>
+                        <div class="my-3 sm:my-4">
+                            <h3 class="text-base sm:text-lg font-black tracking-tight">Fɔngbe</h3>
+                            <p class="text-[11px] sm:text-xs text-emerald-100 mt-0.5">Zǐn amǔ vɔvɔ e ɖo glɔ ɔ jí</p>
+                        </div>
+                        <div class="pt-2.5 sm:pt-3 border-t border-white/20 flex items-center justify-between">
+                            <span class="text-lg sm:text-2xl font-black">998 requêtes</span>
+                            <span class="text-[10px] sm:text-xs font-extrabold bg-white text-agri-fon px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl">54.2%</span>
+                        </div>
+                    </div>
+
+                    <!-- CARTE YORUBA -->
+                    <div class="bg-agri-yoruba rounded-2xl sm:rounded-3xl p-4 sm:p-5 text-white shadow-app hover:shadow-app-lg transition flex flex-col justify-between relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <button onclick="playDirectAudio('audios/yoruba_a1_accueil.m4a')" class="w-9 sm:w-10 h-9 sm:h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition active:scale-95 shadow-sm" title="Écouter l'accueil en Yorùbá">
+                                <i data-lucide="volume-2" class="w-4 sm:w-5 h-4 sm:h-5 text-white"></i>
+                            </button>
+                            <span class="bg-white/20 text-white text-[10px] sm:text-[11px] font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full backdrop-blur-md">Yorùbá</span>
+                        </div>
+                        <div class="my-3 sm:my-4">
+                            <h3 class="text-base sm:text-lg font-black tracking-tight">Yorùbá</h3>
+                            <p class="text-[11px] sm:text-xs text-amber-100 mt-0.5">Ẹ tẹ bọ́tìnì ofeefee yìí</p>
+                        </div>
+                        <div class="pt-2.5 sm:pt-3 border-t border-white/20 flex items-center justify-between">
+                            <span class="text-lg sm:text-2xl font-black">601 requêtes</span>
+                            <span class="text-[10px] sm:text-xs font-extrabold bg-white text-agri-yoruba px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl">32.6%</span>
+                        </div>
+                    </div>
+
+                    <!-- CARTE FRANCAIS -->
+                    <div class="bg-agri-francais rounded-2xl sm:rounded-3xl p-4 sm:p-5 text-white shadow-app hover:shadow-app-lg transition flex flex-col justify-between relative overflow-hidden">
+                        <div class="flex items-center justify-between">
+                            <button onclick="playDirectAudio('audios/fr_a1_accueil.m4a')" class="w-9 sm:w-10 h-9 sm:h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition active:scale-95 shadow-sm" title="Écouter l'accueil en Français">
+                                <i data-lucide="volume-2" class="w-4 sm:w-5 h-4 sm:h-5 text-white"></i>
+                            </button>
+                            <span class="bg-white/20 text-white text-[10px] sm:text-[11px] font-bold px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full backdrop-blur-md">Français</span>
+                        </div>
+                        <div class="my-3 sm:my-4">
+                            <h3 class="text-base sm:text-lg font-black tracking-tight">Français</h3>
+                            <p class="text-[11px] sm:text-xs text-blue-100 mt-0.5">Bouton bleu pour le Français</p>
+                        </div>
+                        <div class="pt-2.5 sm:pt-3 border-t border-white/20 flex items-center justify-between">
+                            <span class="text-lg sm:text-2xl font-black">243 requêtes</span>
+                            <span class="text-[10px] sm:text-xs font-extrabold bg-white text-agri-francais px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg sm:rounded-xl">13.2%</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 4 CARTES KPI RESPONSIVE (2 colonnes mobile, 4 desktop) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+                
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-[#E2ECE6] shadow-app">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">Questions</span>
+                        <div class="w-7 sm:w-10 h-7 sm:h-10 rounded-xl sm:rounded-2xl bg-[#EBF5F0] flex items-center justify-center text-agri-fon">
+                            <i data-lucide="message-circle" class="w-4 sm:w-5 h-4 sm:h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 sm:mt-4 flex items-baseline gap-1.5 sm:gap-2">
+                        <span class="text-xl sm:text-3xl font-black text-[#12472B]">1 842</span>
+                        <span class="inline-flex items-center text-[10px] sm:text-xs font-bold text-agri-fon bg-[#EBF5F0] px-1.5 sm:px-2.5 py-0.5 rounded-full">
+                            +18%
+                        </span>
+                    </div>
+                    <p class="text-[10px] sm:text-xs text-slate-500 mt-1 sm:mt-2 font-medium truncate">Requêtes analysées</p>
+                </div>
+
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-[#E2ECE6] shadow-app">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">Résolution</span>
+                        <div class="w-7 sm:w-10 h-7 sm:h-10 rounded-xl sm:rounded-2xl bg-[#EBF5F0] flex items-center justify-center text-agri-fon">
+                            <i data-lucide="check-circle" class="w-4 sm:w-5 h-4 sm:h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 sm:mt-4 flex items-baseline gap-1.5 sm:gap-2">
+                        <span class="text-xl sm:text-3xl font-black text-agri-fon">88.4%</span>
+                        <span class="text-[10px] sm:text-xs font-semibold text-slate-500 hidden sm:inline">1 628</span>
+                    </div>
+                    <p class="text-[10px] sm:text-xs text-slate-500 mt-1 sm:mt-2 font-medium truncate">Réponses directes</p>
+                </div>
+
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-amber-200 bg-amber-50/30 shadow-app">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-amber-900">Sans Réponse</span>
+                        <div class="w-7 sm:w-10 h-7 sm:h-10 rounded-xl sm:rounded-2xl bg-amber-100 flex items-center justify-center text-amber-800">
+                            <i data-lucide="help-circle" class="w-4 sm:w-5 h-4 sm:h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 sm:mt-4 flex items-baseline gap-1.5 sm:gap-2">
+                        <span class="text-xl sm:text-3xl font-black text-amber-700">214</span>
+                        <span class="text-[9px] sm:text-xs font-black text-amber-900 bg-amber-200/70 px-1.5 py-0.5 rounded-full">À former</span>
+                    </div>
+                    <p class="text-[10px] sm:text-xs text-slate-600 mt-1 sm:mt-2 font-medium truncate">Pour modèle V2</p>
+                </div>
+
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-[#D9ECE1] bg-[#EBF5F0]/40 shadow-app">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#12472B]">J'aime AgriVoice</span>
+                        <div class="w-7 sm:w-10 h-7 sm:h-10 rounded-xl sm:rounded-2xl bg-[#D9ECE1] flex items-center justify-center text-agri-fon">
+                            <i data-lucide="mic" class="w-4 sm:w-5 h-4 sm:h-5"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 sm:mt-4 flex items-baseline gap-1.5 sm:gap-2">
+                        <span class="text-xl sm:text-3xl font-black text-[#12472B]">3 410</span>
+                        <span class="text-[10px] sm:text-xs font-bold text-agri-forest bg-[#D9ECE1] px-1.5 sm:px-2 py-0.5 rounded-full">WAV</span>
+                    </div>
+                    <p class="text-[10px] sm:text-xs text-slate-600 mt-1 sm:mt-2 font-medium truncate">Audios collectés</p>
+                </div>
+
+            </div>
+
+            <!-- GRAPHIQUES RESPONSIVE -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-6">
+                
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-[#E2ECE6] shadow-app">
+                    <div class="flex items-center justify-between mb-3 sm:mb-4">
+                        <h3 class="text-xs sm:text-sm font-bold text-[#12472B] flex items-center gap-1.5 sm:gap-2">
+                            <i data-lucide="pie-chart" class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-agri-fon"></i>
+                            Répartition Linguistique
+                        </h3>
+                        <span class="text-[10px] sm:text-xs text-slate-500 font-medium">1 842 total</span>
+                    </div>
+                    <div class="relative h-48 sm:h-56 flex items-center justify-center">
+                        <canvas id="languagesChart"></canvas>
+                    </div>
+                    <div class="mt-3 sm:mt-4 grid grid-cols-3 gap-1.5 sm:gap-2 text-center pt-3 sm:pt-4 border-t border-[#E2ECE6]">
+                        <div class="bg-[#EBF5F0] p-1.5 sm:p-2 rounded-lg sm:rounded-xl">
+                            <span class="block text-[10px] sm:text-[11px] text-slate-600 font-semibold">Fɔngbe</span>
+                            <span class="text-xs sm:text-sm font-black text-agri-fon">54.2%</span>
+                        </div>
+                        <div class="bg-amber-50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl">
+                            <span class="block text-[10px] sm:text-[11px] text-slate-600 font-semibold">Yorùbá</span>
+                            <span class="text-xs sm:text-sm font-black text-agri-yoruba">32.6%</span>
+                        </div>
+                        <div class="bg-blue-50 p-1.5 sm:p-2 rounded-lg sm:rounded-xl">
+                            <span class="block text-[10px] sm:text-[11px] text-slate-600 font-semibold">Français</span>
+                            <span class="text-xs sm:text-sm font-black text-agri-francais">13.2%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-[#E2ECE6] shadow-app lg:col-span-2">
+                    <div class="flex items-center justify-between mb-3 sm:mb-4">
+                        <div>
+                            <h3 class="text-xs sm:text-sm font-bold text-[#12472B] flex items-center gap-1.5 sm:gap-2">
+                                <i data-lucide="sprout" class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-agri-fon"></i>
+                                Thématiques Agricoles en Direct
+                            </h3>
+                            <p class="text-[10px] sm:text-xs text-slate-500">Fréquence des besoins formulés au champ</p>
+                        </div>
+                        <span class="text-[10px] sm:text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#EBF5F0] text-agri-forest">Direct</span>
+                    </div>
+                    <div class="h-56 sm:h-64">
+                        <canvas id="topicsChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TIMELINE -->
+            <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-[#E2ECE6] shadow-app">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
+                    <div>
+                        <h3 class="text-sm sm:text-base font-bold text-[#12472B] flex items-center gap-1.5 sm:gap-2">
+                            <i data-lucide="trending-up" class="w-4 sm:w-5 h-4 sm:h-5 text-agri-fon"></i>
+                            Évolution des Requêtes au Village
+                        </h3>
+                        <p class="text-[10px] sm:text-xs text-slate-500">Suivi hebdomadaire des questions résolues vs requêtes sans réponse</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-[10px] sm:text-xs font-semibold">
+                        <span class="flex items-center gap-1 text-agri-forest">
+                            <span class="w-2.5 h-2.5 rounded-full bg-agri-fon"></span> Résolues
+                        </span>
+                        <span class="flex items-center gap-1 text-amber-800">
+                            <span class="w-2.5 h-2.5 rounded-full bg-agri-yoruba"></span> Sans Réponse
+                        </span>
+                    </div>
+                </div>
+                <div class="h-56 sm:h-64">
+                    <canvas id="activityTimelineChart"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 2 : QUESTIONS SANS REPONSE             -->
+        <!-- ========================================== -->
+        <section id="tab-unanswered" class="tab-content space-y-4 sm:space-y-6 hidden">
+            
+            <div class="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-[#E2ECE6] shadow-app">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-black text-[#12472B] flex items-center gap-2">
+                            <i data-lucide="alert-circle" class="w-4 sm:w-5 h-4 sm:h-5 text-amber-600"></i>
+                            Télémétrie des Questions Sans Réponse
+                        </h2>
+                        <p class="text-[11px] sm:text-xs text-slate-500 mt-1">
+                            Requêtes enregistrées au champ nécessitant un nouvel enregistrement vocal pour enrichir l'IA.
+                        </p>
+                    </div>
+
+                    <button onclick="downloadUnansweredCSV()" class="inline-flex items-center justify-center gap-2 bg-[#EBF5F0] hover:bg-[#D9ECE1] text-[#12472B] text-xs font-bold px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl border border-[#D9ECE1] transition self-start sm:self-auto">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4 text-agri-fon"></i>
+                        <span>Exporter CSV</span>
+                    </button>
+                </div>
+
+                <!-- FILTRES RESPONSIVE -->
+                <div class="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+                    <div class="relative">
+                        <i data-lucide="search" class="w-3.5 sm:w-4 h-3.5 sm:h-4 absolute left-3.5 top-3 text-slate-400"></i>
+                        <input type="text" id="filter-search" oninput="filterUnansweredTable()" placeholder="Rechercher (ex: chenille, engrais, soya)..." class="w-full pl-9 sm:pl-10 pr-3 py-2 sm:py-2.5 bg-[#F8FAF9] border border-[#E2ECE6] rounded-xl sm:rounded-2xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-agri-fon">
+                    </div>
+
+                    <div>
+                        <select id="filter-sort-date" onchange="filterUnansweredTable()" class="w-full px-3 py-2 sm:py-2.5 bg-[#F8FAF9] border border-[#E2ECE6] rounded-xl sm:rounded-2xl text-xs text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-agri-fon">
+                            <option value="desc">Date : Nouveaux ➔ Anciens (Plus récents)</option>
+                            <option value="asc">Date : Anciens ➔ Nouveaux (Plus anciens)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <select id="filter-lang" onchange="filterUnansweredTable()" class="w-full px-3 py-2 sm:py-2.5 bg-[#F8FAF9] border border-[#E2ECE6] rounded-xl sm:rounded-2xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-agri-fon">
+                            <option value="all">Toutes les langues</option>
+                            <option value="fon">Fɔngbe</option>
+                            <option value="yoruba">Yorùbá</option>
+                            <option value="fr">Français</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <select id="filter-cat" onchange="filterUnansweredTable()" class="w-full px-3 py-2 sm:py-2.5 bg-[#F8FAF9] border border-[#E2ECE6] rounded-xl sm:rounded-2xl text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-agri-fon">
+                            <option value="all">Toutes les catégories</option>
+                            <option value="Ravageurs">Ravageurs & Chenilles</option>
+                            <option value="Fertilisation">Fertilisation & Sol</option>
+                            <option value="Semis">Semis & Calendrier</option>
+                            <option value="Maladies">Maladies des Plantes</option>
+                            <option value="Prix Marché">Prix & Marché Local</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLEAU AVEC SCROLL FLUIDE -->
+            <div class="bg-white rounded-2xl sm:rounded-3xl border border-[#E2ECE6] shadow-app overflow-hidden">
+                <div class="px-4 py-2 bg-[#F8FAF9] sm:hidden border-b border-[#E2ECE6] text-[10px] font-bold text-slate-500 flex items-center justify-between">
+                    <span>Glissez horizontalement pour voir tout le tableau ➔</span>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse text-xs min-w-[620px]" id="unanswered-table">
+                        <thead>
+                            <tr class="bg-[#F8FAF9] border-b border-[#E2ECE6] text-slate-500 font-bold uppercase tracking-wider text-[10px] sm:text-xs">
+                                <th class="py-3 sm:py-4 px-3 sm:px-4">Date</th>
+                                <th class="py-3 sm:py-4 px-3 sm:px-4">Langue</th>
+                                <th class="py-3 sm:py-4 px-3 sm:px-4">Question Transcrite</th>
+                                <th class="py-3 sm:py-4 px-3 sm:px-4">Confiance</th>
+                                <th class="py-3 sm:py-4 px-3 sm:px-4">Thématique</th>
+                                <th class="py-3 sm:py-4 px-3 sm:px-4">Statut</th>
+                                <th class="py-3 sm:py-4 px-3 sm:px-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#E2ECE6] text-slate-700 font-medium" id="unanswered-tbody">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- TAB 3 : VALIDATION ADMIN J'AIME AGRIVOICE  -->
+        <!-- ========================================== -->
+        <section id="tab-crowdsource" class="tab-content space-y-4 sm:space-y-6 hidden">
+
+            <!-- HEADER -->
+            <div class="bg-gradient-to-r from-agri-fon via-[#155d34] to-[#0d3f22] rounded-2xl sm:rounded-3xl p-4 sm:p-7 text-white shadow-app relative overflow-hidden">
+                <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div class="max-w-xl">
+                        <span class="inline-flex items-center gap-1.5 bg-white/20 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-100 mb-2">
+                            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Administration
+                        </span>
+                        <h2 class="text-lg sm:text-2xl font-black">Validation des Contributions Vocales</h2>
+                        <p class="text-[11px] sm:text-xs text-emerald-100 mt-1 leading-relaxed">
+                            Écoutez chaque enregistrement soumis. Validez ou rejetez — seuls les validés comptent dans le classement.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5 shrink-0">
+                        <div class="text-center bg-white/10 rounded-xl px-2.5 sm:px-3 py-2">
+                            <p class="text-base sm:text-lg font-black" id="adm-pending">—</p>
+                            <p class="text-[9px] text-emerald-200 font-semibold mt-0.5">En attente</p>
+                        </div>
+                        <div class="text-center bg-white/10 rounded-xl px-2.5 sm:px-3 py-2">
+                            <p class="text-base sm:text-lg font-black" id="adm-validated">—</p>
+                            <p class="text-[9px] text-emerald-200 font-semibold mt-0.5">Validés</p>
+                        </div>
+                        <div class="text-center bg-white/10 rounded-xl px-2.5 sm:px-3 py-2">
+                            <p class="text-base sm:text-lg font-black" id="adm-total">—</p>
+                            <p class="text-[9px] text-emerald-200 font-semibold mt-0.5">Total reçus</p>
+                        </div>
+                        <div class="text-center bg-white/10 rounded-xl px-2.5 sm:px-3 py-2">
+                            <p class="text-base sm:text-lg font-black text-amber-300" id="adm-contributors">—</p>
+                            <p class="text-[9px] text-emerald-200 font-semibold mt-0.5">Contributeurs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute right-4 bottom-2 opacity-10 hidden md:block">
+                    <i data-lucide="mic" class="w-32 h-32 text-white"></i>
+                </div>
+            </div>
+
+            <!-- CLASSEMENT CONTRIBUTEURS -->
+            <div id="adm-leaderboard-card" class="bg-white rounded-2xl border border-[#E2ECE6] shadow-sm overflow-hidden" style="display:none">
+                <div class="px-4 py-3 border-b border-[#E2ECE6] bg-[#F8FAF9] flex items-center justify-between">
+                    <h3 class="text-xs sm:text-sm font-black text-[#12472B] flex items-center gap-2">
+                        <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
+                        Classement des Contributeurs (Validés)
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-white border-b border-[#E2ECE6] text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+                                <th class="py-2.5 px-3">Rang</th>
+                                <th class="py-2.5 px-3">Contributeur</th>
+                                <th class="py-2.5 px-3 text-right">Audios Validés</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#E2ECE6] text-xs sm:text-sm text-slate-700 font-medium" id="adm-leaderboard-tbody">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- CONFIG SUPABASE (auto-cachée si clés déjà en place) -->
+            <div id="adm-setup" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 sm:p-5">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="settings" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+                    <div class="flex-1">
+                        <p class="text-sm font-bold text-amber-900">Connecter à la base de données Supabase</p>
+                        <p class="text-xs text-amber-700 mt-1 mb-3">Saisissez vos clés Supabase pour charger les contributions en temps réel. Ces clés seront mémorisées dans ce navigateur.</p>
+                        <div class="flex flex-wrap gap-2">
+                            <input id="adm-url" type="text" placeholder="https://xxx.supabase.co"
+                                class="text-xs px-3 py-2 border border-amber-300 rounded-lg bg-white font-mono flex-1 min-w-[200px]" />
+                            <input id="adm-key" type="text" placeholder="eyJhbGci… (anon key)"
+                                class="text-xs px-3 py-2 border border-amber-300 rounded-lg bg-white font-mono flex-1 min-w-[200px]" />
+                            <button onclick="connectAdminDB()"
+                                class="px-4 py-2 bg-amber-600 text-white rounded-lg font-bold text-xs hover:bg-amber-700 transition whitespace-nowrap">
+                                Connecter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILTRES -->
+            <div class="bg-white rounded-2xl border border-[#E2ECE6] shadow-sm p-3 sm:p-4 space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">Statut :</span>
+                        <button onclick="admFilter('pending')"   id="adm-f-pending"   class="adm-filter px-3 py-1.5 rounded-xl text-xs font-bold bg-agri-fon text-white">En attente</button>
+                        <button onclick="admFilter('validated')" id="adm-f-validated" class="adm-filter px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-[#F8FAF9] hover:bg-[#EBF5F0]">Validés</button>
+                        <button onclick="admFilter('rejected')"  id="adm-f-rejected"  class="adm-filter px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-[#F8FAF9] hover:bg-[#EBF5F0]">Rejetés</button>
+                        <button onclick="admFilter('all')"       id="adm-f-all"       class="adm-filter px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-[#F8FAF9] hover:bg-[#EBF5F0]">Tous</button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="loadAdminContribs()" title="Actualiser"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#EBF5F0] hover:bg-[#D9ECE1] text-agri-fon text-xs font-bold transition">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                            <span class="hidden sm:inline">Actualiser</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- LIGNE 2 : RECHERCHE, TRI PAR DATE, PÉRIODE, LANGUE -->
+                <div class="pt-2.5 border-t border-[#E2ECE6] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5">
+                    <!-- Recherche mot / contributeur -->
+                    <div class="relative">
+                        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400"></i>
+                        <input id="adm-search" type="text" placeholder="Rechercher mot, pseudo..." oninput="debounceLoadAdminContribs()"
+                            class="w-full text-xs pl-8 pr-3 py-2 border border-[#E2ECE6] rounded-xl bg-[#F8FAF9] text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-agri-fon">
+                    </div>
+
+                    <!-- Tri par Date (Nouveau -> Ancien ou Ancien -> Nouveau) -->
+                    <div>
+                        <select id="adm-sort-date" onchange="loadAdminContribs()"
+                            class="w-full text-xs px-3 py-2 border border-[#E2ECE6] rounded-xl bg-[#F8FAF9] text-slate-700 font-bold focus:outline-none focus:ring-2 focus:ring-agri-fon">
+                            <option value="desc">Date : Nouveaux ➔ Anciens (Plus récents)</option>
+                            <option value="asc">Date : Anciens ➔ Nouveaux (Plus anciens)</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtre par Période de Date -->
+                    <div>
+                        <select id="adm-date-period" onchange="loadAdminContribs()"
+                            class="w-full text-xs px-3 py-2 border border-[#E2ECE6] rounded-xl bg-[#F8FAF9] text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-agri-fon">
+                            <option value="all">Toutes les dates</option>
+                            <option value="today">Aujourd'hui</option>
+                            <option value="7days">7 derniers jours</option>
+                            <option value="30days">30 derniers jours</option>
+                        </select>
+                    </div>
+
+                    <!-- Langue -->
+                    <div>
+                        <select id="adm-lang" onchange="loadAdminContribs()"
+                            class="w-full text-xs px-3 py-2 border border-[#E2ECE6] rounded-xl bg-[#F8FAF9] text-slate-700 focus:outline-none focus:ring-2 focus:ring-agri-fon">
+                            <option value="all">Toutes les langues</option>
+                            <option value="fon">Fɔngbe</option>
+                            <option value="yoruba">Yorùbá</option>
+                            <option value="french">Français</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOADING -->
+            <div id="adm-loading" class="text-center py-12" style="display:none">
+                <div class="w-8 h-8 border-4 border-agri-fon border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                <p class="text-sm text-slate-500">Chargement…</p>
+            </div>
+
+            <!-- VIDE -->
+            <div id="adm-empty" style="display:none" class="text-center py-14">
+                <div class="w-14 h-14 bg-[#EBF5F0] rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="check-circle-2" class="w-7 h-7 text-agri-fon"></i>
+                </div>
+                <p class="font-black text-[#12472B]">Tout est traité !</p>
+                <p class="text-slate-500 text-sm mt-1">Aucun enregistrement en attente.</p>
+            </div>
+
+            <!-- GRILLE CARTES -->
+            <div id="adm-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" style="display:none"></div>
+
+            <!-- LOAD MORE -->
+            <div id="adm-more" style="display:none" class="text-center pt-2">
+                <button onclick="loadMoreAdminContribs()"
+                    class="px-6 py-2.5 border-2 border-agri-fon text-agri-fon rounded-xl font-bold text-sm hover:bg-[#EBF5F0] transition">
+                    Charger plus
+                </button>
+            </div>
+
+        </section>
+
+
+
+
+
+    </main>
+
+    <!-- FOOTER RESPONSIVE -->
+    <footer class="bg-white border-t border-[#E2ECE6] py-4 sm:py-6 text-center text-[10px] sm:text-xs text-slate-500 px-4">
+        <p>AgriVoice • Plateforme d'Intelligence Artificielle Vocale Locale & Télémétrie Agricole au Bénin</p>
+    </footer>
+
+    <!-- JAVASCRIPT & AUDIO ENGINE -->
+    <script>
+        lucide.createIcons();
+
+        // TELEMETRY DATA
+        const telemetryData = [
+            { id: 1, date: "2026-09-10 14:15", lang: "fon", query: "Aman kokoloo tɔn lɛ ɖo vɔvɔ wɛ, etɛ ka nyi?", confidence: "94%", category: "Maladies", status: "En attente" },
+            { id: 2, date: "2026-09-10 13:40", lang: "yoruba", query: "Báwo ni mo ṣe lè tọ́jú kòkòrò àgbàdo?", confidence: "89%", category: "Ravageurs", status: "En cours d'analyse" },
+            { id: 3, date: "2026-09-10 12:20", lang: "fon", query: "Gbadotovi lɛ sin jinukún hwe taun ɖo xwewu ehe mɛ", confidence: "92%", category: "Fertilisation", status: "En attente" },
+            { id: 4, date: "2026-09-10 11:05", lang: "fr", query: "Quel est le meilleur moment pour semer le soja au nord Bénin ?", confidence: "98%", category: "Semis", status: "Réponse créée" },
+            { id: 5, date: "2026-09-10 09:45", lang: "yoruba", query: "Èlò ni àpò ajílẹ̀ ń tà ní ọjà lónìí?", confidence: "86%", category: "Prix Marché", status: "En attente" },
+            { id: 6, date: "2026-09-09 18:10", lang: "fon", query: "Nabi wɛ e na do nkun lɛ ɖo gleɖoxu?", confidence: "91%", category: "Semis", status: "En attente" },
+            { id: 7, date: "2026-09-09 16:30", lang: "yoruba", query: "Omi púpọ̀ ti ba iṣu mi jẹ́, kí ni mo lè ṣe?", confidence: "90%", category: "Maladies", status: "En cours d'analyse" },
+        ];
+
+        // CONTRIBUTIONS WITH REAL AUDIOS
+        const sampleContributions = [
+            { id: 101, lang: "Fɔngbe", phrase: "Aman bibi tɔn ɖo gblégblé wɛ", trans: "Les feuilles sont jaunies (Conseil fertilisation)", author: "Koffi D. (Bohicon)", time: "Il y a 12 min", badge: "bg-agri-fon text-white", audio: "audios/fon_m3_jaunissement_engrais.aac" },
+            { id: 102, lang: "Yorùbá", phrase: "Ẹ jọ̀wọ́, báwo ni a ṣe ń pèsè ajílẹ̀?", trans: "Traitement jaunissement et fertilisation en Yorùbá", author: "Adewale S. (Kétou)", time: "Il y a 28 min", badge: "bg-agri-yoruba text-white", audio: "audios/yoruba_m3_jaunissement_engrais.m4a" },
+            { id: 103, lang: "Fɔngbe", phrase: "Nugonu e na blo nu do numɛ jɛ lɛ", trans: "Traitement des chenilles du maïs", author: "Sena G. (Allada)", time: "Il y a 1h", badge: "bg-agri-fon text-white", audio: "audios/fon_m2_chenille_legionnaire.aac" },
+            { id: 104, lang: "Yorùbá", phrase: "Àkókò wo ni ó dára jù láti gbin àgbàdo?", trans: "Période idéale de pluie et semis du maïs", author: "Folashade T. (Pobè)", time: "Il y a 2h", badge: "bg-agri-yoruba text-white", audio: "audios/yoruba_w1_meteo_pluie_semis.m4a" },
+            { id: 105, lang: "Fɔngbe", phrase: "Gbadotovi sin axixa ɖo Dantokpa", trans: "Prix du maïs au marché Dantokpa", author: "Bio S. (Cotonou)", time: "Il y a 3h", badge: "bg-agri-fon text-white", audio: "audios/fon_p1_prix_mais_dantokpa.aac" },
+            { id: 106, lang: "Français", phrase: "Traitement fertilisation et jaunissement", trans: "Conseil technique en Français", author: "Agronome Terrain", time: "Il y a 4h", badge: "bg-agri-francais text-white", audio: "audios/fr_m3_jaunissement_engrais.m4a" }
+        ];
+
+        // AUDIO ENGINE STATE
+        let currentAudioObj = null;
+        let activeAudioSrc = "audios/fon_m3_jaunissement_engrais.aac";
+
+        function playDirectAudio(src) {
+            stopCurrentAudio();
+            currentAudioObj = new Audio(src);
+            currentAudioObj.play().catch(e => console.log("Audio play error:", e));
+            currentAudioObj.onended = () => {
+                setWaveActive(false);
+            };
+            setWaveActive(true);
+        }
+
+        function stopCurrentAudio() {
+            if (currentAudioObj) {
+                currentAudioObj.pause();
+                currentAudioObj.currentTime = 0;
+                currentAudioObj = null;
+            }
+            setWaveActive(false);
+            const btn = document.getElementById('play-demo-btn');
+            if (btn) {
+                btn.classList.remove('bg-amber-600');
+                btn.classList.add('bg-agri-fon');
+                document.getElementById('play-icon').setAttribute('data-lucide', 'play');
+                document.getElementById('play-label').textContent = 'Écouter la voix';
+                lucide.createIcons();
+            }
+        }
+
+        function setWaveActive(active) {
+            for (let i = 1; i <= 7; i++) {
+                const bar = document.getElementById('wb' + i);
+                if (bar) {
+                    if (active) bar.classList.add('playing');
+                    else bar.classList.remove('playing');
+                }
+            }
+        }
+
+        function toggleAudioDemo() {
+            const btn = document.getElementById('play-demo-btn');
+            if (currentAudioObj && !currentAudioObj.paused) {
+                stopCurrentAudio();
+            } else {
+                playDirectAudio(activeAudioSrc);
+                btn.classList.remove('bg-agri-fon');
+                btn.classList.add('bg-amber-600');
+                document.getElementById('play-icon').setAttribute('data-lucide', 'square');
+                document.getElementById('play-label').textContent = 'Arrêter la lecture';
+                lucide.createIcons();
+            }
+        }
+
+        function selectContribution(id) {
+            const item = sampleContributions.find(c => c.id === id);
+            if (!item) return;
+
+            activeAudioSrc = item.audio;
+            document.getElementById('current-player-title').textContent = `"${item.phrase}"`;
+            document.getElementById('current-player-sub').textContent = `Traduction : ${item.trans}`;
+            document.getElementById('current-player-author').textContent = `${item.author}`;
+            
+            const badge = document.getElementById('player-lang-badge');
+            badge.textContent = item.lang;
+            if (item.lang === 'Fɔngbe') {
+                badge.className = 'bg-[#EBF5F0] text-agri-forest text-[11px] font-black px-3 py-0.5 rounded-full border border-[#D9ECE1]';
+            } else if (item.lang === 'Yorùbá') {
+                badge.className = 'bg-amber-100 text-amber-900 text-[11px] font-black px-3 py-0.5 rounded-full border border-amber-200';
+            } else {
+                badge.className = 'bg-blue-100 text-blue-900 text-[11px] font-black px-3 py-0.5 rounded-full border border-blue-200';
+            }
+
+            playDirectAudio(activeAudioSrc);
+            const btn = document.getElementById('play-demo-btn');
+            btn.classList.remove('bg-agri-fon');
+            btn.classList.add('bg-amber-600');
+            document.getElementById('play-icon').setAttribute('data-lucide', 'square');
+            document.getElementById('play-label').textContent = 'Arrêter la lecture';
+            lucide.createIcons();
+        }
+
+        function approveAudio() {
+            alert("Audio vérifié et marqué comme éligible pour le prochain export Edge Impulse !");
+        }
+
+        // RENDER CONTRIBUTIONS
+        function renderContributions() {
+            const list = document.getElementById('contributions-list');
+            if (!list) return;
+
+            list.innerHTML = sampleContributions.map(c => `
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-[#F8FAF9] hover:bg-[#EBF5F0] transition border border-[#E2ECE6]">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <button onclick="selectContribution(${c.id})" class="w-8 h-8 rounded-full bg-white hover:bg-agri-fon hover:text-white flex items-center justify-center text-agri-fon border border-[#E2ECE6] transition shrink-0">
+                            <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+                        </button>
+                        <div class="truncate">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-[#12472B] truncate">${c.phrase}</span>
+                                <span class="text-[10px] font-extrabold px-2 py-0.2 rounded-full ${c.badge}">${c.lang}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 truncate">${c.trans}</p>
+                        </div>
+                    </div>
+                    <div class="text-right shrink-0 ml-2">
+                        <span class="block text-[11px] font-semibold text-slate-600">${c.author}</span>
+                        <span class="text-[10px] text-slate-400">${c.time}</span>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // RENDER UNANSWERED TABLE
+        function renderUnanswered(data) {
+            const tbody = document.getElementById('unanswered-tbody');
+            if (!tbody) return;
+
+            tbody.innerHTML = data.map(row => {
+                let langBadge = '';
+                if (row.lang === 'fon') langBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-900 border border-emerald-200">Fɔngbe</span>';
+                else if (row.lang === 'yoruba') langBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-200">Yorùbá</span>';
+                else langBadge = '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-900 border border-blue-200">Français</span>';
+
+                let statusBadge = '';
+                if (row.status === 'En attente') statusBadge = '<span class="text-amber-800 font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> En attente</span>';
+                else if (row.status === 'Réponse créée') statusBadge = '<span class="text-agri-fon font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-agri-fon"></span> Réponse créée</span>';
+                else statusBadge = '<span class="text-blue-800 font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Analyse</span>';
+
+                return `
+                    <tr class="hover:bg-[#F8FAF9] transition">
+                        <td class="py-3.5 px-4 text-slate-500 font-mono text-[11px]">${row.date}</td>
+                        <td class="py-3.5 px-4">${langBadge}</td>
+                        <td class="py-3.5 px-4 font-bold text-[#12472B]">${row.query}</td>
+                        <td class="py-3.5 px-4 font-semibold text-slate-600">${row.confidence}</td>
+                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-xl bg-[#EBF5F0] text-agri-forest text-[11px] font-bold">${row.category}</span></td>
+                        <td class="py-3.5 px-4">${statusBadge}</td>
+                        <td class="py-3.5 px-4 text-right">
+                            <button onclick="createAudioResponse('${row.id}')" class="text-xs font-bold text-agri-fon hover:underline flex items-center justify-end gap-1 ml-auto">
+                                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
+                                <span>Ajouter Audio</span>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function filterUnansweredTable() {
+            const search = (document.getElementById('filter-search')?.value || '').toLowerCase();
+            const sortDate = document.getElementById('filter-sort-date')?.value || 'desc';
+            const lang = document.getElementById('filter-lang')?.value || 'all';
+            const cat = document.getElementById('filter-cat')?.value || 'all';
+
+            let filtered = telemetryData.filter(item => {
+                const matchSearch = item.query.toLowerCase().includes(search) || item.category.toLowerCase().includes(search);
+                const matchLang = lang === 'all' || item.lang === lang;
+                const matchCat = cat === 'all' || item.category === cat;
+                return matchSearch && matchLang && matchCat;
+            });
+
+            filtered.sort((a, b) => {
+                const dateA = new Date(a.date.replace(' ', 'T')).getTime() || 0;
+                const dateB = new Date(b.date.replace(' ', 'T')).getTime() || 0;
+                return sortDate === 'asc' ? (dateA - dateB) : (dateB - dateA);
+            });
+
+            renderUnanswered(filtered);
+        }
+
+        function createAudioResponse(id) {
+            alert(`Création d'une réponse audio pour la requête #${id}. Enregistrement ou upload WAV 16kHz possible.`);
+        }
+
+        function downloadUnansweredCSV() {
+            let csv = "ID,Date,Langue,Question,Confiance,Categorie,Statut\n";
+            telemetryData.forEach(r => {
+                csv += `"${r.id}","${r.date}","${r.lang}","${r.query}","${r.confidence}","${r.category}","${r.status}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `agrivoice_telemetry_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+        }
+
+        async function exportFullDataset() {
+            if (!_admSupabase) {
+                if (window.supabase?.createClient) {
+                    _admSupabase = supabase.createClient(
+                        'https://pxbvztliwjhnyyxrbhof.supabase.co',
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4YnZ6dGxpd2pobnl5eHJiaG9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MjYzNjYsImV4cCI6MjEwNTEwMjM2Nn0.oaIkxdjfCl4Qx9hEG_d8DdKY25Oa-gOOxScHO7nNV3k'
+                    );
+                } else {
+                    alert("Chargement de la base de données en cours, veuillez patienter une seconde...");
+                    return;
+                }
+            }
+
+            const btns = document.querySelectorAll('button[onclick="exportFullDataset()"]');
+            const originalHTMLs = Array.from(btns).map(b => b.innerHTML);
+            const setBtnsText = (txt) => {
+                btns.forEach(b => {
+                    b.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> <span>${txt}</span>`;
+                });
+                if (window.lucide) lucide.createIcons();
+            };
+
+            try {
+                setBtnsText("Chargement BDD...");
+
+                // Helper pour récupérer toutes les lignes paginées
+                const fetchAllChunks = async (buildQueryFn) => {
+                    let results = [];
+                    let from = 0;
+                    const CHUNK = 1000;
+                    while (true) {
+                        const { data, error } = await buildQueryFn(from, from + CHUNK - 1);
+                        if (error) {
+                            console.error("Erreur chunk export :", error);
+                            break;
+                        }
+                        if (!data || data.length === 0) break;
+                        results.push(...data);
+                        if (data.length < CHUNK) break;
+                        from += CHUNK;
+                    }
+                    return results;
+                };
+
+                // 1. Récupération de toutes les contributions validées
+                let targetData = await fetchAllChunks((from, to) => 
+                    _admSupabase
+                        .from('contributions')
+                        .select('*')
+                        .eq('status', 'validated')
+                        .order('created_at', { ascending: false })
+                        .range(from, to)
+                );
+
+                let prefix = "agrivoice_audios_valides";
+
+                if (!targetData || targetData.length === 0) {
+                    const exportAll = confirm("Aucun enregistrement avec le statut 'validé' n'a été trouvé.\n\nSouhaitez-vous plutôt exporter et zipper TOUS les audios existants (y compris ceux en attente) ?");
+                    if (!exportAll) return;
+
+                    setBtnsText("Récupération de tous les audios...");
+                    targetData = await fetchAllChunks((from, to) => 
+                        _admSupabase
+                            .from('contributions')
+                            .select('*')
+                            .order('created_at', { ascending: false })
+                            .range(from, to)
+                    );
+
+                    if (!targetData || targetData.length === 0) {
+                        alert("Aucun audio trouvé dans la base de données.");
+                        return;
+                    }
+                    prefix = "agrivoice_tous_les_audios";
+                }
+
+                // 2. Téléchargement de chaque fichier audio et création du ZIP
+                await downloadAudiosAsZip(targetData, prefix, setBtnsText);
+                alert(`🎉 Succès ! Le fichier ZIP contenant ${targetData.length} audio(s) + métadonnées a été téléchargé avec succès.`);
+
+            } catch (err) {
+                console.error("Erreur export ZIP :", err);
+                alert("Erreur lors de la création du ZIP : " + err.message);
+            } finally {
+                btns.forEach((b, idx) => {
+                    b.innerHTML = originalHTMLs[idx] || '<span>Exporter Dataset</span>';
+                });
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function getCleanClassFolder(item) {
+            let label = item.edge_label || item.word || 'divers';
+            if (label.startsWith('fon_')) label = label.slice(4);
+            else if (label.startsWith('yoruba_')) label = label.slice(7);
+            else if (label.startsWith('fr_')) label = label.slice(3);
+            else if (label.startsWith('french_')) label = label.slice(7);
+
+            return label.toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-z0-9_-]/g, '_') || 'divers';
+        }
+
+        async function downloadAudiosAsZip(items, prefix = "agrivoice_audios", progressCallback = () => {}) {
+            if (typeof JSZip === 'undefined') {
+                alert("La bibliothèque JSZip est en cours de chargement. Veuillez patienter.");
+                return;
+            }
+
+            const zip = new JSZip();
+
+            let csv = "id,folder,filename,word,language,category,edge_label,contributor_name,status,audio_url,duration_ms,created_at\n";
+            const edgeImpulseFiles = [];
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                progressCallback(`Téléchargement ${i + 1}/${items.length}...`);
+
+                if (!item.audio_url) continue;
+
+                // Dossier de classification cible (ex: gari, agbado, soja, ji, hwe...)
+                const folderName = getCleanClassFolder(item);
+                const classFolder = zip.folder(folderName);
+
+                // Extension et nom propre du fichier
+                const urlParts = item.audio_url.split('?')[0].split('.');
+                const ext = urlParts.length > 1 ? urlParts.pop() : 'webm';
+                const safeName = (item.contributor_name || 'user').replace(/[^a-zA-Z0-9_-]/g, '_');
+                const filename = `${item.language || 'fon'}_${folderName}_${safeName}_${item.id ? item.id.slice(0, 6) : i}.${ext}`;
+                const relativePath = `${folderName}/${filename}`;
+
+                try {
+                    const resp = await fetch(item.audio_url);
+                    if (resp.ok) {
+                        const blob = await resp.blob();
+                        classFolder.file(filename, blob);
+
+                        edgeImpulseFiles.push({
+                            path: relativePath,
+                            label: folderName,
+                            category: "training"
+                        });
+                    }
+                } catch (err) {
+                    console.warn(`Erreur download audio ${item.audio_url}:`, err);
+                }
+
+                const id = item.id || "";
+                const word = (item.word || "").replace(/"/g, '""');
+                const lang = item.language || "";
+                const cat = (item.category || "").replace(/"/g, '""');
+                const edgeLabel = item.edge_label || "";
+                const contributor = (item.contributor_name || "Anonyme").replace(/"/g, '""');
+                const status = item.status || "";
+                const audioUrl = item.audio_url || "";
+                const duration = item.duration_ms || 0;
+                const createdAt = item.created_at || "";
+
+                csv += `"${id}","${folderName}","${filename}","${word}","${lang}","${cat}","${edgeLabel}","${contributor}","${status}","${audioUrl}","${duration}","${createdAt}"\n`;
+            }
+
+            progressCallback("Création de l'archive ZIP par classe...");
+
+            // Ajout du fichier CSV et du fichier JSON pour Edge Impulse à la racine du ZIP
+            zip.file("dataset_metadata.csv", csv);
+            zip.file("info.labels.json", JSON.stringify({ version: 1, files: edgeImpulseFiles }, null, 2));
+
+            const zipBlob = await zip.generateAsync({ type: "blob" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(zipBlob);
+            link.download = `${prefix}_${new Date().toISOString().slice(0, 10)}.zip`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function triggerRefresh() {
+            const icon = document.getElementById('refresh-icon');
+            icon.classList.add('animate-spin');
+            setTimeout(() => {
+                icon.classList.remove('animate-spin');
+                alert("Données télémétriques synchronisées avec succès !");
+            }, 800);
+        }
+
+        // TABS SWITCHER
+        function switchTab(tabId) {
+            stopCurrentAudio();
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active', 'bg-white', 'text-[#12472B]', 'shadow-md', 'border', 'border-slate-200/60');
+                b.classList.add('text-slate-500', 'hover:bg-slate-200/50');
+            });
+
+            const activeContent = document.getElementById(tabId);
+            if (activeContent) activeContent.classList.remove('hidden');
+
+            const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'bg-white', 'text-[#12472B]', 'shadow-md', 'border', 'border-slate-200/60');
+                activeBtn.classList.remove('text-slate-500', 'hover:bg-slate-200/50');
+            }
+            
+            // Re-render chart sizes after tab unhide
+            if (tabId === 'tab-overview') {
+                setTimeout(initCharts, 50);
+            }
+        }
+
+        // CHARTS INIT
+        let langChartInstance = null;
+        let topicsChartInstance = null;
+        let timelineChartInstance = null;
+
+        function initCharts() {
+            // 1. LANGUAGES DOUGHNUT
+            const ctxLang = document.getElementById('languagesChart')?.getContext('2d');
+            if (ctxLang) {
+                if (langChartInstance) langChartInstance.destroy();
+                langChartInstance = new Chart(ctxLang, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Fɔngbe', 'Yorùbá', 'Français'],
+                        datasets: [{
+                            data: [54.2, 32.6, 13.2],
+                            backgroundColor: ['#196E3F', '#D97706', '#2563EB'],
+                            borderWidth: 3,
+                            borderColor: '#FFFFFF',
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '72%',
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+
+            // 2. TOPICS BAR CHART
+            const ctxTopics = document.getElementById('topicsChart')?.getContext('2d');
+            if (ctxTopics) {
+                if (topicsChartInstance) topicsChartInstance.destroy();
+                topicsChartInstance = new Chart(ctxTopics, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Maladies (Taches)', 'Chenilles (Légionnaire)', 'Prix Marchés', 'Météo & Semis', 'Stockage PICS', 'Fertilisation'],
+                        datasets: [{
+                            label: 'Requêtes reçues',
+                            data: [580, 442, 390, 260, 110, 60],
+                            backgroundColor: '#196E3F',
+                            borderRadius: 12
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { family: 'Plus Jakarta Sans', size: 10, weight: 600 }, color: '#475569' }
+                            },
+                            y: {
+                                grid: { color: '#E2ECE6' },
+                                ticks: { font: { family: 'Plus Jakarta Sans', size: 10 }, color: '#64748B' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 3. ACTIVITY TIMELINE
+            const ctxTimeline = document.getElementById('activityTimelineChart')?.getContext('2d');
+            if (ctxTimeline) {
+                if (timelineChartInstance) timelineChartInstance.destroy();
+                timelineChartInstance = new Chart(ctxTimeline, {
+                    type: 'line',
+                    data: {
+                        labels: ['Sem 1 (Août)', 'Sem 2 (Août)', 'Sem 3 (Août)', 'Sem 4 (Août)', 'Sem 1 (Sept)', 'Sem 2 (Sept)'],
+                        datasets: [
+                            {
+                                label: 'Questions Résolues',
+                                data: [180, 240, 310, 420, 520, 630],
+                                borderColor: '#196E3F',
+                                backgroundColor: 'rgba(25, 110, 63, 0.08)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 3,
+                                pointBackgroundColor: '#196E3F',
+                                pointRadius: 4
+                            },
+                            {
+                                label: 'Questions Sans Réponse (Télémétrie)',
+                                data: [65, 80, 72, 90, 82, 54],
+                                borderColor: '#D97706',
+                                backgroundColor: 'transparent',
+                                borderDash: [5, 5],
+                                tension: 0.4,
+                                borderWidth: 2,
+                                pointBackgroundColor: '#D97706',
+                                pointRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { family: 'Plus Jakarta Sans', size: 10, weight: 600 }, color: '#475569' }
+                            },
+                            y: {
+                                grid: { color: '#E2ECE6' },
+                                ticks: { font: { family: 'Plus Jakarta Sans', size: 10 }, color: '#64748B' }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+        // ADMIN VALIDATION — J'AIME AGRIVOICE (Supabase)
+        // ─────────────────────────────────────────────────────────────────
+        let _admSupabase  = null;
+        let _admStatus    = 'pending';
+        let _admAudio     = null;
+        let _admOffset    = 0;
+        const ADM_PAGE    = 9;
+
+        // Charger les clés depuis localStorage ou utiliser les clés officielles du projet
+        (function restoreAdminKeys() {
+            const defaultUrl = 'https://pxbvztliwjhnyyxrbhof.supabase.co';
+            const defaultKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB4YnZ6dGxpd2pobnl5eHJiaG9mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1MjYzNjYsImV4cCI6MjEwNTEwMjM2Nn0.oaIkxdjfCl4Qx9hEG_d8DdKY25Oa-gOOxScHO7nNV3k';
+            const url = localStorage.getItem('agrivoice_adm_url') || defaultUrl;
+            const key = localStorage.getItem('agrivoice_adm_key') || defaultKey;
+
+            if (url && key) {
+                const inputUrl = document.getElementById('adm-url');
+                const inputKey = document.getElementById('adm-key');
+                if (inputUrl) inputUrl.value = url;
+                if (inputKey) inputKey.value = key;
+                connectAdminDB(true);
+            }
+        })();
+
+
+        function connectAdminDB(silent = false) {
+            const url = document.getElementById('adm-url').value.trim();
+            const key = document.getElementById('adm-key').value.trim();
+            if (!url || !key) { if (!silent) alert('Saisissez l\'URL et la clé Supabase.'); return; }
+
+            // Charger dynamiquement le SDK Supabase si pas encore chargé
+            if (typeof supabase === 'undefined' || !window.supabase?.createClient) {
+                const s = document.createElement('script');
+                s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+                s.onload = () => {
+                    _admSupabase = supabase.createClient(url, key);
+                    localStorage.setItem('agrivoice_adm_url', url);
+                    localStorage.setItem('agrivoice_adm_key', key);
+                    document.getElementById('adm-setup').style.display = 'none';
+                    loadAdminContribs();
+                };
+                document.head.appendChild(s);
+            } else {
+                _admSupabase = supabase.createClient(url, key);
+                localStorage.setItem('agrivoice_adm_url', url);
+                localStorage.setItem('agrivoice_adm_key', key);
+                document.getElementById('adm-setup').style.display = 'none';
+                loadAdminContribs();
+            }
+        }
+
+        async function loadAdminStats() {
+            if (!_admSupabase) return;
+            try {
+                const [{ count: pending }, { count: validated }, { count: total }] = await Promise.all([
+                    _admSupabase.from('contributions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                    _admSupabase.from('contributions').select('*', { count: 'exact', head: true }).eq('status', 'validated'),
+                    _admSupabase.from('contributions').select('*', { count: 'exact', head: true })
+                ]);
+                document.getElementById('adm-pending').textContent   = (pending   || 0).toLocaleString('fr');
+                document.getElementById('adm-validated').textContent = (validated || 0).toLocaleString('fr');
+                document.getElementById('adm-total').textContent     = (total     || 0).toLocaleString('fr');
+
+                // Récupération paginée de TOUTES les lignes pour agréger tous les contributeurs
+                let allData = [];
+                let from = 0;
+                const CHUNK = 1000;
+                while (true) {
+                    const { data, error } = await _admSupabase
+                        .from('contributions')
+                        .select('contributor_name, status')
+                        .range(from, from + CHUNK - 1);
+                    if (error || !data || data.length === 0) break;
+                    allData.push(...data);
+                    if (data.length < CHUNK) break;
+                    from += CHUNK;
+                }
+
+                if (allData && allData.length > 0) {
+                    const contributorsMap = {};
+                    allData.forEach(c => {
+                        const rawName = (c.contributor_name || '').trim();
+                        const name = rawName || 'Anonyme';
+                        const key = name.toLowerCase();
+                        if (!contributorsMap[key]) {
+                            contributorsMap[key] = { name: name, total: 0, validated: 0 };
+                        }
+                        contributorsMap[key].total++;
+                        if (c.status === 'validated') contributorsMap[key].validated++;
+                    });
+
+                    const contributorList = Object.values(contributorsMap);
+                    const contribCountElem = document.getElementById('adm-contributors');
+                    if (contribCountElem) contribCountElem.textContent = contributorList.length.toLocaleString('fr');
+
+                    // Tri décroissant par validés puis par total
+                    const sorted = contributorList
+                        .sort((a, b) => b.validated - a.validated || b.total - a.total);
+
+                    const tbody = document.getElementById('adm-leaderboard-tbody');
+                    if (tbody && sorted.length > 0) {
+                        tbody.innerHTML = sorted.map((c, index) => {
+                            let badge = `<span class="inline-flex items-center font-bold text-slate-500 whitespace-nowrap text-xs">#${index + 1}</span>`;
+                            if (index === 0) badge = `<span class="inline-flex items-center gap-1.5 bg-amber-100 text-amber-900 border border-amber-300 font-extrabold px-2.5 py-1 rounded-full text-xs whitespace-nowrap shadow-xs"><span class="text-sm leading-none">🥇</span> 1er</span>`;
+                            else if (index === 1) badge = `<span class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-800 border border-slate-300 font-extrabold px-2.5 py-1 rounded-full text-xs whitespace-nowrap shadow-xs"><span class="text-sm leading-none">🥈</span> 2ème</span>`;
+                            else if (index === 2) badge = `<span class="inline-flex items-center gap-1.5 bg-amber-50 text-amber-800 border border-amber-200 font-extrabold px-2.5 py-1 rounded-full text-xs whitespace-nowrap shadow-xs"><span class="text-sm leading-none">🥉</span> 3ème</span>`;
+
+                            return `
+                                <tr class="hover:bg-slate-50/80 transition">
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 whitespace-nowrap w-28">${badge}</td>
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 font-bold text-[#12472B] truncate max-w-[140px] sm:max-w-none">${c.name}</td>
+                                    <td class="py-2.5 sm:py-3 px-3 sm:px-4 text-right whitespace-nowrap">
+                                        <span class="inline-flex items-center gap-1 bg-[#EBF5F0] text-agri-fon font-extrabold px-2.5 py-1 rounded-full text-xs">
+                                            ${c.validated} validé${c.validated > 1 ? 's' : ''} <span class="text-slate-400 font-normal">/ ${c.total}</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                        const lbCard = document.getElementById('adm-leaderboard-card');
+                        if (lbCard) lbCard.style.display = 'block';
+                    }
+                }
+            } catch(e) {
+                console.error("Erreur stats admin :", e);
+            }
+        }
+
+        function admFilter(status) {
+            _admStatus = status;
+            _admOffset = 0;
+            document.querySelectorAll('.adm-filter').forEach(b => {
+                b.className = 'adm-filter px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 bg-[#F8FAF9] hover:bg-[#EBF5F0]';
+            });
+            const active = document.getElementById('adm-f-' + status);
+            if (active) active.className = 'adm-filter px-3 py-1.5 rounded-xl text-xs font-bold bg-agri-fon text-white';
+            loadAdminContribs();
+        }
+
+        let _admSearchTimer = null;
+        function debounceLoadAdminContribs() {
+            clearTimeout(_admSearchTimer);
+            _admSearchTimer = setTimeout(() => {
+                loadAdminContribs();
+            }, 300);
+        }
+
+        function getPeriodStartDate(period) {
+            const now = new Date();
+            if (period === 'today') {
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                return today.toISOString();
+            } else if (period === '7days') {
+                const d = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                return d.toISOString();
+            } else if (period === '30days') {
+                const d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                return d.toISOString();
+            }
+            return null;
+        }
+
+        async function loadAdminContribs() {
+            if (!_admSupabase) return;
+            _admOffset = 0;
+            document.getElementById('adm-loading').style.display = 'block';
+            document.getElementById('adm-grid').style.display = 'none';
+            document.getElementById('adm-empty').style.display = 'none';
+            document.getElementById('adm-more').style.display = 'none';
+
+            loadAdminStats();
+
+            const sortDate = document.getElementById('adm-sort-date')?.value || 'desc';
+            const isAsc = (sortDate === 'asc');
+            const period = document.getElementById('adm-date-period')?.value || 'all';
+            const periodDate = getPeriodStartDate(period);
+            const search = (document.getElementById('adm-search')?.value || '').trim();
+
+            let q = _admSupabase.from('contributions').select('*').order('created_at', { ascending: isAsc });
+            if (_admStatus !== 'all') q = q.eq('status', _admStatus);
+            
+            const lang = document.getElementById('adm-lang')?.value || 'all';
+            if (lang !== 'all') q = q.eq('language', lang);
+
+            if (periodDate) {
+                q = q.gte('created_at', periodDate);
+            }
+
+            if (search) {
+                q = q.or(`word.ilike.%${search}%,contributor_name.ilike.%${search}%,edge_label.ilike.%${search}%`);
+            }
+
+            q = q.range(0, ADM_PAGE - 1);
+
+            const { data, error } = await q;
+            document.getElementById('adm-loading').style.display = 'none';
+
+            if (error || !data || data.length === 0) {
+                document.getElementById('adm-empty').style.display = 'block';
+                return;
+            }
+            document.getElementById('adm-grid').innerHTML = '';
+            renderAdminCards(data);
+            document.getElementById('adm-grid').style.display = 'grid';
+            _admOffset = data.length;
+            if (data.length === ADM_PAGE) document.getElementById('adm-more').style.display = 'block';
+        }
+
+        async function loadMoreAdminContribs() {
+            if (!_admSupabase) return;
+            const sortDate = document.getElementById('adm-sort-date')?.value || 'desc';
+            const isAsc = (sortDate === 'asc');
+            const period = document.getElementById('adm-date-period')?.value || 'all';
+            const periodDate = getPeriodStartDate(period);
+            const search = (document.getElementById('adm-search')?.value || '').trim();
+
+            let q = _admSupabase.from('contributions').select('*').order('created_at', { ascending: isAsc });
+            if (_admStatus !== 'all') q = q.eq('status', _admStatus);
+            
+            const lang = document.getElementById('adm-lang')?.value || 'all';
+            if (lang !== 'all') q = q.eq('language', lang);
+
+            if (periodDate) {
+                q = q.gte('created_at', periodDate);
+            }
+
+            if (search) {
+                q = q.or(`word.ilike.%${search}%,contributor_name.ilike.%${search}%,edge_label.ilike.%${search}%`);
+            }
+
+            q = q.range(_admOffset, _admOffset + ADM_PAGE - 1);
+
+            const { data } = await q;
+            if (data && data.length > 0) {
+                renderAdminCards(data);
+                _admOffset += data.length;
+                if (data.length < ADM_PAGE) document.getElementById('adm-more').style.display = 'none';
+            }
+        }
+
+        function renderAdminCards(items) {
+            const grid  = document.getElementById('adm-grid');
+            const LANG  = { fon: { label:'Fɔngbe', color:'bg-emerald-100 text-emerald-900 border-emerald-200' }, yoruba: { label:'Yorùbá', color:'bg-amber-100 text-amber-900 border-amber-200' }, french: { label:'Français', color:'bg-blue-100 text-blue-900 border-blue-200' } };
+            const STATUS= { pending:'bg-amber-100 text-amber-900', validated:'bg-emerald-100 text-emerald-900', rejected:'bg-red-100 text-red-900' };
+            const SLBL  = { pending:'En attente', validated:'Validé', rejected:'Rejeté' };
+
+            items.forEach(item => {
+                const lc   = LANG[item.language] || LANG.fon;
+                const sc   = STATUS[item.status] || STATUS.pending;
+                const slbl = SLBL[item.status] || item.status;
+                const div  = document.createElement('div');
+                div.id     = `adm-card-${item.id}`;
+                div.className = 'bg-white rounded-2xl border border-[#E2ECE6] shadow-app overflow-hidden flex flex-col';
+                div.innerHTML = `
+                    <div class="px-4 py-2.5 border-b border-[#E2ECE6] flex items-center justify-between bg-[#F8FAF9]">
+                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full border ${lc.color}">${lc.label}</span>
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${sc}">${slbl}</span>
+                    </div>
+                    <div class="p-4 flex-1">
+                        <p class="text-xl font-black text-[#12472B] mb-0.5">${item.word}</p>
+                        <p class="text-xs text-slate-500">${item.edge_label || ''} · ${item.category || ''}</p>
+                        <p class="text-xs text-slate-400 mt-1">${item.contributor_name || 'Anonyme'} · ${item.duration_ms ? (item.duration_ms/1000).toFixed(1)+'s' : '?'}</p>
+                        <p class="text-[11px] text-slate-300 font-mono mt-0.5">${new Date(item.created_at).toLocaleString('fr-FR')}</p>
+                    </div>
+                    <!-- Lecteur -->
+                    <div class="px-4 pb-3">
+                        <div class="bg-[#F8FAF9] rounded-xl border border-[#E2ECE6] px-3 py-2 flex items-center gap-2 mb-3">
+                            <button onclick="admPlay('${item.id}','${item.audio_url}')"
+                                id="adm-play-${item.id}"
+                                class="w-8 h-8 rounded-full bg-agri-fon text-white flex items-center justify-center hover:bg-[#155d34] transition shrink-0">
+                                <i data-lucide="play" class="w-3.5 h-3.5 fill-white" id="adm-play-icon-${item.id}"></i>
+                            </button>
+                            <div class="flex items-center gap-0.5 flex-1">
+                                ${[...Array(12)].map((_,i)=>`<div class="adm-wave-bar flex-1 rounded-full bg-[#E2ECE6]" id="awb-${item.id}-${i}" style="height:${4+Math.round(Math.random()*16)}px;transition:height .3s"></div>`).join('')}
+                            </div>
+                        </div>
+                        <!-- Boutons validation -->
+                        <div class="flex gap-2" id="adm-btns-${item.id}">
+                            ${item.status !== 'validated' ? `<button onclick="admValidate('${item.id}', true)"
+                                class="flex-1 py-2 rounded-xl bg-[#EBF5F0] text-[#196E3F] border border-[#196E3F] font-bold text-xs hover:bg-[#196E3F] hover:text-white transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="check" class="w-3.5 h-3.5"></i> Valider
+                            </button>` : ''}
+                            ${item.status !== 'rejected' ? `<button onclick="admValidate('${item.id}', false)"
+                                class="flex-1 py-2 rounded-xl bg-red-50 text-red-600 border border-red-200 font-bold text-xs hover:bg-red-600 hover:text-white transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i> Rejeter
+                            </button>` : ''}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        // Lecture audio admin
+        let _admPlayingId = null;
+        function admPlay(id, url) {
+            if (_admAudio) {
+                _admAudio.pause();
+                _admAudio = null;
+                admStopUI(_admPlayingId);
+                if (_admPlayingId === id) {
+                    _admPlayingId = null;
+                    return;
+                }
+            }
+            
+            _admPlayingId = id;
+            _admAudio = new Audio(url);
+            admStartUI(id);
+            _admAudio.play().catch(e => { console.warn('audio error', e); admStopUI(id); _admPlayingId = null; });
+            _admAudio.onended = () => {
+                admStopUI(id);
+                _admPlayingId = null;
+            };
+        }
+
+        function admStartUI(id) {
+            const btn = document.getElementById('adm-play-' + id);
+            if (btn) {
+                btn.classList.add('animate-pulse');
+                btn.innerHTML = `<i data-lucide="square" class="w-3.5 h-3.5 fill-white"></i>`;
+                lucide.createIcons();
+            }
+            document.querySelectorAll(`[id^="awb-${id}-"]`).forEach(w => {
+                w.classList.add('playing');
+                w.style.backgroundColor = '#196E3F'; // green color
+            });
+        }
+
+        function admStopUI(id) {
+            if(!id) return;
+            const btn = document.getElementById('adm-play-' + id);
+            if (btn) {
+                btn.classList.remove('animate-pulse');
+                btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5 fill-white"></i>`;
+                lucide.createIcons();
+            }
+            document.querySelectorAll(`[id^="awb-${id}-"]`).forEach(w => {
+                w.classList.remove('playing');
+                w.style.backgroundColor = '#E2ECE6'; // original color
+            });
+        }
+
+        // Valider / Rejeter
+        async function admValidate(id, approve) {
+            if (!_admSupabase) return;
+            const newStatus = approve ? 'validated' : 'rejected';
+            const { error } = await _admSupabase.from('contributions').update({ status: newStatus }).eq('id', id);
+            if (error) { alert('Erreur : ' + error.message); return; }
+
+            // Masquer la carte avec animation
+            const card = document.getElementById('adm-card-' + id);
+            if (card) { 
+                card.style.opacity = '0'; 
+                card.style.transform = 'scale(0.95)'; 
+                card.style.transition = '.4s'; 
+                setTimeout(() => {
+                    card.remove();
+                    // Recharger automatiquement s'il n'y a plus de cartes
+                    if (document.querySelectorAll('[id^="adm-card-"]').length === 0) {
+                        loadAdminContribs();
+                    }
+                }, 400); 
+            }
+
+            loadAdminStats();
+        }
+
+        // INITIALIZE ON LOAD
+        document.addEventListener('DOMContentLoaded', () => {
+            renderUnanswered(telemetryData);
+            renderContributions();
+            initCharts();
+        });
+
+        // Charger les contributions admin quand on clique sur l'onglet
+        const _origSwitchTab = switchTab;
+        window.switchTab = function(tabId) {
+            _origSwitchTab(tabId);
+            if (tabId === 'tab-crowdsource' && _admSupabase) {
+                loadAdminContribs();
+            }
+        };
+    </script>
+</body>
+</html>

@@ -3,44 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AgriVoice AI — Assistant Vocal Agricole</title>
+    <title>AgriVoice — Assistant Vocal Agricole Hors-Ligne &amp; IA</title>
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-/* ---- RESET & BASES ---- */
+/* ══════════════════════════════════════════════════════════════════
+   1. PALETTE & VARIABLES (DESIGN OFFICIEL APPLICATION MOBILE AGRIVOICE)
+═══════════════════════════════════════════════════════════════════ */
+:root {
+    --agri-green: #1B6A3B;
+    --agri-green-dark: #13502C;
+    --agri-green-deep: #0B351D;
+    --agri-green-light: #E8F5E9;
+    --agri-green-accent: #22C55E;
+    --agri-yellow: #F59E0B;
+    --agri-yellow-light: #FEF3C7;
+    --agri-red: #DC2626;
+    --agri-bg: #F5F7F5;
+    --agri-card: #FFFFFF;
+    --agri-text: #1A1C19;
+    --agri-muted: #5C635A;
+    --agri-border: #E0E6E0;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; overflow: hidden; }
 body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #f8fafc;
-    color: #1e293b;
+    background: var(--agri-bg);
+    color: var(--agri-text);
     display: flex;
     height: 100vh;
     -webkit-tap-highlight-color: transparent;
 }
 
-/* ---- SCROLLBARS MODERNES ---- */
+/* ── SCROLLBARS ── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
 ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-/* ---- SIDEBAR DESKTOP & MOBILE ---- */
+/* ══════════════════════════════════════════════════════════════════
+   2. ANIMATIONS FLUIDES NOUVELLE GÉNÉRATION (AURORA, HALO, SHIMMER)
+═══════════════════════════════════════════════════════════════════ */
+@keyframes viewReveal {
+    0% { opacity: 0; transform: translateY(12px) scale(0.992); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes shimmerFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes sonicHalo {
+    0% { transform: scale(0.95); opacity: 0.75; }
+    70% { transform: scale(1.45); opacity: 0; }
+    100% { transform: scale(1.55); opacity: 0; }
+}
+
+@keyframes orbRotate {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.08); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes eqWave {
+    0%, 100% { height: 5px; }
+    50% { height: 18px; }
+}
+
+@keyframes floatGentle {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+}
+
+.grad-text {
+    background: linear-gradient(120deg, #13502C 0%, #1B6A3B 30%, #22C55E 65%, #F59E0B 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmerFlow 6s ease infinite;
+}
+
+.ai-orb {
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    background: conic-gradient(from 45deg, #1B6A3B, #22C55E, #F59E0B, #059669, #1B6A3B);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(27, 106, 59, 0.28);
+    position: relative;
+    flex-shrink: 0;
+}
+.ai-orb::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #13502C, #1B6A3B);
+}
+.ai-orb i {
+    position: relative;
+    z-index: 2;
+    color: #fff;
+    font-size: 15px;
+}
+.ai-orb.thinking::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 16px;
+    background: conic-gradient(from 0deg, #22C55E, #F59E0B, #1B6A3B, #22C55E);
+    animation: orbRotate 2s linear infinite;
+    z-index: 0;
+}
+
+/* ── BARRES ÉGALISEUR AUDIO ── */
+.audio-bar {
+    display: inline-block;
+    width: 3px;
+    height: 12px;
+    background: currentColor;
+    border-radius: 3px;
+    margin: 0 1px;
+    animation: eqWave 1s ease-in-out infinite;
+    vertical-align: middle;
+}
+.audio-bar:nth-child(2) { animation-delay: 0.18s; }
+.audio-bar:nth-child(3) { animation-delay: 0.36s; }
+.audio-bar:nth-child(4) { animation-delay: 0.12s; }
+
+/* ══════════════════════════════════════════════════════════════════
+   3. LAYOUT : SIDEBAR DESKTOP + BOTTOM NAV MOBILE (COMME L'APP ANDROID)
+═══════════════════════════════════════════════════════════════════ */
 #app-sidebar {
-    width: 268px;
-    min-width: 268px;
-    background: #013b1c;
+    width: 280px;
+    min-width: 280px;
+    background: linear-gradient(180deg, #0B351D 0%, #13502C 100%);
     color: #fff;
     display: flex;
     flex-direction: column;
     height: 100%;
     flex-shrink: 0;
-    z-index: 40;
+    z-index: 45;
     overflow: hidden;
-    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    border-right: 1px solid rgba(255,255,255,0.06);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    border-right: 1px solid rgba(255,255,255,0.08);
 }
 
 #app-main {
@@ -50,204 +165,434 @@ body {
     height: 100%;
     overflow: hidden;
     min-width: 0;
-    background: #f8fafc;
+    background: var(--agri-bg);
     position: relative;
 }
 
-/* ---- OVERLAY MOBILE ---- */
 #sidebar-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.45);
-    backdrop-filter: blur(4px);
-    z-index: 35;
+    background: rgba(11, 53, 29, 0.55);
+    backdrop-filter: blur(5px);
+    z-index: 40;
     cursor: pointer;
 }
 #sidebar-overlay.open { display: block; }
 
-/* ---- RESPONSIVE DESKTOP VS MOBILE ---- */
-@media (max-width: 767px) {
+/* Bottom Navigation Bar (Style Mobile Android) */
+#mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 68px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--agri-border);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+    z-index: 30;
+    align-items: center;
+    justify-content: space-around;
+    padding: 4px 8px;
+}
+.bnav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--agri-muted);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 4px;
+    border-radius: 14px;
+    transition: all 0.2s ease;
+}
+.bnav-btn .bnav-pill {
+    width: 48px;
+    height: 28px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bnav-btn.active {
+    color: var(--agri-green);
+    font-weight: 800;
+}
+.bnav-btn.active .bnav-pill {
+    background: var(--agri-green-light);
+    color: var(--agri-green);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 820px) {
     #app-sidebar {
         position: fixed !important;
         top: 0; left: 0;
         height: 100% !important;
         transform: translateX(-100%);
     }
-    #app-sidebar.open { transform: translateX(0); box-shadow: 8px 0 28px rgba(0,0,0,.28); }
+    #app-sidebar.open { transform: translateX(0); box-shadow: 10px 0 35px rgba(0,0,0,0.35); }
     #mobile-topbar { display: flex !important; }
     #desktop-topbar { display: none !important; }
-    #chat-container { padding: 16px 12px 170px !important; }
+    #mobile-bottom-nav { display: flex !important; }
+    #chat-container { padding: 14px 12px 245px !important; }
+    #prompt-dock { bottom: 68px !important; padding: 14px 10px 10px !important; }
+    .view-scroll-pad { padding-bottom: 95px !important; }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 821px) {
     #app-sidebar { position: relative !important; transform: none !important; }
     #sidebar-overlay { display: none !important; }
     #mobile-topbar { display: none !important; }
     #desktop-topbar { display: flex !important; }
+    #mobile-bottom-nav { display: none !important; }
 }
 
-/* ---- VUES ---- */
+/* ── VUES ── */
 .app-view {
     display: none;
     flex: 1;
     flex-direction: column;
     overflow: hidden;
-    animation: fadeUp .2s ease forwards;
 }
-.app-view.active { display: flex; }
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(4px); }
-    to   { opacity: 1; transform: translateY(0); }
+.app-view.active {
+    display: flex;
+    animation: viewReveal 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* ---- GRADIENT TEXTE TITRE ---- */
-.grad-text {
-    background: linear-gradient(135deg, #016a33 0%, #028540 35%, #22c55e 70%, #eab308 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-/* ---- CARTES DE SUGGESTIONS ---- */
-.sug-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    padding: 16px 18px;
+/* ══════════════════════════════════════════════════════════════════
+   4. COMPOSANTS DE L'APPLICATION MOBILE (HERO, MÉTÉO, SERVICES, FICHES)
+═══════════════════════════════════════════════════════════════════ */
+.nav-item {
+    transition: all 0.18s ease;
     cursor: pointer;
-    transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+    color: rgba(255,255,255,0.7);
+    padding: 11px 14px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+}
+.nav-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.nav-item.active {
+    background: rgba(255,255,255,0.16);
+    color: #fff;
+    font-weight: 800;
+    box-shadow: inset 3px 0 0 var(--agri-yellow);
+}
+
+/* Carte Hero Producteur (HomeScreen.kt) */
+.hero-banner {
+    position: relative;
+    border-radius: 26px;
+    overflow: hidden;
+    min-height: 205px;
+    background: #13502C;
+    box-shadow: 0 12px 30px -8px rgba(19, 80, 44, 0.35);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 100px;
+    padding: 22px 24px;
+    color: #fff;
 }
-.sug-card:hover {
-    border-color: rgba(1,106,51,.35);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(1,106,51,.12);
+.hero-banner-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 25%;
+    opacity: 0.42;
+    transition: transform 0.6s ease;
 }
-.sug-card:active { transform: scale(.98); }
+.hero-banner:hover .hero-banner-bg { transform: scale(1.03); }
+.hero-banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, rgba(11,53,29,0.94) 0%, rgba(19,80,44,0.82) 55%, rgba(27,106,59,0.55) 100%);
+}
 
-/* ---- CAPSULE DE PROMPT FLOTTANTE ---- */
+/* Bannière Statut Langue (HomeScreen & ChatScreen) */
+.lang-status-bar {
+    background: linear-gradient(90deg, #E8F5E9 0%, #F0FDF4 100%);
+    border: 1px solid #BBF7D0;
+    border-radius: 16px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 2px 6px rgba(27, 106, 59, 0.05);
+}
+
+/* Carte Météo & Conseil du Jour (HomeScreen.kt) */
+.weather-card {
+    background: linear-gradient(135deg, #13502C 0%, #1B6A3B 100%);
+    border-radius: 22px;
+    padding: 18px 20px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    box-shadow: 0 8px 22px -6px rgba(27, 106, 59, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+.weather-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(27, 106, 59, 0.4);
+}
+
+/* Grille 4 Services Clés (HomeScreen.kt) */
+.service-card {
+    background: #fff;
+    border: 1px solid var(--agri-border);
+    border-radius: 20px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.service-card:hover {
+    border-color: var(--agri-green);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px -6px rgba(27, 106, 59, 0.14);
+}
+
+/* Suggestions rapides */
+.sug-chip {
+    background: #fff;
+    border: 1px solid var(--agri-border);
+    border-radius: 16px;
+    padding: 13px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    text-align: left;
+    font-family: inherit;
+}
+.sug-chip:hover {
+    border-color: var(--agri-green);
+    background: #F0FDF4;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(27, 106, 59, 0.1);
+}
+
+/* Capsule de Prompt flottante */
 .prompt-box {
-    background: rgba(255,255,255,.98);
-    border: 1.5px solid #e2e8f0;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1.5px solid #CBD5E1;
     border-radius: 26px;
-    box-shadow: 0 10px 30px -8px rgba(0,0,0,.1);
-    transition: border-color .2s, box-shadow .2s;
+    box-shadow: 0 10px 32px -8px rgba(15, 23, 42, 0.12);
+    transition: border-color 0.25s, box-shadow 0.25s;
     backdrop-filter: blur(18px);
 }
 .prompt-box:focus-within {
-    border-color: #016a33;
-    box-shadow: 0 12px 35px -8px rgba(1,106,51,.18), 0 0 0 3px rgba(1,106,51,.08);
+    border-color: var(--agri-green);
+    box-shadow: 0 14px 36px -8px rgba(27, 106, 59, 0.22), 0 0 0 3px rgba(27, 106, 59, 0.1);
 }
 
-/* ---- ANIMATION MICRO EN COURS D'ENREGISTREMENT ---- */
-.mic-recording {
-    animation: micPulse 1.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
-    background: #ef4444 !important;
-    color: #fff !important;
-}
-@keyframes micPulse {
-    0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.7); }
-    50% { box-shadow: 0 0 0 12px rgba(239,68,68,0); }
-}
-
-/* ---- BARRE WAVEFORM AUDIO ---- */
-.audio-bar {
-    display: inline-block;
-    width: 3px; height: 12px;
-    background: currentColor;
-    border-radius: 3px;
-    margin: 0 1px;
-    animation: wave 1.2s ease-in-out infinite;
-}
-.audio-bar:nth-child(2) { animation-delay: .2s; }
-.audio-bar:nth-child(3) { animation-delay: .4s; }
-.audio-bar:nth-child(4) { animation-delay: .1s; }
-@keyframes wave { 0%,100% { height: 4px; } 50% { height: 14px; } }
-
-/* ---- TOAST FLOTTANT ---- */
-#toast {
-    position: fixed;
-    top: 18px; left: 50%;
-    transform: translateX(-50%) translateY(-10px);
-    background: rgba(15,23,42,.92);
-    color: #fff;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 10px 20px;
+/* Pilules de filtre (ResourcesScreen.kt) */
+.cat-pill {
+    padding: 8px 16px;
     border-radius: 9999px;
-    z-index: 100;
-    pointer-events: none;
-    opacity: 0;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1px solid var(--agri-border);
+    background: #fff;
+    color: var(--agri-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: all 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.cat-pill:hover { border-color: var(--agri-green); color: var(--agri-green); }
+.cat-pill.active {
+    background: var(--agri-green);
+    color: #fff;
+    border-color: var(--agri-green);
+    box-shadow: 0 4px 12px rgba(27, 106, 59, 0.25);
+}
+
+/* Cartes Fiches Audio (ResourcesScreen.kt) */
+.fiche-card {
+    background: #fff;
+    border: 1px solid var(--agri-border);
+    border-radius: 22px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.fiche-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -6px rgba(27, 106, 59, 0.12);
+    border-color: #BBF7D0;
+}
+
+/* Bannière J'aime AgriVoice (ProfileScreen.kt) */
+.jaime-banner {
+    background: linear-gradient(95deg, #FEF3C7 0%, #E8F5E9 100%);
+    border: 1.5px solid rgba(245, 158, 11, 0.45);
+    border-radius: 22px;
+    padding: 18px 20px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    transition: opacity .25s, transform .25s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 8px 24px rgba(0,0,0,.2);
-    white-space: nowrap;
+    gap: 16px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px -6px rgba(245, 158, 11, 0.22);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.jaime-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px -6px rgba(245, 158, 11, 0.32);
+}
 
-/* ---- BOUTONS DE LANGUE ---- */
+/* Groupes et Lignes du Profil (ProfileScreen.kt) */
+.profile-group {
+    background: #fff;
+    border: 1px solid var(--agri-border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+.profile-row {
+    padding: 15px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    transition: background 0.15s ease;
+}
+.profile-row.clickable { cursor: pointer; }
+.profile-row.clickable:hover { background: #F8FAFC; }
+.profile-row + .profile-row { border-top: 1px solid #F1F5F9; }
+
+/* Interrupteur Switch */
+.switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; display: inline-block; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch .slider { position: absolute; inset: 0; background: #CBD5E1; border-radius: 9999px; cursor: pointer; transition: background 0.2s; }
+.switch .slider::before { content: ''; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+.switch input:checked + .slider { background: var(--agri-green); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+
+/* Boutons Langue Desktop */
 .lang-btn {
     background: transparent;
     border: none;
     cursor: pointer;
     font-family: inherit;
-    transition: all .15s ease;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    transition: all 0.18s ease;
 }
 .lang-btn.active {
-    background: #fff;
-    color: #016a33 !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+    background: var(--agri-green);
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(27, 106, 59, 0.28);
 }
 
-/* ---- NAVIGATION ITEMS ---- */
-.nav-item {
-    transition: background .15s, color .15s;
-    cursor: pointer;
+/* Modale d'enregistrement vocal (VoiceRecordingSheet de HomeScreen.kt) */
+#voice-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(11, 53, 29, 0.68);
+    backdrop-filter: blur(8px);
+    z-index: 90;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
 }
-.nav-item:hover {
-    background: rgba(255,255,255,.1) !important;
+#voice-modal.open { display: flex; animation: viewReveal 0.22s ease forwards; }
+
+.sonic-circle-wrap {
+    position: relative;
+    width: 116px;
+    height: 116px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 14px auto;
 }
-
-/* ---- CARTES DE SUGGESTION ---- */
-.sug-icon { width:36px; height:36px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:15px; margin-bottom:12px; }
-.sug-text { font-size:14px; font-weight:600; color:#1e293b; line-height:1.45; margin-bottom:12px; }
-.sug-tag { font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.05em; }
-
-/* ---- FICHES PRATIQUES ---- */
-.fiche-card { background:#fff; border:1px solid #e2e8f0; border-radius:18px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,.04); display:flex; flex-direction:column; gap:12px; }
-.fiche-head { display:flex; align-items:center; gap:12px; }
-.fiche-icon { width:42px; height:42px; border-radius:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:17px; }
-.fiche-tag { display:inline-block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#016a33; background:#f0fdf4; border:1px solid #bbf7d0; padding:2px 8px; border-radius:9999px; margin-bottom:4px; }
-.btn-soft { display:inline-flex; align-items:center; gap:7px; padding:7px 15px; border-radius:9999px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; border:1px solid #bbf7d0; background:#f0fdf4; color:#016a33; transition:all .15s; }
-.btn-soft:hover { background:#dcfce7; }
-.btn-solid { display:inline-flex; align-items:center; gap:7px; padding:7px 15px; border-radius:9999px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; border:1px solid #016a33; background:#016a33; color:#fff; transition:all .15s; }
-.btn-solid:hover { background:#014d24; }
-
-/* ---- TUILES PROFIL ---- */
-.stat-tile { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:6px; }
-.stat-tile .k { font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.05em; }
-.stat-tile .v { font-size:16px; font-weight:800; color:#0f172a; }
-
-/* ---- INTERRUPTEUR ---- */
-.switch { position:relative; width:46px; height:26px; flex-shrink:0; }
-.switch input { opacity:0; width:0; height:0; }
-.switch .slider { position:absolute; inset:0; background:#cbd5e1; border-radius:9999px; cursor:pointer; transition:background .2s; }
-.switch .slider::before { content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .2s; box-shadow:0 1px 3px rgba(0,0,0,.25); }
-.switch input:checked + .slider { background:#016a33; }
-.switch input:checked + .slider::before { transform:translateX(20px); }
-.set-row { padding:16px 18px; display:flex; align-items:center; justify-content:space-between; gap:14px; }
-.set-row + .set-row { border-top:1px solid #f1f5f9; }
-
-/* ---- AUTO-GROW TEXTAREA ---- */
-#user-input {
-    field-sizing: content;
+.sonic-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(220, 38, 38, 0.25);
+    animation: sonicHalo 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
+.sonic-ring.r2 { animation-delay: 0.6s; }
+.sonic-ring.idle { background: rgba(27, 106, 59, 0.2); }
+
+/* Modale générique (FAQ / Prix des Marchés / Édition Profil) */
+.app-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(5px);
+    z-index: 85;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+.app-modal-backdrop.open { display: flex; animation: viewReveal 0.2s ease forwards; }
+
+/* Toast flottant */
+#toast {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-12px);
+    background: rgba(15, 23, 42, 0.94);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    z-index: 110;
+    pointer-events: none;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: opacity 0.25s, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+    max-width: 92vw;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+#user-input { field-sizing: content; }
     </style>
 </head>
 <body>
@@ -261,310 +606,1111 @@ body {
 <!-- OVERLAY SOMBRE MOBILE -->
 <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
-<!-- ═══════════════════════════════════════
-     SIDEBAR AGRIVOICE
-══════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════════════════════
+     SIDEBAR AGRIVOICE (NAVIGATION & HISTORIQUE DES DISCUSSIONS)
+═══════════════════════════════════════════════════════════════════ -->
 <aside id="app-sidebar">
-
-    <!-- En-tête : Logo & Titre -->
-    <div style="padding:16px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0">
-        <div style="display:flex;align-items:center;gap:12px">
-            <div id="logo-wrap" style="width:38px;height:38px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,.3);background:#fff">
+    <!-- En-tête : Logo & Branding -->
+    <div style="padding:16px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.08);flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="switchView('view-chat');closeSidebarMobile();">
+            <div id="logo-wrap" style="width:40px;height:40px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,0.3);background:#fff;border:1.5px solid rgba(255,255,255,0.25)">
                 <img src="logo.png" alt="AgriVoice" style="width:100%;height:100%;object-fit:cover;display:block"
-                    onerror="document.getElementById('logo-wrap').innerHTML='<div style=\'width:100%;height:100%;background:linear-gradient(135deg,#028540,#22c55e);display:flex;align-items:center;justify-content:center\'><i class=\'fa-solid fa-leaf\' style=\'color:#fff;font-size:18px\'></i></div>'">
+                    onerror="document.getElementById('logo-wrap').innerHTML='<div style=\'width:100%;height:100%;background:linear-gradient(135deg,#1B6A3B,#22C55E);display:flex;align-items:center;justify-content:center\'><i class=\'fa-solid fa-seedling\' style=\'color:#fff;font-size:18px\'></i></div>'">
             </div>
             <div>
-                <span style="font-weight:800;font-size:1.2rem;background:linear-gradient(to right,#fff,#bbf7d0,#fde68a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.01em;display:block;line-height:1.2">AgriVoice</span>
-                <span style="font-size:10px;color:rgba(255,255,255,.5);font-weight:700;letter-spacing:.05em;text-transform:uppercase">Assistant Agricole</span>
+                <div style="display:flex;align-items:center;gap:6px">
+                    <span style="font-weight:900;font-size:1.2rem;color:#fff;letter-spacing:-0.02em">AgriVoice</span>
+                    <span style="background:rgba(34,197,94,0.22);color:#86efac;border:1px solid rgba(134,239,172,0.3);font-size:9px;font-weight:800;padding:1px 6px;border-radius:9999px">v1.2</span>
+                </div>
+                <span style="font-size:10px;color:rgba(255,255,255,0.6);font-weight:700;letter-spacing:0.04em;text-transform:uppercase">IA Vocale Agricole • Bénin</span>
             </div>
         </div>
-        <button id="close-sidebar-btn" onclick="closeSidebar()" style="display:none;background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;padding:6px;border-radius:8px" aria-label="Fermer">
-            <i class="fa-solid fa-xmark" style="font-size:18px"></i>
+        <button id="close-sidebar-btn" onclick="closeSidebar()" style="display:none;background:rgba(255,255,255,0.1);border:none;color:#fff;cursor:pointer;width:32px;height:32px;border-radius:10px;align-items:center;justify-content:center" aria-label="Fermer">
+            <i class="fa-solid fa-xmark" style="font-size:16px"></i>
         </button>
     </div>
 
     <!-- Bouton Nouvelle Discussion -->
-    <div style="padding:12px 14px;flex-shrink:0">
+    <div style="padding:12px 14px 8px;flex-shrink:0">
         <button onclick="resetConversation();closeSidebarMobile();"
-            style="width:100%;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s"
-            onmouseover="this.style.background='rgba(255,255,255,.18)'" onmouseout="this.style.background='rgba(255,255,255,.1)'">
-            <i class="fa-solid fa-plus" style="color:#fbbf24;font-size:15px"></i>
+            style="width:100%;background:linear-gradient(135deg,#F59E0B,#D97706);color:#1A1C19;border:none;border-radius:16px;padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(245,158,11,0.3);transition:transform 0.15s ease"
+            onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+            <i class="fa-solid fa-plus" style="font-size:14px"></i>
             <span data-i18n="new_question">Nouvelle discussion</span>
         </button>
     </div>
 
-    <!-- Menu de Navigation -->
-    <nav style="padding:0 12px;flex:1;overflow-y:auto">
-        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.32);text-transform:uppercase;letter-spacing:.12em;padding:6px 12px 8px" data-i18n="menu_title">Menu</div>
-        <ul id="nav-menu" style="list-style:none;display:flex;flex-direction:column;gap:3px">
-            <li class="nav-item" id="nav-chat"
-                onclick="switchView('view-chat',this);closeSidebarMobile();"
-                style="background:rgba(255,255,255,.15);color:#fff;font-weight:700;padding:12px 14px;border-radius:16px;display:flex;align-items:center;gap:12px;font-size:14px">
-                <i class="fa-solid fa-message" style="color:#fbbf24;width:18px;text-align:center;font-size:15px"></i>
-                <span data-i18n="nav_home">Assistant Vocal</span>
-            </li>
-            <li class="nav-item" id="nav-resources"
-                onclick="switchView('view-resources',this);closeSidebarMobile();"
-                style="color:rgba(255,255,255,.65);padding:12px 14px;border-radius:16px;display:flex;align-items:center;gap:12px;font-size:14px">
-                <i class="fa-solid fa-book-open" style="color:#6ee7b7;width:18px;text-align:center;font-size:15px"></i>
-                <span data-i18n="nav_resources">Guides &amp; Fiches</span>
-            </li>
-            <li class="nav-item" id="nav-profile"
-                onclick="switchView('view-profile',this);closeSidebarMobile();"
-                style="color:rgba(255,255,255,.65);padding:12px 14px;border-radius:16px;display:flex;align-items:center;gap:12px;font-size:14px">
-                <i class="fa-solid fa-user" style="color:#6ee7b7;width:18px;text-align:center;font-size:15px"></i>
-                <span data-i18n="nav_profile">Profil Producteur</span>
-            </li>
-            <li class="nav-item" id="nav-settings"
-                onclick="switchView('view-settings',this);closeSidebarMobile();"
-                style="color:rgba(255,255,255,.65);padding:12px 14px;border-radius:16px;display:flex;align-items:center;gap:12px;font-size:14px">
-                <i class="fa-solid fa-gear" style="color:#6ee7b7;width:18px;text-align:center;font-size:15px"></i>
-                <span data-i18n="nav_settings">Paramètres</span>
-            </li>
-        </ul>
+    <!-- Navigation Principale (Identique à l'App Mobile) -->
+    <nav style="padding:6px 12px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
+        <div>
+            <div style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;padding:4px 12px 6px" data-i18n="menu_title">Navigation</div>
+            <ul id="nav-menu" style="list-style:none;display:flex;flex-direction:column;gap:3px">
+                <li class="nav-item active" id="nav-chat" onclick="switchView('view-chat');closeSidebarMobile();">
+                    <i class="fa-solid fa-microphone-lines" style="color:#F59E0B;width:18px;text-align:center;font-size:15px"></i>
+                    <span data-i18n="nav_home">Accueil &amp; Assistant IA</span>
+                </li>
+                <li class="nav-item" id="nav-resources" onclick="switchView('view-resources');closeSidebarMobile();">
+                    <i class="fa-solid fa-book-open-reader" style="color:#6ee7b7;width:18px;text-align:center;font-size:15px"></i>
+                    <span data-i18n="nav_resources">Guides &amp; Audios</span>
+                    <span style="margin-left:auto;background:rgba(255,255,255,0.14);color:#bbf7d0;font-size:10px;font-weight:800;padding:2px 7px;border-radius:9999px">10</span>
+                </li>
+                <li class="nav-item" id="nav-jaime" onclick="switchView('view-jaime');closeSidebarMobile();">
+                    <i class="fa-solid fa-heart-pulse" style="color:#f87171;width:18px;text-align:center;font-size:15px"></i>
+                    <span>J'aime AgriVoice</span>
+                    <span style="margin-left:auto;background:#DC2626;color:#fff;font-size:9px;font-weight:900;padding:2px 6px;border-radius:6px;letter-spacing:0.04em">STUDIO</span>
+                </li>
+                <li class="nav-item" id="nav-profile" onclick="switchView('view-profile');closeSidebarMobile();">
+                    <i class="fa-solid fa-user-check" style="color:#6ee7b7;width:18px;text-align:center;font-size:15px"></i>
+                    <span data-i18n="nav_profile">Profil Producteur</span>
+                </li>
+                <li class="nav-item" id="nav-settings" onclick="switchView('view-settings');closeSidebarMobile();">
+                    <i class="fa-solid fa-sliders" style="color:#6ee7b7;width:18px;text-align:center;font-size:15px"></i>
+                    <span data-i18n="nav_settings">Paramètres &amp; Voix</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Historique des Discussions Récentes -->
+        <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 12px 6px">
+                <span style="font-size:10px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em">Discussions récentes</span>
+                <button onclick="clearSavedSessions()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:10px;cursor:pointer" title="Vider l'historique"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div id="recent-chats-list" style="display:flex;flex-direction:column;gap:3px"></div>
+        </div>
+
+        <!-- Connexion Écosystème AgriVoice (Site de Collecte & Dashboard) -->
+        <div style="margin-top:auto;background:rgba(0,0,0,0.22);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:12px">
+            <div style="font-size:11px;font-weight:800;color:#FDE68A;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+                <i class="fa-solid fa-tower-broadcast"></i>
+                <span>Plateforme de Collecte</span>
+            </div>
+            <p style="font-size:11px;color:rgba(255,255,255,0.7);line-height:1.4;margin-bottom:10px">
+                Connecté en direct au studio communautaire <strong>J'aime AgriVoice</strong>.
+            </p>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <a href="jaime-agrivoice/index.html" target="_blank" style="flex:1;text-align:center;text-decoration:none;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.45);color:#FDE68A;font-size:11px;font-weight:700;padding:6px 8px;border-radius:10px">
+                    <i class="fa-solid fa-microphone"></i> Site Collecte
+                </a>
+                <a href="jaime-agrivoice/leaderboard.html" target="_blank" style="flex:1;text-align:center;text-decoration:none;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:#fff;font-size:11px;font-weight:700;padding:6px 8px;border-radius:10px">
+                    <i class="fa-solid fa-trophy"></i> Classement
+                </a>
+            </div>
+        </div>
     </nav>
 
-    <!-- Pied de Sidebar : Carte Utilisateur Bio Kora -->
-    <div style="padding:14px 16px;border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.15);flex-shrink:0;display:flex;align-items:center;gap:12px">
-        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#028540,#fbbf24);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.25)">BK</div>
+    <!-- Pied de Sidebar : Carte Producteur Bio Kora (Cliquable -> Profil) -->
+    <div onclick="switchView('view-profile');closeSidebarMobile();"
+        style="padding:12px 16px;border-top:1px solid rgba(255,255,255,0.08);background:rgba(0,0,0,0.2);flex-shrink:0;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background 0.15s"
+        onmouseover="this.style.background='rgba(0,0,0,0.32)'" onmouseout="this.style.background='rgba(0,0,0,0.2)'">
+        <img src="farmer_hero.jpg" alt="Bio Kora" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #22C55E;flex-shrink:0"
+            onerror="this.style.display='none'">
         <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Bio Kora</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Parakou, Bénin</div>
+            <div id="sidebar-farmer-name" style="font-size:13px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Bio Kora</div>
+            <div id="sidebar-farmer-loc" style="font-size:11px;color:#86efac;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Parakou • Maïs &amp; Soja (5 ha)</div>
         </div>
+        <i class="fa-solid fa-chevron-right" style="font-size:11px;color:rgba(255,255,255,0.45)"></i>
     </div>
 </aside>
 
-<!-- ═══════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════════════════
      CORPS PRINCIPAL
-══════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════════════════ -->
 <main id="app-main">
 
-    <!-- TOPBAR MOBILE -->
-    <header id="mobile-topbar" style="background:rgba(255,255,255,.98);border-bottom:1px solid #e5e7eb;padding:10px 14px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-        <button onclick="openSidebar()" style="background:none;border:none;color:#374151;padding:8px;border-radius:10px;cursor:pointer" aria-label="Menu">
-            <i class="fa-solid fa-bars" style="font-size:19px"></i>
-        </button>
-
-        <div style="display:flex;align-items:center;gap:8px">
-            <img src="logo.png" alt="AgriVoice" style="width:28px;height:28px;border-radius:8px;object-fit:cover"
-                onerror="this.style.display='none'">
-            <button onclick="switchNextLang()"
-                style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:9999px;font-size:12px;font-weight:700;color:#111827;cursor:pointer;font-family:inherit">
-                <span style="width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block"></span>
-                <span>AgriVoice</span>
-                <span id="mobile-lang-pill" style="background:#016a33;color:#fff;font-size:10px;font-weight:900;padding:2px 6px;border-radius:5px;text-transform:uppercase">FR</span>
+    <!-- TOPBAR MOBILE (Style TopBar.kt de l'application Android) -->
+    <header id="mobile-topbar" style="background:rgba(255,255,255,0.96);border-bottom:1px solid var(--agri-border);padding:10px 14px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:25;flex-shrink:0;backdrop-filter:blur(12px)">
+        <div style="display:flex;align-items:center;gap:10px">
+            <button onclick="openSidebar()" style="background:#F0FDF4;border:1px solid #BBF7D0;color:var(--agri-green);width:36px;height:36px;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center" aria-label="Menu">
+                <i class="fa-solid fa-bars" style="font-size:16px"></i>
             </button>
+            <div style="display:flex;align-items:center;gap:8px" onclick="switchView('view-chat')">
+                <img src="logo.png" alt="AgriVoice" style="width:30px;height:30px;border-radius:9px;object-fit:cover" onerror="this.style.display='none'">
+                <div>
+                    <div style="font-size:15px;font-weight:900;color:var(--agri-green-dark);line-height:1.1">AgriVoice</div>
+                    <div style="font-size:10px;font-weight:700;color:#16a34a;display:flex;align-items:center;gap:4px">
+                        <span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block"></span>
+                        <span>IA &amp; Hors-ligne</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <button onclick="resetConversation()" style="background:none;border:none;color:#4b5563;padding:8px;border-radius:10px;cursor:pointer" title="Nouvelle discussion">
-            <i class="fa-solid fa-pen-to-square" style="font-size:18px"></i>
-        </button>
+        <div style="display:flex;align-items:center;gap:6px">
+            <!-- Sélecteur de langue rapide Mobile -->
+            <button onclick="switchNextLang(true)"
+                style="display:inline-flex;align-items:center;gap:6px;padding:6px 11px;background:#E8F5E9;border:1px solid #BBF7D0;border-radius:9999px;font-size:11.5px;font-weight:800;color:var(--agri-green-dark);cursor:pointer;font-family:inherit">
+                <i class="fa-solid fa-volume-high" style="color:var(--agri-green);font-size:11px"></i>
+                <span id="mobile-lang-pill">FR</span>
+            </button>
+            <!-- Nouvelle discussion -->
+            <button onclick="resetConversation()" style="background:#FEF3C7;border:1px solid #FDE68A;color:#B45309;width:36px;height:36px;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Nouvelle discussion">
+                <i class="fa-solid fa-plus" style="font-size:15px"></i>
+            </button>
+        </div>
     </header>
 
     <!-- TOPBAR DESKTOP -->
-    <header id="desktop-topbar" style="background:rgba(255,255,255,.94);border-bottom:1px solid #e5e7eb;padding:12px 32px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;flex-shrink:0;backdrop-filter:blur(14px)">
-        <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9999px;font-size:12px;font-weight:700;color:#016a33">
-            <i class="fa-solid fa-circle" style="color:#22c55e;font-size:8px"></i>
-            <span id="view-title">Assistant Vocal</span>
+    <header id="desktop-topbar" style="background:rgba(255,255,255,0.94);border-bottom:1px solid var(--agri-border);padding:11px 28px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:25;flex-shrink:0;backdrop-filter:blur(14px)">
+        <div style="display:flex;align-items:center;gap:10px">
+            <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:#E8F5E9;border:1px solid #BBF7D0;border-radius:9999px;font-size:12px;font-weight:800;color:var(--agri-green)">
+                <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block"></span>
+                <span id="view-title">Accueil &amp; Assistant Vocal</span>
+            </div>
+            <button onclick="playOfficialTrack('a1_accueil')" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:9999px;font-size:11.5px;font-weight:800;color:#92400E;cursor:pointer;font-family:inherit" title="Écouter le message d'accueil officiel dans la langue active">
+                <i class="fa-solid fa-volume-high"></i>
+                <span data-i18n="listen_welcome">Voix d'accueil</span>
+            </button>
         </div>
-        <div style="display:flex;gap:4px;background:#f1f5f9;padding:4px;border-radius:9999px;border:1px solid #e2e8f0;font-size:12px;font-weight:700">
-            <button onclick="changeLang('fr')"   class="lang-btn active" id="btn-lang-fr"   style="padding:5px 14px;border-radius:9999px;font-size:12px;font-weight:700;color:#475569">Français</button>
-            <button onclick="changeLang('fon')"  class="lang-btn"        id="btn-lang-fon"  style="padding:5px 14px;border-radius:9999px;font-size:12px;font-weight:700;color:#475569">Fɔngbe</button>
-            <button onclick="changeLang('yoruba')" class="lang-btn"      id="btn-lang-yoruba" style="padding:5px 14px;border-radius:9999px;font-size:12px;font-weight:700;color:#475569">Yorùbá</button>
-            <button onclick="changeLang('ewe')"  class="lang-btn"        id="btn-lang-ewe"  style="padding:5px 14px;border-radius:9999px;font-size:12px;font-weight:700;color:#475569">Éwé</button>
+
+        <div style="display:flex;align-items:center;gap:12px">
+            <!-- Sélecteur des 4 langues -->
+            <div style="display:flex;gap:3px;background:#F1F5F9;padding:4px;border-radius:9999px;border:1px solid #E2E8F0">
+                <button onclick="changeLang('fr', true)"     class="lang-btn active" id="btn-lang-fr">Français</button>
+                <button onclick="changeLang('fon', true)"    class="lang-btn"        id="btn-lang-fon">Fɔngbe</button>
+                <button onclick="changeLang('yoruba', true)" class="lang-btn"        id="btn-lang-yoruba">Yorùbá</button>
+                <button onclick="changeLang('ewe', true)"    class="lang-btn"        id="btn-lang-ewe">Éwé</button>
+            </div>
+            <button onclick="resetConversation()" style="display:inline-flex;align-items:center;gap:7px;padding:7px 14px;border-radius:9999px;background:var(--agri-green);color:#fff;border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(27,106,59,0.25)">
+                <i class="fa-solid fa-plus"></i>
+                <span data-i18n="new_question">Nouvelle discussion</span>
+            </button>
         </div>
     </header>
 
-    <!-- ═══ VUE : ASSISTANT VOCAL (CHAT) ═══ -->
+    <!-- ══════════════════════════════════════════════════════════════════
+         VUE 1 : ACCUEIL & ASSISTANT VOCAL IA (HomeScreen.kt + AgriVoiceChatScreen.kt)
+    ═══════════════════════════════════════════════════════════════════ -->
     <div id="view-chat" class="app-view active">
 
-        <div id="chat-container" style="flex:1;overflow-y:auto;padding:28px 24px 170px;display:flex;flex-direction:column;gap:22px;scroll-behavior:smooth">
+        <div id="chat-container" style="flex:1;overflow-y:auto;padding:20px 24px 190px;display:flex;flex-direction:column;gap:18px;scroll-behavior:smooth">
 
-            <!-- Écran d'Accueil / Salutation -->
-            <div id="welcome-screen" style="margin:auto;max-width:680px;width:100%;padding:20px 0">
-                <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9999px;font-size:12px;font-weight:700;color:#016a33;margin-bottom:18px">
-                    <i class="fa-solid fa-seedling" style="color:#16a34a"></i>
-                    Assistant agricole vocal
+            <!-- Bannière Statut Langue Vocale (Toujours visible en haut comme dans l'app mobile) -->
+            <div style="max-width:780px;margin:0 auto;width:100%">
+                <div class="lang-status-bar">
+                    <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                        <button onclick="playOfficialTrack('a1_accueil', this)" style="width:36px;height:36px;border-radius:50%;background:var(--agri-green);color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;box-shadow:0 3px 8px rgba(27,106,59,0.25)" title="Écouter la voix d'accueil">
+                            <i class="fa-solid fa-volume-high" style="font-size:14px"></i>
+                        </button>
+                        <div style="min-width:0">
+                            <div id="voice-banner-title" style="font-size:12.5px;font-weight:800;color:var(--agri-green-dark)">
+                                Assistant vocal actif en Français
+                            </div>
+                            <div id="voice-banner-sub" style="font-size:11.5px;color:var(--agri-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                                Appuyez sur le micro pour parler ou cliquez sur un conseil audio.
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="openVoiceModal()" style="background:var(--agri-yellow);color:#1A1C19;border:none;border-radius:9999px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;flex-shrink:0;box-shadow:0 2px 8px rgba(245,158,11,0.3)">
+                        <i class="fa-solid fa-microphone"></i>
+                        <span data-i18n="speak_now">Parler</span>
+                    </button>
                 </div>
-                <h1 class="grad-text" style="font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-.02em;margin-bottom:10px;line-height:1.15" data-i18n="welcome_title">Bonjour, Bio</h1>
-                <p style="color:#64748b;font-size:clamp(1rem,2.5vw,1.35rem);font-weight:500;margin-bottom:30px;line-height:1.4" data-i18n="welcome_desc">Comment puis-je vous aider pour vos récoltes aujourd'hui ?</p>
+            </div>
 
-                <!-- Cartes de Suggestions Pratiques -->
-                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">
-                    <div class="sug-card" role="button" tabindex="0" onclick="usePromptSuggestion('Les feuilles de mon maïs jaunissent et ont des taches. Que faire ?')">
-                        <div class="sug-icon" style="background:#fef3c7;color:#b45309"><i class="fa-solid fa-wheat-awn"></i></div>
-                        <p class="sug-text">Les feuilles de mon maïs jaunissent et ont des taches. Que faire ?</p>
-                        <span class="sug-tag">Diagnostic maïs</span>
+            <!-- ÉCRAN D'ACCUEIL COMPLET (HomeScreen.kt) -->
+            <div id="welcome-screen" style="max-width:780px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:18px">
+
+                <!-- 1. HERO CARD PRODUCTEUR AVEC PHOTO FARMER_HERO.JPG -->
+                <div class="hero-banner">
+                    <img src="farmer_hero.jpg" alt="Producteur AgriVoice Bénin" class="hero-banner-bg" onerror="this.style.display='none'">
+                    <div class="hero-banner-overlay"></div>
+
+                    <div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+                        <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.16);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.22);padding:5px 12px;border-radius:9999px;font-size:11px;font-weight:800;color:#fff">
+                            <i class="fa-solid fa-seedling" style="color:#4ade80"></i>
+                            <span data-i18n="hero_badge">IA Vocale Agricole • Bénin</span>
+                        </span>
+                        <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,0.25);border:1px solid rgba(74,222,128,0.4);padding:4px 10px;border-radius:9999px;font-size:11px;font-weight:800;color:#bbf7d0">
+                            <i class="fa-solid fa-circle-check"></i> Hors-ligne &amp; Cloud IA
+                        </span>
                     </div>
-                    <div class="sug-card" role="button" tabindex="0" onclick="usePromptSuggestion('Quelle dose d\'engrais NPK et d\'urée pour 1 hectare de maïs ?')">
-                        <div class="sug-icon" style="background:#dbeafe;color:#1d4ed8"><i class="fa-solid fa-flask"></i></div>
-                        <p class="sug-text">Quelle dose d'engrais NPK et d'urée pour 1 hectare de maïs ?</p>
-                        <span class="sug-tag">Fertilisation</span>
+
+                    <div style="position:relative;z-index:2;margin:14px 0">
+                        <h1 style="font-size:clamp(1.65rem,4vw,2.35rem);font-weight:900;letter-spacing:-0.02em;line-height:1.15;margin-bottom:6px;color:#fff" data-i18n="welcome_title">
+                            Bonjour, Bio Kora !
+                        </h1>
+                        <p style="font-size:clamp(0.92rem,2vw,1.08rem);color:rgba(255,255,255,0.9);font-weight:500;max-width:540px;line-height:1.45" data-i18n="welcome_desc">
+                            Comment puis-je vous aider pour vos champs de maïs et de soja aujourd'hui ?
+                        </p>
                     </div>
-                    <div class="sug-card" role="button" tabindex="0" onclick="usePromptSuggestion('Comment préparer un bio-pesticide avec des feuilles de neem ?')">
-                        <div class="sug-icon" style="background:#dcfce7;color:#15803d"><i class="fa-solid fa-leaf"></i></div>
-                        <p class="sug-text">Comment préparer un bio-pesticide avec des feuilles de neem ?</p>
-                        <span class="sug-tag">Protection naturelle</span>
+
+                    <div style="position:relative;z-index:2;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                        <button onclick="openVoiceModal()"
+                            style="background:var(--agri-yellow);color:#1A1C19;border:none;border-radius:9999px;padding:11px 20px;font-size:13.5px;font-weight:900;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(245,158,11,0.4)">
+                            <i class="fa-solid fa-microphone-lines" style="font-size:15px"></i>
+                            <span data-i18n="hero_cta_mic">Démarrer la voix</span>
+                        </button>
+                        <button onclick="playOfficialTrack('a1_accueil', this)"
+                            style="background:rgba(255,255,255,0.16);backdrop-filter:blur(8px);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:9999px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px">
+                            <i class="fa-solid fa-volume-high" style="color:#FDE68A"></i>
+                            <span data-i18n="hero_cta_listen">Écouter l'accueil</span>
+                        </button>
+                        <button onclick="switchView('view-jaime')"
+                            style="background:rgba(220,38,38,0.88);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:9999px;padding:10px 16px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px">
+                            <i class="fa-solid fa-heart"></i>
+                            <span>J'aime AgriVoice</span>
+                        </button>
                     </div>
-                    <div class="sug-card" role="button" tabindex="0" onclick="usePromptSuggestion('Comment stocker le maïs sans pertes avec les sacs PICS ?')">
-                        <div class="sug-icon" style="background:#ede9fe;color:#6d28d9"><i class="fa-solid fa-box-archive"></i></div>
-                        <p class="sug-text">Comment stocker le maïs sans pertes avec les sacs PICS ?</p>
-                        <span class="sug-tag">Stockage</span>
+                </div>
+
+                <!-- 2. CARTE MÉTÉO & CONSEIL DU JOUR (w1_meteo_pluie_semis) -->
+                <div class="weather-card" onclick="playOfficialTrack('w1_meteo_pluie_semis', document.getElementById('weather-play-btn'))">
+                    <div style="width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:24px;color:#FDE68A">
+                        <i class="fa-solid fa-cloud-sun-rain"></i>
                     </div>
+                    <div style="flex:1;min-width:0">
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+                            <span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:#86efac" data-i18n="weather_tag">
+                                Météo • Parakou / Borgou
+                            </span>
+                            <span id="weather-play-btn" style="display:inline-flex;align-items:center;gap:6px;background:rgba(245,158,11,0.25);border:1px solid rgba(253,230,138,0.45);color:#FDE68A;font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:9999px">
+                                <i class="fa-solid fa-volume-high"></i> 29°C • Écouter (00:11)
+                            </span>
+                        </div>
+                        <div style="font-size:13.5px;font-weight:600;color:#fff;line-height:1.45" data-i18n="weather_advice">
+                            Pluie modérée prévue ce soir — Idéal pour semer le maïs et appliquer l'engrais demain matin.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. GRILLE DES 4 SERVICES CLÉS (Comme dans HomeScreen.kt) -->
+                <div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                        <h2 style="font-size:15px;font-weight:800;color:var(--agri-text)" data-i18n="services_title">Services Agricoles Vocaux</h2>
+                        <button onclick="switchView('view-resources')" style="background:none;border:none;color:var(--agri-green);font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit">
+                            <span data-i18n="see_all_guides">Voir les 10 guides audio</span> <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px">
+                        <div class="service-card" onclick="openResourceCategory('Chenilles')">
+                            <div style="display:flex;align-items:center;justify-content:space-between">
+                                <div style="width:42px;height:42px;border-radius:13px;background:#FEF2F2;color:#DC2626;display:flex;align-items:center;justify-content:center;font-size:18px">
+                                    <i class="fa-solid fa-bug"></i>
+                                </div>
+                                <span style="font-size:10px;font-weight:800;color:#DC2626;background:#FEF2F2;padding:2px 8px;border-radius:9999px">Audio + IA</span>
+                            </div>
+                            <div>
+                                <div style="font-size:14px;font-weight:800;color:var(--agri-text)" data-i18n="srv_diag_title">Diagnostic Maladies</div>
+                                <div style="font-size:11.5px;color:var(--agri-muted);margin-top:2px" data-i18n="srv_diag_sub">Taches foliaires, chenilles, jaunissement</div>
+                            </div>
+                        </div>
+
+                        <div class="service-card" onclick="openMarketPricesModal()">
+                            <div style="display:flex;align-items:center;justify-content:space-between">
+                                <div style="width:42px;height:42px;border-radius:13px;background:#FEF3C7;color:#D97706;display:flex;align-items:center;justify-content:center;font-size:18px">
+                                    <i class="fa-solid fa-sack-dollar"></i>
+                                </div>
+                                <span style="font-size:10px;font-weight:800;color:#B45309;background:#FEF3C7;padding:2px 8px;border-radius:9999px">En direct</span>
+                            </div>
+                            <div>
+                                <div style="font-size:14px;font-weight:800;color:var(--agri-text)" data-i18n="srv_price_title">Prix des Marchés</div>
+                                <div style="font-size:11.5px;color:var(--agri-muted);margin-top:2px" data-i18n="srv_price_sub">Dantokpa &amp; Parakou (Maïs, Soja, Gari)</div>
+                            </div>
+                        </div>
+
+                        <div class="service-card" onclick="openResourceCategory('Traitements')">
+                            <div style="display:flex;align-items:center;justify-content:space-between">
+                                <div style="width:42px;height:42px;border-radius:13px;background:#E8F5E9;color:#1B6A3B;display:flex;align-items:center;justify-content:center;font-size:18px">
+                                    <i class="fa-solid fa-flask-vial"></i>
+                                </div>
+                                <span style="font-size:10px;font-weight:800;color:#1B6A3B;background:#E8F5E9;padding:2px 8px;border-radius:9999px">INRAB</span>
+                            </div>
+                            <div>
+                                <div style="font-size:14px;font-weight:800;color:var(--agri-text)" data-i18n="srv_treat_title">Engrais &amp; Remèdes</div>
+                                <div style="font-size:11.5px;color:var(--agri-muted);margin-top:2px" data-i18n="srv_treat_sub">Doses NPK/Urée, Neem, Savon noir</div>
+                            </div>
+                        </div>
+
+                        <div class="service-card" onclick="openResourceCategory('Stockage')">
+                            <div style="display:flex;align-items:center;justify-content:space-between">
+                                <div style="width:42px;height:42px;border-radius:13px;background:#EDE9FE;color:#6D28D9;display:flex;align-items:center;justify-content:center;font-size:18px">
+                                    <i class="fa-solid fa-boxes-stacked"></i>
+                                </div>
+                                <span style="font-size:10px;font-weight:800;color:#6D28D9;background:#EDE9FE;padding:2px 8px;border-radius:9999px">Sacs PICS</span>
+                            </div>
+                            <div>
+                                <div style="font-size:14px;font-weight:800;color:var(--agri-text)" data-i18n="srv_store_title">Stockage &amp; Récolte</div>
+                                <div style="font-size:11.5px;color:var(--agri-muted);margin-top:2px" data-i18n="srv_store_sub">Conservation triple ensachage sans pertes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. QUESTIONS RAPIDES LOCALISÉES (AgriVoiceChatScreen.kt) -->
+                <div>
+                    <h2 style="font-size:14px;font-weight:800;color:var(--agri-muted);margin-bottom:10px" data-i18n="quick_questions_title">
+                        Questions fréquentes des producteurs (cliquez pour lancer) :
+                    </h2>
+                    <div id="welcome-suggestions-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px"></div>
                 </div>
             </div>
 
             <!-- Modèle Message Assistant (Cloné par JS) -->
-            <div id="template-assistant" style="display:none;gap:12px;max-width:720px;margin:0 auto;width:100%">
-                <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#016a33,#059669);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;box-shadow:0 3px 10px rgba(1,106,51,.25)">
-                    <i class="fa-solid fa-seedling" style="color:#fff;font-size:14px"></i>
+            <div id="template-assistant" style="display:none;gap:14px;max-width:780px;margin:0 auto;width:100%">
+                <div class="ai-orb">
+                    <i class="fa-solid fa-seedling"></i>
                 </div>
-                <div style="flex:1;overflow:hidden">
-                    <div class="message-content" style="font-size:15px;line-height:1.7;color:#1e293b;word-break:break-word"></div>
+                <div style="flex:1;overflow:hidden;background:#fff;border:1px solid var(--agri-border);border-radius:4px 22px 22px 22px;padding:16px 20px;box-shadow:0 4px 14px rgba(0,0,0,0.03)">
+                    <div style="font-size:11px;font-weight:800;color:var(--agri-green);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+                        <span>AgriVoice IA</span>
+                        <span style="color:#94a3b8">•</span>
+                        <span class="msg-lang-tag" style="color:var(--agri-muted)">Conseil Agronomique</span>
+                    </div>
+                    <div class="message-content" style="font-size:15px;line-height:1.68;color:var(--agri-text);word-break:break-word"></div>
                 </div>
             </div>
 
             <!-- Modèle Message Utilisateur (Cloné par JS) -->
-            <div id="template-user" style="display:none;gap:12px;max-width:720px;margin:0 auto;width:100%;flex-direction:row-reverse">
+            <div id="template-user" style="display:none;gap:12px;max-width:780px;margin:0 auto;width:100%;flex-direction:row-reverse">
                 <div style="flex:1;display:flex;justify-content:flex-end;overflow:hidden">
-                    <div class="message-content" style="background:#e2e8f0;color:#0f172a;border-radius:20px 20px 4px 20px;padding:12px 18px;max-width:85%;word-break:break-word;font-size:15px;font-weight:500"></div>
+                    <div class="message-content" style="background:linear-gradient(135deg,#1B6A3B,#13502C);color:#fff;border-radius:22px 22px 4px 22px;padding:13px 18px;max-width:85%;word-break:break-word;font-size:15px;font-weight:600;box-shadow:0 4px 12px rgba(27,106,59,0.2)"></div>
                 </div>
             </div>
+
         </div>
 
         <!-- CAPSULE DE PROMPT FLOTTANTE -->
-        <div style="position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(to top,#f8fafc 70%,transparent);padding:24px 16px 14px;z-index:10;pointer-events:none">
-            <div style="max-width:720px;margin:0 auto;position:relative;pointer-events:auto">
+        <div id="prompt-dock" style="position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(to top,var(--agri-bg) 72%,transparent);padding:20px 16px 14px;z-index:20;pointer-events:none">
+            <div style="max-width:780px;margin:0 auto;position:relative;pointer-events:auto">
 
-                <!-- Indicateur d'enregistrement vocal -->
-                <div id="recording-status" style="display:none;position:absolute;top:-42px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;padding:6px 16px;border-radius:9999px;font-size:12px;font-weight:700;align-items:center;gap:8px;box-shadow:0 4px 14px rgba(220,38,38,.35)">
+                <!-- Indicateur d'enregistrement direct -->
+                <div id="recording-status" style="display:none;position:absolute;top:-44px;left:50%;transform:translateX(-50%);background:#DC2626;color:#fff;padding:7px 18px;border-radius:9999px;font-size:12.5px;font-weight:800;align-items:center;gap:8px;box-shadow:0 6px 18px rgba(220,38,38,0.4);white-space:nowrap">
                     <span style="width:8px;height:8px;border-radius:50%;background:#fff;display:inline-block"></span>
-                    <span>Écoute en cours… Cliquez pour valider</span>
+                    <span>Écoute en cours… Cliquez pour envoyer</span>
                 </div>
 
-                <!-- Formulaire capsule -->
-                <form id="chat-form" class="prompt-box" style="padding:8px 10px;display:flex;flex-direction:column;gap:4px">
-                    <div style="display:flex;align-items:flex-end;gap:8px;padding:4px 8px">
+                <form id="chat-form" class="prompt-box" style="padding:8px 12px;display:flex;flex-direction:column;gap:4px">
+                    <div style="display:flex;align-items:flex-end;gap:8px;padding:4px 6px">
                         <textarea id="user-input" rows="1"
-                            style="flex:1;resize:none;outline:none;padding:6px 4px;background:transparent;font-size:15px;color:#1e293b;font-family:inherit;font-weight:500;line-height:1.5;max-height:140px;overflow-y:auto;border:none;min-height:24px"
-                            placeholder="Posez une question agricole ou cliquez sur le micro…"></textarea>
+                            style="flex:1;resize:none;outline:none;padding:6px 4px;background:transparent;font-size:15px;color:var(--agri-text);font-family:inherit;font-weight:500;line-height:1.5;max-height:130px;overflow-y:auto;border:none;min-height:24px"
+                            placeholder="Posez une question agricole ou appuyez sur le micro…"></textarea>
                     </div>
-                    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px;border-top:1px solid rgba(229,231,235,.8)">
-                        <!-- Bascule rapide de langue -->
-                        <button type="button" onclick="switchNextLang()"
-                            style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:9999px;background:#f1f5f9;border:none;color:#334155;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s"
-                            title="Changer de langue">
-                            <i class="fa-solid fa-globe" style="font-size:11px;color:#64748b"></i>
-                            <span id="prompt-lang-label">Français</span>
-                        </button>
-                        <!-- Boutons Micro et Envoi -->
-                        <div style="display:flex;align-items:center;gap:6px">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 6px;border-top:1px solid #F1F5F9">
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                            <!-- Bascule rapide de langue -->
+                            <button type="button" onclick="switchNextLang(true)"
+                                style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9999px;background:#E8F5E9;border:1px solid #BBF7D0;color:var(--agri-green-dark);font-size:12px;font-weight:800;cursor:pointer;font-family:inherit"
+                                title="Changer la langue de conversation">
+                                <i class="fa-solid fa-globe" style="font-size:11px;color:var(--agri-green)"></i>
+                                <span id="prompt-lang-label">Français</span>
+                            </button>
+                            <!-- Bouton Assistant Vocal Plein Écran (avec consigne a2_ecoute) -->
+                            <button type="button" onclick="openVoiceModal()"
+                                style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9999px;background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit"
+                                title="Ouvrir le studio vocal assisté">
+                                <i class="fa-solid fa-ear-listen" style="font-size:11px"></i>
+                                <span data-i18n="voice_studio_btn">Studio Vocal</span>
+                            </button>
+                        </div>
+
+                        <div style="display:flex;align-items:center;gap:8px">
                             <button type="button" id="mic-btn"
-                                style="width:40px;height:40px;border-radius:50%;background:#f1f5f9;border:none;color:#475569;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s"
-                                title="Enregistrer votre voix">
+                                style="width:42px;height:42px;border-radius:50%;background:#F1F5F9;border:1px solid #E2E8F0;color:var(--agri-green-dark);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.18s"
+                                title="Parler directement au microphone">
                                 <i class="fa-solid fa-microphone" id="mic-icon" style="font-size:16px"></i>
                             </button>
                             <button type="submit" id="send-btn"
-                                style="width:40px;height:40px;border-radius:50%;background:#016a33;border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .15s;box-shadow:0 3px 10px rgba(1,106,51,.35)"
+                                style="width:42px;height:42px;border-radius:50%;background:var(--agri-green);border:none;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.18s;box-shadow:0 4px 12px rgba(27,106,59,0.32)"
                                 title="Envoyer">
                                 <i class="fa-solid fa-arrow-up" style="font-size:15px"></i>
                             </button>
                         </div>
                     </div>
                 </form>
-                <p style="font-size:11px;text-align:center;color:#94a3b8;margin-top:8px;font-weight:500">
-                    AgriVoice AI peut faire des erreurs. Vérifiez les conseils importants auprès de l'INRAB.
-                </p>
             </div>
         </div>
     </div>
 
-    <!-- ═══ VUE : GUIDES & FICHES AUDIO ═══ -->
+    <!-- ══════════════════════════════════════════════════════════════════
+         VUE 2 : GUIDES & FICHES PRATIQUES AUDIO (ResourcesScreen.kt)
+    ═══════════════════════════════════════════════════════════════════ -->
     <div id="view-resources" class="app-view" style="overflow-y:auto">
-        <div style="max-width:760px;margin:0 auto;padding:28px 20px 80px;width:100%">
-            <h2 style="font-size:22px;font-weight:700;color:#014d24;margin-bottom:4px" data-i18n="res_title">Guides &amp; Fiches pratiques audio</h2>
-            <p style="color:#64748b;font-size:14px;margin-bottom:22px" data-i18n="res_desc">Recherchez une culture, une maladie ou un engrais.</p>
-            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                <i class="fa-solid fa-magnifying-glass" style="color:#94a3b8;margin-right:12px"></i>
-                <input id="fiche-search" type="search" oninput="renderFiches(this.value)" placeholder="Rechercher : maïs, engrais, neem, stockage…" style="flex:1;outline:none;background:transparent;font-size:14px;font-family:inherit;border:none">
+        <div class="view-scroll-pad" style="max-width:840px;margin:0 auto;padding:24px 20px 80px;width:100%;display:flex;flex-direction:column;gap:18px">
+
+            <!-- En-tête Guides -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                <div>
+                    <div style="display:inline-flex;align-items:center;gap:6px;background:#E8F5E9;color:var(--agri-green);padding:4px 12px;border-radius:9999px;font-size:11px;font-weight:800;margin-bottom:6px">
+                        <i class="fa-solid fa-headphones"></i>
+                        <span>AUDIOS OFFICIELS HORS-LIGNE • INRAB BÉNIN</span>
+                    </div>
+                    <h2 style="font-size:24px;font-weight:900;color:var(--agri-green-dark)" data-i18n="res_title">Guides &amp; Fiches pratiques audio</h2>
+                    <p style="color:var(--agri-muted);font-size:14px;margin-top:2px" data-i18n="res_desc">Écoutez les conseils enregistrés en Fɔngbe, Yorùbá, Français et Éwé.</p>
+                </div>
+                <button onclick="openMarketPricesModal()" style="background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:10px 16px;border-radius:14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Prix Dantokpa &amp; Parakou</span>
+                </button>
             </div>
-            <div id="fiches-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px"></div>
-            <p id="fiches-empty" style="display:none;text-align:center;color:#64748b;font-size:14px;padding:30px 0">Aucune fiche ne correspond. Posez plutôt la question à l'assistant vocal.</p>
+
+            <!-- Barre de Recherche -->
+            <div style="background:#fff;border:1.5px solid var(--agri-border);border-radius:18px;padding:12px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,0.03)">
+                <i class="fa-solid fa-magnifying-glass" style="color:var(--agri-green);font-size:16px"></i>
+                <input id="fiche-search" type="search" oninput="renderFiches()" placeholder="Rechercher : maïs, chenille, engrais NPK, sacs PICS, météo, prix…" style="flex:1;outline:none;background:transparent;font-size:14.5px;font-family:inherit;border:none;color:var(--agri-text);font-weight:500">
+            </div>
+
+            <!-- Pilules de Catégories (Tous, Maïs, Soja, Chenilles, Traitements, Stockage, Météo, Marchés, Favoris) -->
+            <div id="category-pills-bar" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px"></div>
+
+            <!-- Liste des Fiches Audio -->
+            <div id="fiches-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px"></div>
+
+            <div id="fiches-empty" style="display:none;text-align:center;background:#fff;border:1px solid var(--agri-border);border-radius:20px;padding:36px 20px">
+                <i class="fa-solid fa-seedling" style="font-size:32px;color:var(--agri-green);margin-bottom:10px"></i>
+                <p style="color:var(--agri-text);font-weight:800;font-size:15px;margin-bottom:4px">Aucune fiche ne correspond à votre recherche</p>
+                <p style="color:var(--agri-muted);font-size:13px;margin-bottom:14px">Posez directement votre question à l'assistant vocal AgriVoice !</p>
+                <button onclick="switchView('view-chat')" style="background:var(--agri-green);color:#fff;border:none;padding:10px 18px;border-radius:9999px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">
+                    Demander à l'Assistant IA
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- ═══ VUE : PROFIL PRODUCTEUR ═══ -->
+    <!-- ══════════════════════════════════════════════════════════════════
+         VUE 3 : PROFIL PRODUCTEUR COMPLET (ProfileScreen.kt)
+    ═══════════════════════════════════════════════════════════════════ -->
     <div id="view-profile" class="app-view" style="overflow-y:auto">
-        <div style="max-width:620px;margin:0 auto;padding:28px 20px 80px;width:100%;display:flex;flex-direction:column;gap:18px">
-            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:22px;display:flex;align-items:center;gap:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#016a33,#059669);color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(1,106,51,.25)">BK</div>
-                <div>
-                    <h2 style="font-size:21px;font-weight:800;color:#0f172a;margin-bottom:3px">Bio Kora</h2>
-                    <p style="color:#64748b;font-size:13px"><i class="fa-solid fa-location-dot" style="color:#016a33;margin-right:6px"></i>Parakou, Borgou — Bénin</p>
+        <div class="view-scroll-pad" style="max-width:680px;margin:0 auto;padding:24px 20px 85px;width:100%;display:flex;flex-direction:column;gap:20px">
+
+            <!-- 1. EN-TÊTE AGRICULTEUR (Identique à ProfileScreen.kt) -->
+            <div style="background:#fff;border:1px solid var(--agri-border);border-radius:26px;padding:24px;display:flex;flex-direction:column;align-items:center;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.04);position:relative">
+                <button onclick="openEditProfileModal()" style="position:absolute;top:16px;right:16px;background:#F1F5F9;border:1px solid #E2E8F0;color:var(--agri-text);padding:6px 12px;border-radius:9999px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px">
+                    <i class="fa-solid fa-pen"></i> Modifier
+                </button>
+
+                <div style="width:94px;height:94px;border-radius:50%;padding:3px;background:linear-gradient(135deg,#1B6A3B,#22C55E,#F59E0B);margin-bottom:12px;box-shadow:0 6px 18px rgba(27,106,59,0.25)">
+                    <img src="farmer_hero.jpg" alt="Bio Kora" style="width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid #fff;display:block"
+                        onerror="this.outerHTML='<div style=\'width:100%;height:100%;border-radius:50%;background:#1B6A3B;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900\'>BK</div>'">
+                </div>
+
+                <h2 id="prof-name" style="font-size:22px;font-weight:900;color:var(--agri-text)">Bio Kora</h2>
+                <div style="display:flex;align-items:center;gap:6px;color:var(--agri-muted);font-size:13.5px;font-weight:600;margin-top:4px">
+                    <i class="fa-solid fa-location-dot" style="color:var(--agri-green)"></i>
+                    <span id="prof-location">Borgou / Parakou, Bénin</span>
+                </div>
+
+                <div style="margin-top:12px;background:#E8F5E9;border:1px solid #BBF7D0;color:var(--agri-green);padding:6px 16px;border-radius:9999px;font-size:12.5px;font-weight:800;display:inline-flex;align-items:center;gap:8px">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                    <span id="prof-crops">Maïs &amp; Soja • 5 Hectares</span>
+                </div>
+
+                <!-- Mini-statistiques du producteur -->
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-top:18px;padding-top:16px;border-top:1px solid #F1F5F9">
+                    <div>
+                        <div style="font-size:18px;font-weight:900;color:var(--agri-green)" id="prof-stat-audios">19</div>
+                        <div style="font-size:11px;font-weight:700;color:var(--agri-muted)">Audios Hors-Ligne</div>
+                    </div>
+                    <div>
+                        <div style="font-size:18px;font-weight:900;color:#D97706" id="prof-stat-contribs">0</div>
+                        <div style="font-size:11px;font-weight:700;color:var(--agri-muted)">Mots Donnés</div>
+                    </div>
+                    <div>
+                        <div style="font-size:18px;font-weight:900;color:var(--agri-green-dark)">4 Langues</div>
+                        <div style="font-size:11px;font-weight:700;color:var(--agri-muted)">Fon • Yo • Fr • Éwé</div>
+                    </div>
                 </div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
-                <div class="stat-tile"><span class="k">Cultures</span><span class="v">Maïs &amp; Soja</span></div>
-                <div class="stat-tile"><span class="k">Superficie</span><span class="v">5 hectares</span></div>
-                <div class="stat-tile"><span class="k">Zone</span><span class="v">Nord Bénin</span></div>
+
+            <!-- 2. BANNIÈRE INTERACTIVE « J'AIME AGRIVOICE » (ProfileScreen.kt) -->
+            <div class="jaime-banner" onclick="switchView('view-jaime')">
+                <div style="width:52px;height:52px;border-radius:50%;background:var(--agri-yellow);color:#1A1C19;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 12px rgba(245,158,11,0.35)">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                </div>
+                <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                        <span style="font-size:15.5px;font-weight:900;color:var(--agri-green-dark)" data-i18n="jaime_banner_title">J'aime AgriVoice</span>
+                        <span style="background:#DC2626;color:#fff;font-size:9.5px;font-weight:900;padding:2px 7px;border-radius:6px;letter-spacing:0.04em">NOUVEAU</span>
+                    </div>
+                    <p style="font-size:12.5px;color:var(--agri-muted);margin-top:3px;line-height:1.4" data-i18n="jaime_banner_sub">
+                        Enregistrez votre voix pour enrichir l'IA agricole hors-ligne et voyez vos contributions sur le site de collecte !
+                    </p>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="color:var(--agri-green);font-size:15px"></i>
             </div>
-            <p style="font-size:12px;color:#94a3b8;line-height:1.5">Ces informations servent à contextualiser vos questions. Elles restent sur cet appareil.</p>
+
+            <!-- Accès direct aux pages du site de collecte & télémétrie -->
+            <div style="background:#fff;border:1px solid var(--agri-border);border-radius:20px;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+                    <div style="font-size:13px;font-weight:800;color:var(--agri-green-dark);display:flex;align-items:center;gap:8px">
+                        <i class="fa-solid fa-link" style="color:var(--agri-green)"></i>
+                        <span>Connexion directe au Site de Collecte &amp; Télémétrie</span>
+                    </div>
+                    <span id="supabase-live-badge" style="font-size:11px;font-weight:800;color:#16a34a;background:#F0FDF4;border:1px solid #BBF7D0;padding:2px 9px;border-radius:9999px">
+                        ● Supabase Connecté
+                    </span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px">
+                    <button onclick="switchView('view-jaime')" style="background:#E8F5E9;border:1px solid #BBF7D0;color:var(--agri-green-dark);padding:10px 12px;border-radius:12px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px">
+                        <i class="fa-solid fa-microphone" style="color:var(--agri-green)"></i>
+                        <span>Studio Intégré (42 mots)</span>
+                    </button>
+                    <a href="jaime-agrivoice/index.html" target="_blank" style="text-decoration:none;background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:8px">
+                        <i class="fa-solid fa-up-right-from-square"></i>
+                        <span>Site J'aime AgriVoice</span>
+                    </a>
+                    <a href="jaime-agrivoice/validate.html" target="_blank" style="text-decoration:none;background:#F1F5F9;border:1px solid #E2E8F0;color:#334155;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:8px">
+                        <i class="fa-solid fa-check-double" style="color:#059669"></i>
+                        <span>Valider les Voix</span>
+                    </a>
+                    <a href="jaime-agrivoice/leaderboard.html" target="_blank" style="text-decoration:none;background:#F1F5F9;border:1px solid #E2E8F0;color:#334155;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:8px">
+                        <i class="fa-solid fa-trophy" style="color:#D97706"></i>
+                        <span>Classement Bénin</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 3. SECTION : LANGUE & ASSISTANT VOCAL (ProfileScreen.kt) -->
+            <div>
+                <h3 style="font-size:13.5px;font-weight:800;color:var(--agri-green);margin:0 0 8px 4px" data-i18n="prof_sec_voice">Langue &amp; Assistant Vocal</h3>
+                <div class="profile-group">
+                    <!-- Langue de conversation -->
+                    <div class="profile-row clickable" onclick="switchNextLang(true)">
+                        <div style="display:flex;align-items:center;gap:14px">
+                            <div style="width:40px;height:40px;border-radius:12px;background:#E8F5E9;color:var(--agri-green);display:flex;align-items:center;justify-content:center;font-size:17px">
+                                <i class="fa-solid fa-language"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:14.5px;font-weight:700;color:var(--agri-text)" data-i18n="prof_lang_conv">Langue de conversation</div>
+                                <div id="prof-lang-sub" style="font-size:12.5px;color:var(--agri-muted);margin-top:2px">Français — Cliquez pour changer et écouter</div>
+                            </div>
+                        </div>
+                        <span id="prof-lang-badge" style="background:#E8F5E9;color:var(--agri-green);font-size:12px;font-weight:800;padding:5px 12px;border-radius:9999px">Français</span>
+                    </div>
+
+                    <!-- Vitesse de la voix IA -->
+                    <div class="profile-row clickable" onclick="cycleVoiceSpeed()">
+                        <div style="display:flex;align-items:center;gap:14px">
+                            <div style="width:40px;height:40px;border-radius:12px;background:#E8F5E9;color:var(--agri-green);display:flex;align-items:center;justify-content:center;font-size:17px">
+                                <i class="fa-solid fa-gauge-high"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:14.5px;font-weight:700;color:var(--agri-text)" data-i18n="prof_voice_speed">Vitesse de la voix IA</div>
+                                <div id="prof-speed-sub" style="font-size:12.5px;color:var(--agri-muted);margin-top:2px">Normale (1.0x) — Idéal pour l'écoute terrain</div>
+                            </div>
+                        </div>
+                        <span id="prof-speed-badge" style="background:#F1F5F9;color:#334155;font-size:12px;font-weight:800;padding:5px 12px;border-radius:9999px">1.0x</span>
+                    </div>
+
+                    <!-- Lecture automatique -->
+                    <div class="profile-row">
+                        <div style="display:flex;align-items:center;gap:14px">
+                            <div style="width:40px;height:40px;border-radius:12px;background:#E8F5E9;color:var(--agri-green);display:flex;align-items:center;justify-content:center;font-size:17px">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:14.5px;font-weight:700;color:var(--agri-text)">Lecture vocale automatique</div>
+                                <div style="font-size:12.5px;color:var(--agri-muted);margin-top:2px">Lit chaque réponse de l'assistant à voix haute</div>
+                            </div>
+                        </div>
+                        <label class="switch"><input type="checkbox" id="prof-autoplay-toggle" checked onchange="setAutoplay(this.checked)"><span class="slider"></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. SECTION : STOCKAGE & MODE HORS-LIGNE (ProfileScreen.kt) -->
+            <div>
+                <h3 style="font-size:13.5px;font-weight:800;color:var(--agri-green);margin:0 0 8px 4px" data-i18n="prof_sec_offline">Stockage &amp; Mode Hors-Ligne</h3>
+                <div class="profile-group">
+                    <!-- Modèle IA Vocal Fon/Yorùbá -->
+                    <div class="profile-row clickable" onclick="playOfficialTrack('a5_pret_a_commencer')">
+                        <div style="display:flex;align-items:center;gap:14px">
+                            <div style="width:40px;height:40px;border-radius:12px;background:#E8F5E9;color:var(--agri-green);display:flex;align-items:center;justify-content:center;font-size:17px">
+                                <i class="fa-solid fa-cloud-arrow-down"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:14.5px;font-weight:700;color:var(--agri-text)" data-i18n="prof_offline_model">Modèle IA Vocal Fon/Yorùbá</div>
+                                <div style="font-size:12.5px;color:var(--agri-muted);margin-top:2px">420 Mo • 57 pistes vocales prêtes hors-ligne (cliquez pour tester)</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-circle-check" style="color:#22C55E;font-size:20px"></i>
+                    </div>
+
+                    <!-- Actualisation des prix des marchés -->
+                    <div class="profile-row clickable" onclick="openMarketPricesModal()">
+                        <div style="display:flex;align-items:center;gap:14px">
+                            <div style="width:40px;height:40px;border-radius:12px;background:#FEF3C7;color:#D97706;display:flex;align-items:center;justify-content:center;font-size:17px">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:14.5px;font-weight:700;color:var(--agri-text)" data-i18n="prof_market_sync">Actualisation des prix des marchés</div>
+                                <div id="prof-market-sub" style="font-size:12.5px;color:var(--agri-muted);margin-top:2px">Il y a 2 heures (Dantokpa &amp; Parakou) — Cliquez pour écouter</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color:#94A3B8;font-size:14px"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. SECTION : GÉNÉRAL (ProfileScreen.kt) -->
+            <div>
+                <h3 style="font-size:13.5px;font-weight:800;color:var(--agri-green);margin:0 0 8px 4px" data-i18n="prof_sec_general">Général</h3>
+                <div class="profile-group">
+                    <!-- Alertes Météo & Ravageurs -->
+                    <div class="profile-row">
+                        <div style="display:flex;align-items:center;gap:14px">
+                            <div style="width:40px;height:40px;border-radius:12px;background:#E8F5E9;color:var(--agri-green);display:flex;align-items:center;justify-content:center;font-size:17px">
+                                <i class="fa-solid fa-bell"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:14.5px;font-weight:700;color:var(--agri-text)" data-i18n="prof_alerts">Alertes Météo &amp; Ravageurs</div>
+                                <div style="font-size:12.5px;color:var(--agri-muted);margin-top:2px">Notifications vocales pluies, semis et chenilles</div>
+                            </div>
+                        </div>
+                        <label class="switch"><input type="checkbox" id="prof-alerts-toggle" checked onchange="toggleWeatherAlerts(this.checked)"><span class="slider"></span></label>
+                    </div>
+
+                    <!-- Guide d'utilisation & Audios Onboarding -->
+                    <div class="profile-row clickable" onclick="openFaqModal()">
+                        <div style="display:flex;align-items:center;gap:14px">
+                            <div style="width:40px;height:40px;border-radius:12px;background:#E8F5E9;color:var(--agri-green);display:flex;align-items:center;justify-content:center;font-size:17px">
+                                <i class="fa-solid fa-circle-question"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:14.5px;font-weight:700;color:var(--agri-text)" data-i18n="prof_faq">Guide d'utilisation &amp; Audios Système</div>
+                                <div style="font-size:12.5px;color:var(--agri-muted);margin-top:2px">Écouter toutes les voix d'accompagnement AgriVoice</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right" style="color:#94A3B8;font-size:14px"></i>
+                    </div>
+
+                    <!-- À propos d'AgriVoice -->
+                    <div class="profile-row clickable" onclick="playOfficialTrack('f1_bon_courage_champs')">
+                        <div style="display:flex;align-items:center;gap:14px">
+                            <div style="width:40px;height:40px;border-radius:12px;background:#E8F5E9;color:var(--agri-green);display:flex;align-items:center;justify-content:center;font-size:17px">
+                                <i class="fa-solid fa-circle-info"></i>
+                            </div>
+                            <div>
+                                <div style="font-size:14.5px;font-weight:700;color:var(--agri-text)">À propos d'AgriVoice</div>
+                                <div style="font-size:12.5px;color:var(--agri-muted);margin-top:2px">v1.2.0 • TinyML Bénin (Cliquez pour le message d'encouragement)</div>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-volume-high" style="color:var(--agri-green);font-size:14px"></i>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- ═══ VUE : PARAMÈTRES ═══ -->
-    <div id="view-settings" class="app-view" style="overflow-y:auto">
-        <div style="max-width:600px;margin:0 auto;padding:28px 20px 80px;width:100%;display:flex;flex-direction:column;gap:18px">
-            <h2 style="font-size:20px;font-weight:700;color:#014d24" data-i18n="set_lang_title">Langue &amp; Assistant Vocal</h2>
-            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                <div class="set-row">
-                    <div style="display:flex;align-items:center;gap:14px">
-                        <div style="width:40px;height:40px;border-radius:12px;background:#f0fdf4;color:#016a33;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-language" style="font-size:18px"></i></div>
-                        <span style="font-weight:700;color:#1e293b;font-size:14px" data-i18n="set_lang_app">Langue de l'application</span>
+    <!-- ══════════════════════════════════════════════════════════════════
+         VUE 4 : STUDIO COMMUNAUTAIRE « J'AIME AGRIVOICE » (JaimeMaLangueScreen.kt)
+         Connecté en temps réel à Supabase (agrivoice-audios & contributions)
+    ═══════════════════════════════════════════════════════════════════ -->
+    <div id="view-jaime" class="app-view" style="overflow-y:auto">
+        <div class="view-scroll-pad" style="max-width:760px;margin:0 auto;padding:22px 20px 85px;width:100%;display:flex;flex-direction:column;gap:18px">
+
+            <!-- Barre supérieure Studio -->
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <button onclick="switchView('view-profile')" style="width:38px;height:38px;border-radius:12px;background:#fff;border:1px solid var(--agri-border);color:var(--agri-text);cursor:pointer;display:flex;align-items:center;justify-content:center">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <h2 style="font-size:20px;font-weight:900;color:var(--agri-green-dark)">J'aime AgriVoice</h2>
+                        <p style="font-size:12px;color:var(--agri-muted);font-weight:600">Studio Communautaire des Voix Agricoles • Synchronisé Supabase</p>
                     </div>
-                    <select id="lang-selector" onchange="changeLang(this.value)"
-                        style="background:#f8fafc;border:1px solid #cbd5e1;color:#0f172a;font-size:14px;border-radius:12px;padding:8px 14px;outline:none;font-weight:600;font-family:inherit;cursor:pointer">
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <a href="jaime-agrivoice/index.html" target="_blank" style="text-decoration:none;background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:8px 14px;border-radius:9999px;font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:6px">
+                        <i class="fa-solid fa-up-right-from-square"></i> Site Complet
+                    </a>
+                    <a href="jaime-agrivoice/leaderboard.html" target="_blank" style="text-decoration:none;background:#E8F5E9;border:1px solid #BBF7D0;color:var(--agri-green);padding:8px 14px;border-radius:9999px;font-size:12px;font-weight:800;display:inline-flex;align-items:center;gap:6px">
+                        <i class="fa-solid fa-trophy"></i> Classement
+                    </a>
+                </div>
+            </div>
+
+            <!-- 1. BANNIÈRE D'IMPACT & SCORE CONTRIBUTEUR (JaimeMaLangueScreen.kt) -->
+            <div style="background:linear-gradient(135deg,#13502C 0%,#1B6A3B 100%);border-radius:24px;padding:22px;color:#fff;box-shadow:0 10px 26px -6px rgba(19,80,44,0.35)">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+                    <span style="background:rgba(245,158,11,0.22);border:1px solid rgba(253,230,138,0.4);color:#FDE68A;font-size:11px;font-weight:800;padding:4px 12px;border-radius:9999px">
+                        <i class="fa-solid fa-award"></i> <span id="jaime-badge-label">Contributeur Éclaireur</span>
+                    </span>
+                    <span id="jaime-global-stats" style="font-size:11.5px;color:#86efac;font-weight:700">
+                        Base communautaire active
+                    </span>
+                </div>
+                <h3 style="font-size:18px;font-weight:900;margin-bottom:6px">Faites entendre votre langue au Bénin !</h3>
+                <p style="font-size:13px;color:rgba(255,255,255,0.86);line-height:1.45;margin-bottom:14px">
+                    Prononcez les mots agricoles ci-dessous pendant 3 secondes. Vos enregistrements entraînent le modèle TinyML hors-ligne et sont envoyés directement sur le serveur de collecte AgriVoice.
+                </p>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:rgba(0,0,0,0.2);padding:10px 14px;border-radius:14px">
+                    <div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:#FDE68A">
+                        <i class="fa-solid fa-microphone-lines"></i>
+                        <span id="jaime-user-count">0 mot(s) enregistré(s)</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <label for="jaime-contributor-input" style="font-size:11.5px;color:rgba(255,255,255,0.75)">Votre prénom/pseudo :</label>
+                        <input id="jaime-contributor-input" type="text" value="Bio Kora" onchange="saveJaimeContributorName(this.value)"
+                            style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700;width:130px;outline:none;font-family:inherit">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. SÉLECTEUR DE LANGUE DU STUDIO (Fɔngbe, Yorùbá, Français) -->
+            <div style="display:flex;gap:8px">
+                <button onclick="selectJaimeLang('fon')" id="jaime-tab-fon" style="flex:1;padding:11px;border-radius:14px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;border:1.5px solid var(--agri-green);background:var(--agri-green);color:#fff">
+                    Fɔngbe (15)
+                </button>
+                <button onclick="selectJaimeLang('yoruba')" id="jaime-tab-yoruba" style="flex:1;padding:11px;border-radius:14px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;border:1.5px solid var(--agri-border);background:#fff;color:var(--agri-muted)">
+                    Yorùbá (15)
+                </button>
+                <button onclick="selectJaimeLang('fr')" id="jaime-tab-fr" style="flex:1;padding:11px;border-radius:14px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;border:1.5px solid var(--agri-border);background:#fff;color:var(--agri-muted)">
+                    Français (12)
+                </button>
+            </div>
+
+            <!-- 3. CARTE DU MOT ACTIF À ENREGISTRER (JaimeMaLangueScreen.kt) -->
+            <div style="background:#fff;border:1.5px solid var(--agri-border);border-radius:26px;padding:24px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,0.05)">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                    <span id="jaime-word-cat" style="background:#E8F5E9;color:var(--agri-green);font-size:11.5px;font-weight:800;padding:4px 12px;border-radius:9999px">
+                        Cultures
+                    </span>
+                    <span id="jaime-word-index" style="font-size:12px;font-weight:700;color:var(--agri-muted)">
+                        Mot 1 / 15
+                    </span>
+                </div>
+
+                <div style="font-size:13px;color:var(--agri-muted);font-weight:600;margin-bottom:4px">Dites à haute voix :</div>
+                <div id="jaime-word-title" style="font-size:clamp(1.8rem,4vw,2.5rem);font-weight:900;color:var(--agri-green-dark);margin-bottom:6px">
+                    « Gbadé »
+                </div>
+                <div id="jaime-word-sub" style="font-size:14px;font-weight:700;color:#D97706;margin-bottom:20px">
+                    [ Gba-dé ] • Sens : Maïs
+                </div>
+
+                <!-- Bouton Micro Central 3 secondes -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+                    <button id="jaime-mic-btn" onclick="startJaimeRecording()"
+                        style="width:88px;height:88px;border-radius:50%;background:var(--agri-green);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 8px 24px rgba(27,106,59,0.35);transition:all 0.2s">
+                        <i class="fa-solid fa-microphone" id="jaime-mic-icon"></i>
+                    </button>
+                    <div id="jaime-rec-status" style="font-size:13px;font-weight:700;color:var(--agri-muted)">
+                        Appuyez sur le micro et prononcez le mot (3 secondes)
+                    </div>
+                </div>
+
+                <!-- Barre d'actions après enregistrement : Réécouter & Valider / Envoyer sur Supabase -->
+                <div id="jaime-post-actions" style="display:none;justify-content:center;gap:12px;margin-top:18px;flex-wrap:wrap">
+                    <button onclick="playJaimePreview()" style="background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:10px 18px;border-radius:9999px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px">
+                        <i class="fa-solid fa-play"></i> Réécouter mon audio
+                    </button>
+                    <button id="jaime-submit-btn" onclick="submitJaimeRecording()" style="background:var(--agri-green);border:none;color:#fff;padding:10px 22px;border-radius:9999px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:7px;box-shadow:0 4px 14px rgba(27,106,59,0.3)">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> Valider &amp; Envoyer
+                    </button>
+                </div>
+
+                <!-- Navigation Précédent / Suivant -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid #F1F5F9">
+                    <button onclick="stepJaimeWord(-1)" style="background:#F1F5F9;border:none;color:#334155;padding:8px 14px;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">
+                        <i class="fa-solid fa-chevron-left"></i> Mot précédent
+                    </button>
+                    <button onclick="stepJaimeWord(1)" style="background:#F1F5F9;border:none;color:#334155;padding:8px 14px;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit">
+                        Mot suivant <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. LISTE DES MOTS DE LA LANGUE SÉLECTIONNÉE -->
+            <div>
+                <h3 style="font-size:14px;font-weight:800;color:var(--agri-text);margin-bottom:10px">
+                    Tous les mots à enregistrer dans cette langue :
+                </h3>
+                <div id="jaime-words-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         VUE 5 : PARAMÈTRES COMPLETS & LABORATOIRE AUDIO (Settings)
+    ═══════════════════════════════════════════════════════════════════ -->
+    <div id="view-settings" class="app-view" style="overflow-y:auto">
+        <div class="view-scroll-pad" style="max-width:660px;margin:0 auto;padding:24px 20px 85px;width:100%;display:flex;flex-direction:column;gap:20px">
+            <div>
+                <h2 style="font-size:22px;font-weight:900;color:var(--agri-green-dark)" data-i18n="set_lang_title">Paramètres &amp; Voix</h2>
+                <p style="font-size:13.5px;color:var(--agri-muted);margin-top:2px">Configurez la langue, la vitesse de lecture et testez les voix officielles AgriVoice.</p>
+            </div>
+
+            <div class="profile-group">
+                <div class="profile-row">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        <div style="width:40px;height:40px;border-radius:12px;background:#E8F5E9;color:var(--agri-green);display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-language" style="font-size:18px"></i></div>
+                        <div>
+                            <div style="font-weight:800;color:var(--agri-text);font-size:14.5px" data-i18n="set_lang_app">Langue de l'application</div>
+                            <div style="font-size:12px;color:var(--agri-muted)">Change l'interface, les guides et la voix de l'assistant</div>
+                        </div>
+                    </div>
+                    <select id="lang-selector" onchange="changeLang(this.value, true)"
+                        style="background:#F8FAFC;border:1.5px solid #CBD5E1;color:#0F172A;font-size:13.5px;border-radius:12px;padding:8px 14px;outline:none;font-weight:800;font-family:inherit;cursor:pointer">
                         <option value="fr">Français</option>
-                        <option value="fon">Fon (Fɔngbe)</option>
+                        <option value="fon">Fɔngbe (Bénin)</option>
                         <option value="yoruba">Yorùbá</option>
                         <option value="ewe">Éwé / Mina</option>
                     </select>
                 </div>
-                <div class="set-row">
+
+                <div class="profile-row">
                     <div style="display:flex;align-items:center;gap:14px">
-                        <div style="width:40px;height:40px;border-radius:12px;background:#f0fdf4;color:#016a33;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-volume-high" style="font-size:17px"></i></div>
+                        <div style="width:40px;height:40px;border-radius:12px;background:#E8F5E9;color:var(--agri-green);display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-gauge-high" style="font-size:17px"></i></div>
                         <div>
-                            <div style="font-weight:700;color:#1e293b;font-size:14px">Lecture vocale automatique</div>
-                            <div style="font-size:12px;color:#64748b;margin-top:2px">Lit chaque réponse à voix haute dès qu'elle arrive.</div>
+                            <div style="font-weight:800;color:var(--agri-text);font-size:14.5px">Vitesse de la voix</div>
+                            <div style="font-size:12px;color:var(--agri-muted)">Ajuste la cadence de parole des fiches et réponses</div>
+                        </div>
+                    </div>
+                    <select id="speed-selector" onchange="setVoiceSpeed(parseFloat(this.value))"
+                        style="background:#F8FAFC;border:1.5px solid #CBD5E1;color:#0F172A;font-size:13.5px;border-radius:12px;padding:8px 14px;outline:none;font-weight:800;font-family:inherit;cursor:pointer">
+                        <option value="0.8">0.8x (Lent)</option>
+                        <option value="1" selected>1.0x (Normal)</option>
+                        <option value="1.2">1.2x (Rapide)</option>
+                    </select>
+                </div>
+
+                <div class="profile-row">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        <div style="width:40px;height:40px;border-radius:12px;background:#E8F5E9;color:var(--agri-green);display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-volume-high" style="font-size:17px"></i></div>
+                        <div>
+                            <div style="font-weight:800;color:var(--agri-text);font-size:14.5px">Lecture vocale automatique</div>
+                            <div style="font-size:12px;color:var(--agri-muted)">Lit automatiquement chaque réponse de l'assistant</div>
                         </div>
                     </div>
                     <label class="switch"><input type="checkbox" id="autoplay-toggle" checked onchange="setAutoplay(this.checked)"><span class="slider"></span></label>
                 </div>
-                <div class="set-row">
+
+                <div class="profile-row">
                     <div style="display:flex;align-items:center;gap:14px">
-                        <div style="width:40px;height:40px;border-radius:12px;background:#fef2f2;color:#dc2626;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-trash-can" style="font-size:16px"></i></div>
+                        <div style="width:40px;height:40px;border-radius:12px;background:#FEF2F2;color:#DC2626;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-trash-can" style="font-size:16px"></i></div>
                         <div>
-                            <div style="font-weight:700;color:#1e293b;font-size:14px">Effacer la conversation</div>
-                            <div style="font-size:12px;color:#64748b;margin-top:2px">Repart d'une discussion vierge.</div>
+                            <div style="font-weight:800;color:var(--agri-text);font-size:14.5px">Réinitialiser la discussion</div>
+                            <div style="font-size:12px;color:var(--agri-muted)">Efface la conversation en cours et repart de l'accueil</div>
                         </div>
                     </div>
-                    <button class="btn-soft" style="background:#fef2f2;border-color:#fecaca;color:#b91c1c" onclick="resetConversation()">Effacer</button>
+                    <button onclick="resetConversation()" style="background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;padding:8px 14px;border-radius:9999px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit">Effacer</button>
                 </div>
             </div>
-            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);font-size:13px;color:#475569;line-height:1.6">
-                <div style="font-weight:800;color:#014d24;margin-bottom:6px">À propos d'AgriVoice</div>
-                Assistant agricole vocal pour les producteurs du Bénin et d'Afrique de l'Ouest : Français, Fɔngbe, Yorùbá et Éwé. Les réponses sont des conseils généraux : vérifiez les décisions importantes auprès d'un conseiller agricole ou de l'INRAB.
+
+            <!-- Banc d'essai des Voix Officielles de l'Application Mobile -->
+            <div style="background:#fff;border:1px solid var(--agri-border);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:12px">
+                <div style="font-size:14px;font-weight:800;color:var(--agri-green-dark);display:flex;align-items:center;gap:8px">
+                    <i class="fa-solid fa-waveform-lines"></i>
+                    <span>Tester les Voix Système Officielles (Langue active)</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:8px">
+                    <button onclick="playOfficialTrack('a1_accueil', this)" style="background:#F0FDF4;border:1px solid #BBF7D0;color:var(--agri-green-dark);padding:9px 12px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:left">
+                        <i class="fa-solid fa-volume-high" style="color:var(--agri-green)"></i> 1. Accueil (a1)
+                    </button>
+                    <button onclick="playOfficialTrack('a2_ecoute', this)" style="background:#F0FDF4;border:1px solid #BBF7D0;color:var(--agri-green-dark);padding:9px 12px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:left">
+                        <i class="fa-solid fa-ear-listen" style="color:var(--agri-green)"></i> 2. Consigne Écoute (a2)
+                    </button>
+                    <button onclick="playOfficialTrack('a3_onboarding_choix', this)" style="background:#F0FDF4;border:1px solid #BBF7D0;color:var(--agri-green-dark);padding:9px 12px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:left">
+                        <i class="fa-solid fa-globe" style="color:var(--agri-green)"></i> 3. Choix Langue (a3)
+                    </button>
+                    <button onclick="playOfficialTrack('a5_pret_a_commencer', this)" style="background:#F0FDF4;border:1px solid #BBF7D0;color:var(--agri-green-dark);padding:9px 12px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:left">
+                        <i class="fa-solid fa-check" style="color:var(--agri-green)"></i> 4. Prêt Hors-Ligne (a5)
+                    </button>
+                    <button onclick="playOfficialTrack('f1_bon_courage_champs', this)" style="background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:9px 12px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:left">
+                        <i class="fa-solid fa-sun" style="color:#D97706"></i> 5. Bon courage (f1)
+                    </button>
+                    <button onclick="playOfficialTrack('f2_bonne_recolte', this)" style="background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:9px 12px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-align:left">
+                        <i class="fa-solid fa-wheat-awn" style="color:#D97706"></i> 6. Bonne récolte (f2)
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- BARRE DE NAVIGATION BASSE MOBILE (Identique à BottomNavBar.kt) -->
+    <nav id="mobile-bottom-nav">
+        <button class="bnav-btn active" id="bnav-chat" onclick="switchView('view-chat')">
+            <div class="bnav-pill"><i class="fa-solid fa-microphone-lines"></i></div>
+            <span data-i18n="bnav_home">Assistant</span>
+        </button>
+        <button class="bnav-btn" id="bnav-resources" onclick="switchView('view-resources')">
+            <div class="bnav-pill"><i class="fa-solid fa-book-open"></i></div>
+            <span data-i18n="bnav_guides">Guides Audio</span>
+        </button>
+        <button class="bnav-btn" id="bnav-jaime" onclick="switchView('view-jaime')">
+            <div class="bnav-pill"><i class="fa-solid fa-heart-pulse"></i></div>
+            <span>J'aime</span>
+        </button>
+        <button class="bnav-btn" id="bnav-profile" onclick="switchView('view-profile')">
+            <div class="bnav-pill"><i class="fa-solid fa-user"></i></div>
+            <span data-i18n="bnav_profile">Profil</span>
+        </button>
+    </nav>
+
 </main>
 
-<!-- ═══════════════════════════════════════
+<!-- ══════════════════════════════════════════════════════════════════
+     MODALE 1 : STUDIO VOCAL ASSISTÉ (VoiceRecordingSheet de HomeScreen.kt)
+═══════════════════════════════════════════════════════════════════ -->
+<div id="voice-modal" onclick="if(event.target===this) closeVoiceModal()">
+    <div style="background:#fff;border-radius:28px;max-width:430px;width:100%;padding:26px 24px;text-align:center;box-shadow:0 24px 48px rgba(0,0,0,0.3);position:relative">
+        <button onclick="closeVoiceModal()" style="position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;background:#F1F5F9;border:none;color:#475569;cursor:pointer;display:flex;align-items:center;justify-content:center">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <span id="vm-lang-badge" style="display:inline-flex;align-items:center;gap:6px;background:#E8F5E9;color:var(--agri-green);padding:5px 14px;border-radius:9999px;font-size:12px;font-weight:800;margin-bottom:10px">
+            <i class="fa-solid fa-globe"></i> <span>Français</span>
+        </span>
+
+        <h3 id="vm-title" style="font-size:20px;font-weight:900;color:var(--agri-text);margin-bottom:4px">
+            Assistant Vocal AgriVoice
+        </h3>
+        <p id="vm-subtitle" style="font-size:13px;color:var(--agri-muted);line-height:1.4">
+            Écoutez la consigne dans votre langue ou appuyez directement sur le micro pour poser votre question.
+        </p>
+
+        <!-- Halo Sonore Concentrique -->
+        <div class="sonic-circle-wrap">
+            <div class="sonic-ring idle" id="vm-ring-1"></div>
+            <div class="sonic-ring r2 idle" id="vm-ring-2"></div>
+            <button id="vm-mic-btn" onclick="toggleModalRecording()"
+                style="position:relative;z-index:2;width:82px;height:82px;border-radius:50%;background:var(--agri-green);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 8px 24px rgba(27,106,59,0.35);transition:all 0.2s">
+                <i class="fa-solid fa-microphone" id="vm-mic-icon"></i>
+            </button>
+        </div>
+
+        <div id="vm-timer" style="font-size:22px;font-weight:900;color:var(--agri-green-dark);font-variant-numeric:tabular-nums;margin-bottom:14px">
+            00:00
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button onclick="playOfficialTrack('a2_ecoute', this)"
+                style="background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;padding:10px 16px;border-radius:9999px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px">
+                <i class="fa-solid fa-volume-high"></i> Écouter la consigne
+            </button>
+            <button onclick="toggleModalRecording()" id="vm-action-btn"
+                style="background:var(--agri-green);border:none;color:#fff;padding:10px 20px;border-radius:9999px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px">
+                <i class="fa-solid fa-microphone"></i> Parler direct
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     MODALE 2 : PRIX DES MARCHÉS EN DIRECT (DANTOKPA, PARAKOU, BOHICON)
+═══════════════════════════════════════════════════════════════════ -->
+<div id="market-modal" class="app-modal-backdrop" onclick="if(event.target===this) closeMarketPricesModal()">
+    <div style="background:#fff;border-radius:26px;max-width:520px;width:100%;padding:24px;box-shadow:0 24px 48px rgba(0,0,0,0.28);max-height:88vh;overflow-y:auto">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div>
+                <span style="font-size:10.5px;font-weight:800;color:#B45309;background:#FEF3C7;padding:3px 10px;border-radius:9999px">SYNCHRONISÉ • DANTOKPA &amp; PARAKOU</span>
+                <h3 style="font-size:19px;font-weight:900;color:var(--agri-text);margin-top:4px">Prix des Marchés Agricoles</h3>
+            </div>
+            <button onclick="closeMarketPricesModal()" style="width:34px;height:34px;border-radius:50%;background:#F1F5F9;border:none;color:#475569;cursor:pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <p style="font-size:13px;color:var(--agri-muted);margin-bottom:16px">
+            Cliquez sur un produit pour écouter le bulletin vocal dans votre langue active (<strong id="market-modal-lang">Français</strong>) :
+        </p>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="border:1px solid var(--agri-border);border-radius:18px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+                <div>
+                    <div style="font-size:15px;font-weight:800;color:var(--agri-text)">🌽 Maïs grain sec (Gbadé / Àgbàdo)</div>
+                    <div style="font-size:12.5px;color:var(--agri-muted);margin-top:2px">Marché Dantokpa (Cotonou) &amp; Parakou</div>
+                    <div style="font-size:14px;font-weight:900;color:var(--agri-green);margin-top:4px">260 FCFA / kg • Sac 100 kg : 26 000 FCFA</div>
+                </div>
+                <button onclick="playOfficialTrack('p1_prix_mais_dantokpa', this)" style="background:#E8F5E9;border:1px solid #BBF7D0;color:var(--agri-green);padding:8px 14px;border-radius:9999px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;flex-shrink:0">
+                    <i class="fa-solid fa-volume-high"></i> Écouter
+                </button>
+            </div>
+
+            <div style="border:1px solid var(--agri-border);border-radius:18px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+                <div>
+                    <div style="font-size:15px;font-weight:800;color:var(--agri-text)">🌱 Soja grain (Soja / Ewa Soya)</div>
+                    <div style="font-size:12.5px;color:var(--agri-muted);margin-top:2px">Marchés de Parakou, Bohicon &amp; Nikki</div>
+                    <div style="font-size:14px;font-weight:900;color:var(--agri-green);margin-top:4px">325 FCFA / kg • Forte demande export</div>
+                </div>
+                <button onclick="playOfficialTrack('p2_prix_soja_parakou', this)" style="background:#E8F5E9;border:1px solid #BBF7D0;color:var(--agri-green);padding:8px 14px;border-radius:9999px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;flex-shrink:0">
+                    <i class="fa-solid fa-volume-high"></i> Écouter
+                </button>
+            </div>
+
+            <div style="border:1px solid var(--agri-border);border-radius:18px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+                <div>
+                    <div style="font-size:15px;font-weight:800;color:var(--agri-text)">🥣 Gari fin de manioc (Gali / Gaàrí)</div>
+                    <div style="font-size:12.5px;color:var(--agri-muted);margin-top:2px">Marché Dantokpa &amp; Savalou</div>
+                    <div style="font-size:14px;font-weight:900;color:var(--agri-green);margin-top:4px">400 FCFA / kg • Bassine stable</div>
+                </div>
+                <button onclick="playOfficialTrack('p3_prix_gari_dantokpa', this)" style="background:#E8F5E9;border:1px solid #BBF7D0;color:var(--agri-green);padding:8px 14px;border-radius:9999px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;flex-shrink:0">
+                    <i class="fa-solid fa-volume-high"></i> Écouter
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     MODALE 3 : GUIDE D'UTILISATION & FAQ AUDIO (ProfileScreen.kt)
+═══════════════════════════════════════════════════════════════════ -->
+<div id="faq-modal" class="app-modal-backdrop" onclick="if(event.target===this) closeFaqModal()">
+    <div style="background:#fff;border-radius:26px;max-width:520px;width:100%;padding:24px;box-shadow:0 24px 48px rgba(0,0,0,0.28);max-height:88vh;overflow-y:auto">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <h3 style="font-size:19px;font-weight:900;color:var(--agri-green-dark)">Guide d'utilisation &amp; FAQ</h3>
+            <button onclick="closeFaqModal()" style="width:34px;height:34px;border-radius:50%;background:#F1F5F9;border:none;color:#475569;cursor:pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;font-size:13.5px;color:var(--agri-text);line-height:1.55">
+            <div style="background:#F8FAFC;border:1px solid var(--agri-border);border-radius:16px;padding:14px">
+                <div style="font-weight:800;color:var(--agri-green-dark);margin-bottom:4px">1. Comment parler à l'assistant vocal ?</div>
+                <p style="color:var(--agri-muted)">Choisissez votre langue (Français, Fɔngbe, Yorùbá ou Éwé), appuyez sur le bouton microphone, parlez normalement puis cliquez à nouveau pour envoyer.</p>
+                <button onclick="playOfficialTrack('a4_permission_micro', this)" style="margin-top:8px;background:#E8F5E9;border:1px solid #BBF7D0;color:var(--agri-green);padding:6px 12px;border-radius:9999px;font-size:11.5px;font-weight:800;cursor:pointer;font-family:inherit">
+                    <i class="fa-solid fa-volume-high"></i> Écouter l'explication micro
+                </button>
+            </div>
+            <div style="background:#F8FAFC;border:1px solid var(--agri-border);border-radius:16px;padding:14px">
+                <div style="font-weight:800;color:var(--agri-green-dark);margin-bottom:4px">2. Comment fonctionnent les Guides Audio hors-ligne ?</div>
+                <p style="color:var(--agri-muted)">Les 10 fiches pratiques (maïs, chenille légionnaire, engrais NPK, sacs PICS, météo et prix des marchés) embarquent les enregistrements vocaux officiels en Fɔngbe, Yorùbá et Français.</p>
+            </div>
+            <div style="background:#F8FAFC;border:1px solid var(--agri-border);border-radius:16px;padding:14px">
+                <div style="font-weight:800;color:var(--agri-green-dark);margin-bottom:4px">3. Qu'est-ce que « J'aime AgriVoice » ?</div>
+                <p style="color:var(--agri-muted)">C'est le studio participatif relié à la plateforme de collecte AgriVoice : chaque mot enregistré en Fɔngbe, Yorùbá ou Français enrichit le modèle vocal communautaire.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     MODALE 4 : MODIFIER LE PROFIL PRODUCTEUR
+═══════════════════════════════════════════════════════════════════ -->
+<div id="edit-profile-modal" class="app-modal-backdrop" onclick="if(event.target===this) closeEditProfileModal()">
+    <div style="background:#fff;border-radius:26px;max-width:440px;width:100%;padding:24px;box-shadow:0 24px 48px rgba(0,0,0,0.28)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <h3 style="font-size:18px;font-weight:900;color:var(--agri-green-dark)">Profil Producteur</h3>
+            <button onclick="closeEditProfileModal()" style="width:34px;height:34px;border-radius:50%;background:#F1F5F9;border:none;color:#475569;cursor:pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+            <div>
+                <label style="font-size:12px;font-weight:800;color:var(--agri-muted);display:block;margin-bottom:4px">Nom complet</label>
+                <input id="edit-prof-name" type="text" value="Bio Kora" style="width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid var(--agri-border);font-size:14px;font-family:inherit;font-weight:700">
+            </div>
+            <div>
+                <label style="font-size:12px;font-weight:800;color:var(--agri-muted);display:block;margin-bottom:4px">Département / Commune</label>
+                <input id="edit-prof-loc" type="text" value="Borgou / Parakou, Bénin" style="width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid var(--agri-border);font-size:14px;font-family:inherit;font-weight:700">
+            </div>
+            <div>
+                <label style="font-size:12px;font-weight:800;color:var(--agri-muted);display:block;margin-bottom:4px">Cultures &amp; Superficie</label>
+                <input id="edit-prof-crops" type="text" value="Maïs & Soja • 5 Hectares" style="width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid var(--agri-border);font-size:14px;font-family:inherit;font-weight:700">
+            </div>
+            <button onclick="saveFarmerProfile()" style="margin-top:6px;background:var(--agri-green);color:#fff;border:none;padding:12px;border-radius:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit">
+                Enregistrer mon profil
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════
      SCRIPTS & CLIENTS
-══════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════════════════ -->
 <script>
-/* Fonctions Sidebar immédiates */
 function openSidebar() {
     document.getElementById('app-sidebar').classList.add('open');
     document.getElementById('sidebar-overlay').classList.add('open');
@@ -578,12 +1724,7 @@ function closeSidebar() {
     if (closeBtn) closeBtn.style.display = 'none';
 }
 function closeSidebarMobile() {
-    if (window.innerWidth < 768) closeSidebar();
-}
-function toggleSidebar() {
-    const s = document.getElementById('app-sidebar');
-    if (s.classList.contains('open')) closeSidebar();
-    else openSidebar();
+    if (window.innerWidth <= 820) closeSidebar();
 }
 </script>
 
@@ -597,7 +1738,7 @@ function toggleSidebar() {
 </script>
 
 <!-- Script Principal AgriVoice -->
-<script src="script.js?v=34"></script>
+<script src="script.js?v=40"></script>
 
 </body>
 </html>

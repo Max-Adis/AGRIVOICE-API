@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>J'aime AgriVoice — Valider les Audios</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/custom.css?v=2.6" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+          colors: {
+            agri: { green:'#196E3F', dark:'#12472B', light:'#EBF5F0', yellow:'#D97706', blue:'#2563EB', bg:'#F8FAF9', border:'#E2ECE6' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-[#F8FAF9] font-sans text-[#12472B] min-h-screen">
+
+<!-- ── TOP NAV ── -->
+<nav class="sticky top-0 z-50 bg-white border-b border-[#E2ECE6] shadow-sm">
+  <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+    <a href="index.html" class="flex items-center gap-3">
+      <img src="assets/logo.png" alt="AgriVoice" class="h-12 w-12 rounded-xl object-cover" />
+      <div class="leading-tight">
+        <p class="font-black text-[#12472B] text-lg leading-none mb-0.5">J'aime AgriVoice</p>
+        <p class="text-xs text-[#64748B] font-medium">Collecte Vocale Agricole</p>
+      </div>
+    </a>
+    <div class="hidden sm:flex items-center gap-1">
+      <a href="index.html"       class="nav-link px-3 py-1.5 rounded-lg text-sm text-[#64748B] hover:bg-[#EBF5F0] transition">Enregistrer</a>
+      <a href="validate.html"    class="nav-link active px-3 py-1.5 rounded-lg text-sm transition">Valider</a>
+      <a href="leaderboard.html" class="nav-link px-3 py-1.5 rounded-lg text-sm text-[#64748B] hover:bg-[#EBF5F0] transition">Classement</a>
+      <a href="../dashboard/index.html" target="_blank" class="nav-link px-3 py-1.5 rounded-lg text-sm text-[#64748B] hover:bg-[#EBF5F0] transition">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="bg-gradient-to-br from-[#065F46] to-[#196E3F] text-white">
+  <div class="max-w-6xl mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl sm:text-2xl font-black">Validation Communautaire</h1>
+      <p class="text-green-100 text-sm mt-1 max-w-lg">
+        Écoutez les enregistrements des autres participants et donnez votre avis. Après 5 votes positifs, l'audio est validé et intégré au dataset IA.
+      </p>
+    </div>
+    <div class="flex gap-3 shrink-0 text-center">
+      <div class="bg-white/10 rounded-xl px-4 py-2">
+        <p id="statPending" class="text-2xl font-black">—</p>
+        <p class="text-xs text-green-200">En attente</p>
+      </div>
+      <div class="bg-white/10 rounded-xl px-4 py-2">
+        <p id="statValidated" class="text-2xl font-black">—</p>
+        <p class="text-xs text-green-200">Validés</p>
+      </div>
+      <div class="bg-white/10 rounded-xl px-4 py-2">
+        <p id="myVotes" class="text-2xl font-black">0</p>
+        <p class="text-xs text-green-200">Mes votes</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONTENU ── -->
+<main class="max-w-4xl mx-auto px-4 py-6">
+
+  <!-- Message : pas encore de contributions -->
+  <div id="emptyState" class="hidden text-center py-16">
+    <div class="w-16 h-16 bg-[#EBF5F0] text-[#196E3F] rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+    </div>
+    <h2 class="font-black text-xl text-[#12472B] mb-2">Tout est validé !</h2>
+    <p class="text-[#64748B] text-sm mb-4">Il n'y a plus d'audios en attente de validation pour l'instant.</p>
+    <a href="index.html" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#196E3F] text-white rounded-xl font-bold text-sm hover:bg-[#12472B] transition">
+      Enregistrer de nouveaux audios
+    </a>
+  </div>
+
+  <!-- Loading -->
+  <div id="loadingState" class="text-center py-12">
+    <div class="w-10 h-10 border-4 border-[#196E3F] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+    <p class="text-sm text-[#64748B] font-medium">Chargement des audios à valider…</p>
+  </div>
+
+  <!-- Liste des cartes à valider -->
+  <div id="validationList" class="hidden flex flex-col gap-4"></div>
+
+  <!-- Bouton charger plus -->
+  <div id="loadMoreContainer" class="hidden text-center mt-6">
+    <button onclick="loadMore()" class="px-6 py-2.5 border-2 border-[#196E3F] text-[#196E3F] rounded-xl font-bold text-sm hover:bg-[#EBF5F0] transition">
+      Charger d'autres audios
+    </button>
+  </div>
+</main>
+
+<!-- ── TOAST ── -->
+<div id="toast" class="toast"></div>
+
+<!-- ── SCRIPTS ── -->
+<script type="module">
+  import { getPendingContributions, submitVote, getOrCreateSession, getGlobalStats } from './js/supabase-client.js';
+  import { playUrl, stopPreview } from './js/recorder.js';
+  import { LANGUAGES } from './js/word-prompts.js';
+
+  const session = getOrCreateSession();
+  let myVoteCount = parseInt(localStorage.getItem('agrivoice_vote_count') || '0');
+  let currentAudioEl = null;
+  let playingId = null;
+
+  window.loadMore    = loadMore;
+  window.playAudio   = playAudio;
+  window.submitVoteUI = submitVoteUI;
+
+  async function init() {
+    document.getElementById('myVotes').textContent = myVoteCount;
+    await loadStats();
+    await loadContributions();
+  }
+
+  async function loadStats() {
+    const { data: pending } = await window._supabaseForStats?.from('contributions').select('id',{count:'exact',head:true}).eq('status','pending') || { data: null };
+    const { data: validated } = await window._supabaseForStats?.from('contributions').select('id',{count:'exact',head:true}).eq('status','validated') || { data: null };
+    // Fallback si supabase non dispo
+    document.getElementById('statPending').textContent   = pending?.count ?? '—';
+    document.getElementById('statValidated').textContent = validated?.count ?? '—';
+  }
+
+  async function loadContributions() {
+    document.getElementById('loadingState').classList.remove('hidden');
+    document.getElementById('validationList').classList.add('hidden');
+    document.getElementById('emptyState').classList.add('hidden');
+
+    const { data, error } = await getPendingContributions(session, 5);
+
+    document.getElementById('loadingState').classList.add('hidden');
+
+    if (error || !data || data.length === 0) {
+      document.getElementById('emptyState').classList.remove('hidden');
+      return;
+    }
+
+    renderContributions(data);
+    if (data.length >= 5) document.getElementById('loadMoreContainer').classList.remove('hidden');
+  }
+
+  async function loadMore() {
+    const { data, error } = await getPendingContributions(session, 5);
+    if (!error && data && data.length > 0) {
+      renderContributions(data, true);
+    }
+  }
+
+  function renderContributions(items, append = false) {
+    const list = document.getElementById('validationList');
+    if (!append) { list.innerHTML = ''; }
+    list.classList.remove('hidden');
+
+    items.forEach(item => {
+      const langCfg = LANGUAGES[item.language] || LANGUAGES['fon'];
+      const card = document.createElement('div');
+      card.id   = `card-${item.id}`;
+      card.className = 'bg-white rounded-2xl border border-[#E2ECE6] shadow-sm overflow-hidden';
+      card.innerHTML = `
+        <!-- Header -->
+        <div class="px-4 py-3 border-b border-[#E2ECE6] flex items-center justify-between"
+             style="background:${langCfg.bgLight}">
+          <div class="flex items-center gap-2">
+            <span class="text-base">${langCfg.emoji}</span>
+            <span class="font-bold text-sm" style="color:${langCfg.color}">${langCfg.label}</span>
+            <span class="text-xs px-2 py-0.5 bg-white/60 rounded-full font-semibold text-[#475569]">${item.category || '—'}</span>
+          </div>
+          <div class="text-right">
+            <p class="text-[11px] text-[#9CA3AF]">Envoyé le ${new Date(item.created_at).toLocaleDateString('fr-FR')}</p>
+            <p class="text-[11px] text-[#64748B] font-semibold">${item.vote_count || 0} vote${(item.vote_count||0)>1?'s':''}</p>
+          </div>
+        </div>
+
+        <!-- Corps -->
+        <div class="p-5">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <!-- Info mot -->
+            <div class="flex-1">
+              <h3 class="text-3xl font-black text-[#12472B] leading-none mb-1">${item.word}</h3>
+              <p class="text-sm text-[#64748B]">${item.edge_label || '—'}</p>
+              <p class="text-xs text-[#9CA3AF] mt-1">Durée : ${item.duration_ms ? (item.duration_ms/1000).toFixed(1)+'s' : '?'}</p>
+            </div>
+
+            <!-- Lecteur -->
+            <div class="w-full sm:w-auto">
+              <div class="flex items-center gap-3 bg-[#F8FAF9] rounded-xl border border-[#E2ECE6] px-4 py-3">
+                <button onclick="playAudio('${item.id}', '${item.audio_url}')"
+                  id="playBtn-${item.id}"
+                  class="w-10 h-10 rounded-full flex items-center justify-center transition hover:scale-105"
+                  style="background:${langCfg.color}">
+                  <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </button>
+                <!-- Barres son animées -->
+                <div class="flex items-center gap-0.5 h-8" id="waves-${item.id}">
+                  ${[...Array(8)].map((_,i) => `<div class="wave-bar w-1.5 rounded-full bg-[#E2ECE6]"
+                    style="height:${4+Math.random()*20}px;transition:height .3s"></div>`).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Boutons vote -->
+          <div class="mt-4 flex gap-3">
+            <button onclick="submitVoteUI('${item.id}', true)"
+              id="voteYes-${item.id}"
+              class="btn-vote btn-vote-yes flex-1 flex items-center justify-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+              </svg>
+              <span>Bon enregistrement</span>
+            </button>
+            <button onclick="submitVoteUI('${item.id}', false)"
+              id="voteNo-${item.id}"
+              class="btn-vote btn-vote-no flex-1 flex items-center justify-center gap-2">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
+              </svg>
+              <span>Pas clair</span>
+            </button>
+          </div>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  // ── Lecture audio ──────────────────────────────────────────────────────────
+  function playAudio(id, url) {
+    // Arrêter si même id
+    if (playingId === id) {
+      stopPreview();
+      setWavesStatic(id);
+      playingId = null;
+      return;
+    }
+    stopPreview();
+    if (playingId) setWavesStatic(playingId);
+
+    playingId = id;
+    setWavesAnimated(id);
+
+    playUrl(url, () => {
+      setWavesStatic(id);
+      playingId = null;
+    });
+  }
+
+  function setWavesAnimated(id) {
+    const waves = document.querySelectorAll(`#waves-${id} .wave-bar`);
+    waves.forEach(w => w.classList.add('playing'));
+    const btn = document.getElementById(`playBtn-${id}`);
+    if(btn) {
+      btn.classList.add('animate-pulse');
+      btn.innerHTML = `<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>`;
+    }
+  }
+
+  function setWavesStatic(id) {
+    const waves = document.querySelectorAll(`#waves-${id} .wave-bar`);
+    waves.forEach(w => w.classList.remove('playing'));
+    const btn = document.getElementById(`playBtn-${id}`);
+    if(btn) {
+      btn.classList.remove('animate-pulse');
+      btn.innerHTML = `<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+    }
+  }
+
+  // ── Vote ───────────────────────────────────────────────────────────────────
+  async function submitVoteUI(id, isGood) {
+    const yes = document.getElementById(`voteYes-${id}`);
+    const no  = document.getElementById(`voteNo-${id}`);
+    if (!yes || !no) return;
+
+    yes.disabled = true; no.disabled = true;
+    yes.style.opacity = '0.5'; no.style.opacity = '0.5';
+
+    const { error } = await submitVote(id, session, isGood);
+
+    if (error) {
+      showToast('Erreur lors du vote', 'error');
+      yes.disabled = false; no.disabled = false;
+      yes.style.opacity = '1'; no.style.opacity = '1';
+      return;
+    }
+
+    // Compteur de votes
+    myVoteCount++;
+    localStorage.setItem('agrivoice_vote_count', myVoteCount);
+    document.getElementById('myVotes').textContent = myVoteCount;
+
+    // Feedback visuel
+    const card = document.getElementById(`card-${id}`);
+    card.style.transition = 'opacity 0.5s';
+    card.style.opacity = '0';
+    setTimeout(() => card.remove(), 500);
+
+    showToast(isGood ? 'Merci pour votre vote positif !' : 'Signalement enregistré, merci !');
+
+    // Recharger si plus rien
+    if (document.querySelectorAll('[id^="card-"]').length === 0) {
+      await loadContributions();
+    }
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = type === 'error' ? '#DC2626' : '#12472B';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  init();
+</script>
+
+</body>
+</html>

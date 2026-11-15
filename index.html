@@ -73,9 +73,8 @@ body {
         top: 0; left: 0;
         height: 100% !important;
         transform: translateX(-100%);
-        box-shadow: 8px 0 28px rgba(0,0,0,.28);
     }
-    #app-sidebar.open { transform: translateX(0); }
+    #app-sidebar.open { transform: translateX(0); box-shadow: 8px 0 28px rgba(0,0,0,.28); }
     #mobile-topbar { display: flex !important; }
     #desktop-topbar { display: none !important; }
     #chat-container { padding: 16px 12px 170px !important; }
@@ -215,6 +214,36 @@ body {
     background: rgba(255,255,255,.1) !important;
 }
 
+/* ---- CARTES DE SUGGESTION ---- */
+.sug-icon { width:36px; height:36px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:15px; margin-bottom:12px; }
+.sug-text { font-size:14px; font-weight:600; color:#1e293b; line-height:1.45; margin-bottom:12px; }
+.sug-tag { font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.05em; }
+
+/* ---- FICHES PRATIQUES ---- */
+.fiche-card { background:#fff; border:1px solid #e2e8f0; border-radius:18px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,.04); display:flex; flex-direction:column; gap:12px; }
+.fiche-head { display:flex; align-items:center; gap:12px; }
+.fiche-icon { width:42px; height:42px; border-radius:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:17px; }
+.fiche-tag { display:inline-block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#016a33; background:#f0fdf4; border:1px solid #bbf7d0; padding:2px 8px; border-radius:9999px; margin-bottom:4px; }
+.btn-soft { display:inline-flex; align-items:center; gap:7px; padding:7px 15px; border-radius:9999px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; border:1px solid #bbf7d0; background:#f0fdf4; color:#016a33; transition:all .15s; }
+.btn-soft:hover { background:#dcfce7; }
+.btn-solid { display:inline-flex; align-items:center; gap:7px; padding:7px 15px; border-radius:9999px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; border:1px solid #016a33; background:#016a33; color:#fff; transition:all .15s; }
+.btn-solid:hover { background:#014d24; }
+
+/* ---- TUILES PROFIL ---- */
+.stat-tile { background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:6px; }
+.stat-tile .k { font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.05em; }
+.stat-tile .v { font-size:16px; font-weight:800; color:#0f172a; }
+
+/* ---- INTERRUPTEUR ---- */
+.switch { position:relative; width:46px; height:26px; flex-shrink:0; }
+.switch input { opacity:0; width:0; height:0; }
+.switch .slider { position:absolute; inset:0; background:#cbd5e1; border-radius:9999px; cursor:pointer; transition:background .2s; }
+.switch .slider::before { content:''; position:absolute; width:20px; height:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .2s; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+.switch input:checked + .slider { background:#016a33; }
+.switch input:checked + .slider::before { transform:translateX(20px); }
+.set-row { padding:16px 18px; display:flex; align-items:center; justify-content:space-between; gap:14px; }
+.set-row + .set-row { border-top:1px solid #f1f5f9; }
+
 /* ---- AUTO-GROW TEXTAREA ---- */
 #user-input {
     field-sizing: content;
@@ -335,8 +364,8 @@ body {
     <!-- TOPBAR DESKTOP -->
     <header id="desktop-topbar" style="background:rgba(255,255,255,.94);border-bottom:1px solid #e5e7eb;padding:12px 32px;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;flex-shrink:0;backdrop-filter:blur(14px)">
         <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9999px;font-size:12px;font-weight:700;color:#016a33">
-            <i class="fa-solid fa-wand-magic-sparkles" style="color:#016a33"></i>
-            <span>AgriVoice AI ✦ Assistant Vocal Intelligent</span>
+            <i class="fa-solid fa-circle" style="color:#22c55e;font-size:8px"></i>
+            <span id="view-title">Assistant Vocal</span>
         </div>
         <div style="display:flex;gap:4px;background:#f1f5f9;padding:4px;border-radius:9999px;border:1px solid #e2e8f0;font-size:12px;font-weight:700">
             <button onclick="changeLang('fr')"   class="lang-btn active" id="btn-lang-fr"   style="padding:5px 14px;border-radius:9999px;font-size:12px;font-weight:700;color:#475569">Français</button>
@@ -354,29 +383,33 @@ body {
             <!-- Écran d'Accueil / Salutation -->
             <div id="welcome-screen" style="margin:auto;max-width:680px;width:100%;padding:20px 0">
                 <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9999px;font-size:12px;font-weight:700;color:#016a33;margin-bottom:18px">
-                    <i class="fa-solid fa-sparkles" style="color:#eab308"></i>
-                    Assistant Agricole Intelligent
+                    <i class="fa-solid fa-seedling" style="color:#16a34a"></i>
+                    Assistant agricole vocal
                 </div>
                 <h1 class="grad-text" style="font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-.02em;margin-bottom:10px;line-height:1.15" data-i18n="welcome_title">Bonjour, Bio</h1>
                 <p style="color:#64748b;font-size:clamp(1rem,2.5vw,1.35rem);font-weight:500;margin-bottom:30px;line-height:1.4" data-i18n="welcome_desc">Comment puis-je vous aider pour vos récoltes aujourd'hui ?</p>
 
                 <!-- Cartes de Suggestions Pratiques -->
-                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
-                    <div class="sug-card" onclick="usePromptSuggestion('Mes feuilles de maïs jaunissent et ont des taches, quel traitement appliquer ?')">
-                        <p style="font-size:13px;font-weight:600;color:#1e293b;line-height:1.5">🌽 "Mes feuilles de maïs jaunissent et ont des taches, quel traitement appliquer ?"</p>
-                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#94a3b8"><span>Diagnostic Maïs</span><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">
+                    <div class="sug-card" role="button" tabindex="0" onclick="usePromptSuggestion('Les feuilles de mon maïs jaunissent et ont des taches. Que faire ?')">
+                        <div class="sug-icon" style="background:#fef3c7;color:#b45309"><i class="fa-solid fa-wheat-awn"></i></div>
+                        <p class="sug-text">Les feuilles de mon maïs jaunissent et ont des taches. Que faire ?</p>
+                        <span class="sug-tag">Diagnostic maïs</span>
                     </div>
-                    <div class="sug-card" onclick="usePromptSuggestion('Quel est le prix actuel du maïs et du soja au marché Dantokpa ?')">
-                        <p style="font-size:13px;font-weight:600;color:#1e293b;line-height:1.5">💰 "Quel est le prix actuel du maïs et du soja au marché Dantokpa ?"</p>
-                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#94a3b8"><span>Prix des Marchés</span><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    <div class="sug-card" role="button" tabindex="0" onclick="usePromptSuggestion('Quelle dose d\'engrais NPK et d\'urée pour 1 hectare de maïs ?')">
+                        <div class="sug-icon" style="background:#dbeafe;color:#1d4ed8"><i class="fa-solid fa-flask"></i></div>
+                        <p class="sug-text">Quelle dose d'engrais NPK et d'urée pour 1 hectare de maïs ?</p>
+                        <span class="sug-tag">Fertilisation</span>
                     </div>
-                    <div class="sug-card" onclick="usePromptSuggestion('Comment préparer un bio-pesticide efficace avec des feuilles de Neem ?')">
-                        <p style="font-size:13px;font-weight:600;color:#1e293b;line-height:1.5">🌿 "Comment préparer un bio-pesticide efficace avec des feuilles de Neem ?"</p>
-                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#94a3b8"><span>Recette Naturelle</span><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    <div class="sug-card" role="button" tabindex="0" onclick="usePromptSuggestion('Comment préparer un bio-pesticide avec des feuilles de neem ?')">
+                        <div class="sug-icon" style="background:#dcfce7;color:#15803d"><i class="fa-solid fa-leaf"></i></div>
+                        <p class="sug-text">Comment préparer un bio-pesticide avec des feuilles de neem ?</p>
+                        <span class="sug-tag">Protection naturelle</span>
                     </div>
-                    <div class="sug-card" onclick="usePromptSuggestion('Quelles sont les prévisions de pluie et conseils de semis à Parakou ?')">
-                        <p style="font-size:13px;font-weight:600;color:#1e293b;line-height:1.5">🌦️ "Quelles sont les prévisions de pluie et conseils de semis à Parakou ?"</p>
-                        <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#94a3b8"><span>Météo &amp; Calendrier</span><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    <div class="sug-card" role="button" tabindex="0" onclick="usePromptSuggestion('Comment stocker le maïs sans pertes avec les sacs PICS ?')">
+                        <div class="sug-icon" style="background:#ede9fe;color:#6d28d9"><i class="fa-solid fa-box-archive"></i></div>
+                        <p class="sug-text">Comment stocker le maïs sans pertes avec les sacs PICS ?</p>
+                        <span class="sug-tag">Stockage</span>
                     </div>
                 </div>
             </div>
@@ -384,7 +417,7 @@ body {
             <!-- Modèle Message Assistant (Cloné par JS) -->
             <div id="template-assistant" style="display:none;gap:12px;max-width:720px;margin:0 auto;width:100%">
                 <div style="width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#016a33,#059669);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;box-shadow:0 3px 10px rgba(1,106,51,.25)">
-                    <i class="fa-solid fa-sparkles" style="color:#fff;font-size:13px"></i>
+                    <i class="fa-solid fa-seedling" style="color:#fff;font-size:14px"></i>
                 </div>
                 <div style="flex:1;overflow:hidden">
                     <div class="message-content" style="font-size:15px;line-height:1.7;color:#1e293b;word-break:break-word"></div>
@@ -448,83 +481,45 @@ body {
 
     <!-- ═══ VUE : GUIDES & FICHES AUDIO ═══ -->
     <div id="view-resources" class="app-view" style="overflow-y:auto">
-        <div style="max-width:720px;margin:0 auto;padding:28px 20px 80px;width:100%">
+        <div style="max-width:760px;margin:0 auto;padding:28px 20px 80px;width:100%">
             <h2 style="font-size:22px;font-weight:700;color:#014d24;margin-bottom:4px" data-i18n="res_title">Guides &amp; Fiches pratiques audio</h2>
-            <p style="color:#64748b;font-size:14px;margin-bottom:24px" data-i18n="res_desc">Recherchez une culture, une maladie ou un engrais.</p>
-            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:12px 18px;margin-bottom:22px;display:flex;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+            <p style="color:#64748b;font-size:14px;margin-bottom:22px" data-i18n="res_desc">Recherchez une culture, une maladie ou un engrais.</p>
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;box-shadow:0 1px 3px rgba(0,0,0,.04)">
                 <i class="fa-solid fa-magnifying-glass" style="color:#94a3b8;margin-right:12px"></i>
-                <input type="text" placeholder="Rechercher une culture (Maïs, Soja, Manioc)…" style="flex:1;outline:none;background:transparent;font-size:14px;font-family:inherit;border:none">
+                <input id="fiche-search" type="search" oninput="renderFiches(this.value)" placeholder="Rechercher : maïs, engrais, neem, stockage…" style="flex:1;outline:none;background:transparent;font-size:14px;font-family:inherit;border:none">
             </div>
-            <div style="display:flex;flex-direction:column;gap:16px">
-                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-                        <div style="width:42px;height:42px;border-radius:14px;background:#d1fae5;color:#016a33;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fa-solid fa-wheat-awn" style="font-size:18px"></i></div>
-                        <div>
-                            <h3 style="font-weight:700;color:#0f172a;font-size:15px;margin-bottom:2px">Traitement des taches foliaires du Maïs</h3>
-                            <span style="font-size:11px;font-weight:700;color:#016a33">Fon • Yorùbá • Français • Éwé</span>
-                        </div>
-                    </div>
-                    <p style="font-size:13px;color:#475569;margin-bottom:14px;line-height:1.5">Solutions préventives et traitements au cuivre ou mankozèbè validés INRAB.</p>
-                    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f1f5f9;padding-top:12px">
-                        <button onclick="speakText('Pour traiter les taches foliaires du maïs, utilisez un fongicide à base de cuivre ou mankozèbè selon les doses recommandées.', currentLang)"
-                            style="background:#f0fdf4;color:#016a33;padding:6px 16px;border-radius:9999px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;border:1px solid #bbf7d0;font-family:inherit">
-                            <i class="fa-solid fa-volume-high"></i> Écouter la fiche
-                        </button>
-                        <span style="font-size:12px;color:#16a34a;font-weight:600"><i class="fa-solid fa-circle-check" style="margin-right:4px"></i>Validée INRAB</span>
-                    </div>
-                </div>
-                <div style="background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-                        <div style="width:42px;height:42px;border-radius:14px;background:#fef3c7;color:#92400e;display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fa-solid fa-bugs" style="font-size:18px"></i></div>
-                        <div>
-                            <h3 style="font-weight:700;color:#0f172a;font-size:15px;margin-bottom:2px">Lutte contre la chenille légionnaire d'automne</h3>
-                            <span style="font-size:11px;font-weight:700;color:#016a33">Fon • Yorùbá • Français • Éwé</span>
-                        </div>
-                    </div>
-                    <p style="font-size:13px;color:#475569;margin-bottom:14px;line-height:1.5">Préparation de la solution aqueuse d'extrait de graines de Neem et application au cœur du cornet.</p>
-                    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f1f5f9;padding-top:12px">
-                        <button onclick="speakText('Contre la chenille légionnaire, pulvérisez un extrait aqueux de neem au coucher du soleil.', currentLang)"
-                            style="background:#f0fdf4;color:#016a33;padding:6px 16px;border-radius:9999px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer;border:1px solid #bbf7d0;font-family:inherit">
-                            <i class="fa-solid fa-volume-high"></i> Écouter la fiche
-                        </button>
-                        <span style="font-size:12px;color:#16a34a;font-weight:600"><i class="fa-solid fa-circle-check" style="margin-right:4px"></i>Validée INRAB</span>
-                    </div>
-                </div>
-            </div>
+            <div id="fiches-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px"></div>
+            <p id="fiches-empty" style="display:none;text-align:center;color:#64748b;font-size:14px;padding:30px 0">Aucune fiche ne correspond. Posez plutôt la question à l'assistant vocal.</p>
         </div>
     </div>
 
     <!-- ═══ VUE : PROFIL PRODUCTEUR ═══ -->
     <div id="view-profile" class="app-view" style="overflow-y:auto">
-        <div style="max-width:620px;margin:0 auto;padding:28px 20px 80px;width:100%;display:flex;flex-direction:column;gap:20px">
-            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:24px;padding:24px;display:flex;align-items:center;gap:20px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                <div style="width:78px;height:78px;border-radius:50%;background:linear-gradient(135deg,#016a33,#059669);color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(1,106,51,.25)">BK</div>
+        <div style="max-width:620px;margin:0 auto;padding:28px 20px 80px;width:100%;display:flex;flex-direction:column;gap:18px">
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:22px;display:flex;align-items:center;gap:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#016a33,#059669);color:#fff;font-size:24px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 14px rgba(1,106,51,.25)">BK</div>
                 <div>
-                    <h2 style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:4px">Bio Kora</h2>
-                    <p style="color:#64748b;font-size:13px;margin-bottom:10px"><i class="fa-solid fa-location-dot" style="color:#016a33;margin-right:6px"></i>Borgou / Parakou, Bénin</p>
-                    <span style="background:#f0fdf4;color:#016a33;font-weight:700;font-size:12px;padding:6px 14px;border-radius:9999px;border:1px solid #bbf7d0">Maïs &amp; Soja • 5 Hectares</span>
+                    <h2 style="font-size:21px;font-weight:800;color:#0f172a;margin-bottom:3px">Bio Kora</h2>
+                    <p style="color:#64748b;font-size:13px"><i class="fa-solid fa-location-dot" style="color:#016a33;margin-right:6px"></i>Parakou, Borgou — Bénin</p>
                 </div>
             </div>
-            <div style="background:linear-gradient(135deg,#fffbeb,#f0fdf4);border:1px solid rgba(251,191,36,.35);border-radius:22px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                <div style="width:48px;height:48px;border-radius:16px;background:#016a33;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 3px 10px rgba(1,106,51,.25)">
-                    <i class="fa-solid fa-microphone-lines"></i>
-                </div>
-                <div>
-                    <h3 style="font-weight:800;color:#014d24;font-size:15px;margin-bottom:4px">J'aime AgriVoice</h3>
-                    <p style="font-size:12px;color:#475569;line-height:1.4">Enregistrez votre voix pour enrichir l'IA agricole hors-ligne et aider la communauté paysanne.</p>
-                </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+                <div class="stat-tile"><span class="k">Cultures</span><span class="v">Maïs &amp; Soja</span></div>
+                <div class="stat-tile"><span class="k">Superficie</span><span class="v">5 hectares</span></div>
+                <div class="stat-tile"><span class="k">Zone</span><span class="v">Nord Bénin</span></div>
             </div>
+            <p style="font-size:12px;color:#94a3b8;line-height:1.5">Ces informations servent à contextualiser vos questions. Elles restent sur cet appareil.</p>
         </div>
     </div>
 
     <!-- ═══ VUE : PARAMÈTRES ═══ -->
     <div id="view-settings" class="app-view" style="overflow-y:auto">
-        <div style="max-width:600px;margin:0 auto;padding:28px 20px 80px;width:100%;display:flex;flex-direction:column;gap:20px">
+        <div style="max-width:600px;margin:0 auto;padding:28px 20px 80px;width:100%;display:flex;flex-direction:column;gap:18px">
             <h2 style="font-size:20px;font-weight:700;color:#014d24" data-i18n="set_lang_title">Langue &amp; Assistant Vocal</h2>
             <div style="background:#fff;border:1px solid #e2e8f0;border-radius:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
-                <div style="padding:18px;display:flex;align-items:center;justify-content:space-between">
+                <div class="set-row">
                     <div style="display:flex;align-items:center;gap:14px">
-                        <div style="width:42px;height:42px;border-radius:12px;background:#f0fdf4;color:#016a33;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-language" style="font-size:20px"></i></div>
+                        <div style="width:40px;height:40px;border-radius:12px;background:#f0fdf4;color:#016a33;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-language" style="font-size:18px"></i></div>
                         <span style="font-weight:700;color:#1e293b;font-size:14px" data-i18n="set_lang_app">Langue de l'application</span>
                     </div>
                     <select id="lang-selector" onchange="changeLang(this.value)"
@@ -535,6 +530,30 @@ body {
                         <option value="ewe">Éwé / Mina</option>
                     </select>
                 </div>
+                <div class="set-row">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        <div style="width:40px;height:40px;border-radius:12px;background:#f0fdf4;color:#016a33;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-volume-high" style="font-size:17px"></i></div>
+                        <div>
+                            <div style="font-weight:700;color:#1e293b;font-size:14px">Lecture vocale automatique</div>
+                            <div style="font-size:12px;color:#64748b;margin-top:2px">Lit chaque réponse à voix haute dès qu'elle arrive.</div>
+                        </div>
+                    </div>
+                    <label class="switch"><input type="checkbox" id="autoplay-toggle" checked onchange="setAutoplay(this.checked)"><span class="slider"></span></label>
+                </div>
+                <div class="set-row">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        <div style="width:40px;height:40px;border-radius:12px;background:#fef2f2;color:#dc2626;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-trash-can" style="font-size:16px"></i></div>
+                        <div>
+                            <div style="font-weight:700;color:#1e293b;font-size:14px">Effacer la conversation</div>
+                            <div style="font-size:12px;color:#64748b;margin-top:2px">Repart d'une discussion vierge.</div>
+                        </div>
+                    </div>
+                    <button class="btn-soft" style="background:#fef2f2;border-color:#fecaca;color:#b91c1c" onclick="resetConversation()">Effacer</button>
+                </div>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04);font-size:13px;color:#475569;line-height:1.6">
+                <div style="font-weight:800;color:#014d24;margin-bottom:6px">À propos d'AgriVoice</div>
+                Assistant agricole vocal pour les producteurs du Bénin et d'Afrique de l'Ouest : Français, Fɔngbe, Yorùbá et Éwé. Les réponses sont des conseils généraux : vérifiez les décisions importantes auprès d'un conseiller agricole ou de l'INRAB.
             </div>
         </div>
     </div>
@@ -578,7 +597,7 @@ function toggleSidebar() {
 </script>
 
 <!-- Script Principal AgriVoice -->
-<script src="script.js?v=33"></script>
+<script src="script.js?v=34"></script>
 
 </body>
 </html>

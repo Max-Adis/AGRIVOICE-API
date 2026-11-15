@@ -152,7 +152,19 @@ function switchView(viewId, element) {
     document.querySelectorAll('.app-view').forEach(view => view.classList.remove('active'));
     const target = document.getElementById(viewId);
     if (target) target.classList.add('active');
+
+    const titles = { 'view-chat': 'Assistant Vocal', 'view-resources': 'Guides & Fiches', 'view-profile': 'Profil Producteur', 'view-settings': 'Paramètres' };
+    const titleEl = document.getElementById('view-title');
+    if (titleEl) titleEl.innerText = titles[viewId] || 'AgriVoice';
 }
+
+// Ouvre une vue depuis l'adresse (#fiches, #profil, #parametres) : liens directs
+const VIEW_HASHES = { fiches: ['view-resources', 'nav-resources'], profil: ['view-profile', 'nav-profile'], parametres: ['view-settings', 'nav-settings'], chat: ['view-chat', 'nav-chat'] };
+function openViewFromHash() {
+    const entry = VIEW_HASHES[(location.hash || '').replace('#', '')];
+    if (entry) switchView(entry[0], document.getElementById(entry[1]));
+}
+window.addEventListener('hashchange', openViewFromHash);
 
 function resetConversation() {
     conversationHistory.length = 0;
@@ -179,6 +191,7 @@ function resetConversation() {
 function usePromptSuggestion(text) {
     const input = document.getElementById('user-input');
     if (!input) return;
+    switchView('view-chat', document.getElementById('nav-chat'));
     input.value = text;
     input.style.height = 'auto';
     input.style.height = Math.min(input.scrollHeight, 140) + 'px';
@@ -456,7 +469,7 @@ if (chatForm) {
         userInput.style.height = 'auto';
 
         const loaderId = addMessage(
-            '<div style="display:flex;align-items:center;gap:10px;color:#016a33;font-weight:600"><i class="fa-solid fa-sparkles fa-spin" style="color:#eab308;font-size:16px"></i> <span>AgriVoice consulte les données agronomiques...</span></div>',
+            '<div style="display:flex;align-items:center;gap:10px;color:#016a33;font-weight:600"><i class="fa-solid fa-circle-notch fa-spin" style="color:#016a33;font-size:16px"></i> <span>AgriVoice consulte les données agronomiques...</span></div>',
             'assistant',
             true
         );
@@ -616,8 +629,8 @@ function addMessage(text, role, isHtml = false, withTTS = false) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // LECTURE AUTOMATIQUE
-    if (withTTS && role === 'assistant' && createdTtsBtn) {
+    // LECTURE AUTOMATIQUE (réglable dans Paramètres)
+    if (withTTS && role === 'assistant' && createdTtsBtn && isAutoplayOn()) {
         speakText(text, currentLang, createdTtsBtn);
     }
 
@@ -834,6 +847,92 @@ async function speakText(text, lang, btnElement) {
 /* -----------------------------------------------------
    6. INITIALISATION DE L'APPLICATION
 ------------------------------------------------------ */
+const AUTOPLAY_KEY = 'agrivoice_autoplay';
+function isAutoplayOn() { return localStorage.getItem(AUTOPLAY_KEY) !== '0'; }
+function setAutoplay(on) {
+    localStorage.setItem(AUTOPLAY_KEY, on ? '1' : '0');
+    showToast(on ? 'Lecture automatique activée' : 'Lecture automatique désactivée');
+}
+
+/* -----------------------------------------------------
+   7. GUIDES & FICHES PRATIQUES (recherche locale)
+   Conseils généraux de bonnes pratiques agricoles.
+------------------------------------------------------ */
+const FICHES = [
+    { tag: 'Maïs', icon: 'fa-wheat-awn', bg: '#fef3c7', fg: '#b45309',
+      title: 'Feuilles jaunes et taches sur le maïs',
+      summary: "Un jaunissement en V depuis la pointe de la feuille signale souvent un manque d'azote ; des taches brunes allongées indiquent plutôt une maladie fongique.",
+      audio: "Si les feuilles du maïs jaunissent en forme de V depuis la pointe, il manque souvent de l'azote : apportez de l'urée en couverture, trois à quatre semaines après le semis. Si ce sont des taches brunes allongées, c'est plutôt une maladie : retirez les feuilles très atteintes et évitez de replanter du maïs au même endroit la saison suivante.",
+      ask: "Les feuilles de mon maïs jaunissent et ont des taches. Que faire ?" },
+    { tag: 'Maïs', icon: 'fa-bug', bg: '#fee2e2', fg: '#b91c1c',
+      title: "Chenille légionnaire d'automne",
+      summary: "Des feuilles trouées et des déjections dans le cornet révèlent l'insecte. Une surveillance précoce limite fortement les dégâts.",
+      audio: "Surveillez vos champs tôt le matin : des feuilles trouées et des crottes dans le cornet montrent la chenille. Au début de l'attaque, mettez un peu de cendre ou de sable dans le cornet, ou pulvérisez un extrait de neem le soir. En cas de forte attaque, demandez conseil à un agent agricole.",
+      ask: "Comment lutter contre la chenille légionnaire sur mon maïs ?" },
+    { tag: 'Soja', icon: 'fa-seedling', bg: '#dcfce7', fg: '#15803d',
+      title: 'Semis et fertilisation du soja',
+      summary: "Le soja fabrique lui-même une partie de son azote : inutile d'apporter de l'urée. Un apport de phosphore aide la culture.",
+      audio: "Semez le soja au début de la saison des pluies, sur un sol bien préparé. Le soja produit lui-même son azote, donc n'apportez pas d'urée. Un apport de phosphore peut aider la plante à mieux produire. Faites alterner le soja et le maïs d'une année à l'autre pour garder un sol fertile.",
+      ask: "Comment bien semer et fertiliser le soja à Parakou ?" },
+    { tag: 'Protection', icon: 'fa-leaf', bg: '#ecfccb', fg: '#4d7c0f',
+      title: 'Bio-pesticide à base de neem',
+      summary: "Une préparation simple avec des graines ou des feuilles de neem, à pulvériser le soir. À tester d'abord sur quelques plants.",
+      audio: "Pilez une bonne quantité de graines ou de feuilles de neem et laissez-les tremper une nuit dans dix litres d'eau. Filtrez, ajoutez un peu de savon pour que le produit colle aux feuilles, puis pulvérisez le soir. Testez d'abord sur quelques plants avant de traiter tout le champ.",
+      ask: "Comment préparer un bio-pesticide avec des feuilles de neem ?" },
+    { tag: 'Stockage', icon: 'fa-box-archive', bg: '#ede9fe', fg: '#6d28d9',
+      title: 'Stocker le grain sans pertes',
+      summary: "Un grain bien sec, trié et conservé dans des sacs hermétiques (type PICS) évite les insectes sans produit chimique.",
+      audio: "Faites bien sécher le grain avant de le stocker et retirez les grains abîmés. Remplissez des sacs hermétiques de type PICS, fermez-les très bien, et gardez-les à l'ombre, posés sur des palettes. Sans air, les insectes ne peuvent pas se développer.",
+      ask: "Comment stocker le maïs sans pertes avec les sacs PICS ?" },
+    { tag: 'Sol', icon: 'fa-mound', bg: '#ffedd5', fg: '#c2410c',
+      title: 'Garder un sol fertile',
+      summary: "Rotation maïs-soja, restes de culture et compost entretiennent la terre et réduisent le besoin en engrais.",
+      audio: "Alternez les cultures : maïs une année, soja l'année suivante. Laissez les résidus de culture se décomposer et ajoutez du compost ou du fumier bien décomposé. Un sol riche en matière organique garde mieux l'eau et demande moins d'engrais.",
+      ask: "Comment améliorer et garder la fertilité de mon sol ?" }
+];
+
+function ficheMatches(f, q) {
+    const hay = (f.tag + ' ' + f.title + ' ' + f.summary).toLowerCase();
+    return q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
+}
+
+function renderFiches(query = '') {
+    const list = document.getElementById('fiches-list');
+    const empty = document.getElementById('fiches-empty');
+    if (!list) return;
+    const shown = FICHES.filter(f => ficheMatches(f, query));
+    list.innerHTML = '';
+    shown.forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'fiche-card';
+        card.innerHTML =
+            '<div class="fiche-head">' +
+                '<div class="fiche-icon" style="background:' + f.bg + ';color:' + f.fg + '"><i class="fa-solid ' + f.icon + '"></i></div>' +
+                '<div><span class="fiche-tag">' + f.tag + '</span>' +
+                '<h3 style="font-weight:700;color:#0f172a;font-size:15px;line-height:1.3">' + f.title + '</h3></div>' +
+            '</div>' +
+            '<p style="font-size:13px;color:#475569;line-height:1.55">' + f.summary + '</p>' +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto"></div>';
+        const actions = card.lastChild;
+        const listen = document.createElement('button');
+        listen.className = 'btn-soft';
+        listen.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Écouter la fiche</span>';
+        listen.onclick = () => speakText(f.audio, 'fr', listen);
+        const ask = document.createElement('button');
+        ask.className = 'btn-solid';
+        ask.innerHTML = '<i class="fa-solid fa-comment-dots"></i> <span>Demander à l\'assistant</span>';
+        ask.onclick = () => usePromptSuggestion(f.ask);
+        actions.appendChild(listen);
+        actions.appendChild(ask);
+        list.appendChild(card);
+    });
+    if (empty) empty.style.display = shown.length ? 'none' : 'block';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     changeLang('fr');
+    const toggle = document.getElementById('autoplay-toggle');
+    if (toggle) toggle.checked = isAutoplayOn();
+    renderFiches();
+    openViewFromHash();
 });

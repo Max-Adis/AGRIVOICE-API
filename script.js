@@ -439,15 +439,104 @@ const OFFICIAL_TRACK_TEXTS = {
 
 function getOfficialAudioPath(trackId, lang) {
     if (!trackId) return null;
-    if (lang === 'fr' || lang === 'yoruba') {
-        return `audios/${lang}_${trackId}.m4a`;
+    if (lang === 'fr' || lang === 'yoruba' || lang === 'fon') {
+        return `audios/${lang}_${trackId}.mp3`;
     }
-    if (lang === 'fon') {
-        const opusTracks = ['a4_permission_micro', 'a5_pret_a_commencer', 'a6_changement_langue'];
-        const ext = opusTracks.includes(trackId) ? 'opus' : 'aac';
-        return `audios/fon_${trackId}.${ext}`;
+    return null; // Éwé utilise la synthèse vocale MMS-TTS Éwé
+}
+
+// Moteur d'intentions AgriVoiceEngine (identique à AgriVoiceEngine.kt de l'application mobile)
+function matchOfficialTrackForQuery(userInput) {
+    if (!userInput) return null;
+    const clean = userInput
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    if (!clean) return null;
+
+    const tokens = new Set(clean.split(" ").filter(w => w.length > 1));
+    const hasAny = (...words) => words.some(w => {
+        const cw = w.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return cw.includes(" ") ? clean.includes(cw) : (tokens.has(cw) || clean.includes(cw));
+    });
+    const hasAll = (...groups) => groups.every(g => hasAny(...g));
+
+    // 1. Alerte Pulvérisation & Pluie (w3_alerte_lavage_pluie)
+    if (hasAll(
+        ["pulveriser", "pulverisation", "traiter", "traitement", "pesticide", "produit", "oogun", "fun oogun", "amasin", "huzu"],
+        ["pluie", "pleuvoir", "pleut", "avant pluie", "laver", "lessiver", "rincer", "eau", "ji", "ojo", "orage"]
+    )) {
+        return "w3_alerte_lavage_pluie";
     }
-    return null; // Éwé utilise la synthèse vocale IA
+
+    // 2. Météo & Semis (w1_meteo_pluie_semis)
+    if (hasAll(
+        ["pluie", "pluies", "pleuvoir", "pleut", "meteo", "temps", "prevision", "ciel", "ji", "jiji", "ojo"],
+        ["semer", "semis", "planter", "plantation", "quand", "graine", "semaine", "favorable", "commencer", "gbin", "do", "nudido"]
+    ) || hasAny("pluie semis", "quand semer", "prevision pluie", "saison des pluies", "calendrier des semis")) {
+        return "w1_meteo_pluie_semis";
+    }
+
+    // 3. Chenille légionnaire & Ravageurs (m2_chenille_legionnaire)
+    if (hasAny("chenille", "chenilles", "legionnaire", "yovogbo", "wanvi", "wanvoun", "wanvun", "kokoro", "dongo", "dongoyaro", "neem", "kinitin") ||
+        hasAll(
+            ["insecte", "insectes", "ravageur", "ravageurs", "ver", "vers", "parasite", "trou", "trous"],
+            ["mange", "mangent", "manger", "devorer", "attaque", "pousse", "plante", "champ", "feuille", "vijin"]
+        )) {
+        return "m2_chenille_legionnaire";
+    }
+
+    // 4. Engrais NPK / Urée & Jaunissement (m3_jaunissement_engrais)
+    if (hasAny("engrais", "uree", "npk", "fumier", "compost", "fertilisant", "ajile", "fertilisation", "carence")) {
+        return "m3_jaunissement_engrais";
+    }
+
+    // 5. Taches foliaires du Maïs & Maladies des feuilles (m1_taches_foliaires)
+    if (hasAny("tache", "taches", "foliaire", "foliaires", "brune", "brunes", "mildiou", "rouille", "mancozeb", "mancozebe", "cuivre", "champignon") ||
+        hasAll(
+            ["mais", "gbade", "agbado", "bli", "cereale"],
+            ["feuille", "feuilles", "ama", "aman", "ewe", "wema", "vovo", "jaunissent", "jaune", "maladie", "azon", "arun"]
+        )) {
+        return "m1_taches_foliaires";
+    }
+
+    // 6. Stockage & Sacs PICS (p4_conseil_stockage_pics)
+    if (hasAny("pics", "sac pics", "saki pics", "apo pics", "charancon", "charancons", "stockage", "stocker", "conserver", "conservation", "nubibe")) {
+        return "p4_conseil_stockage_pics";
+    }
+
+    // 7. Forte chaleur & Paillage (w2_chaleur_secheresse)
+    if (hasAny("paillage", "pailler", "canicule", "yozo", "hwesivo", "secheresse", "chaleur", "ogbele")) {
+        return "w2_chaleur_secheresse";
+    }
+
+    // 8. Prix du Soja (p2_prix_soja_parakou)
+    if (hasAny("soja", "soya", "ewa soya") && hasAny("prix", "cout", "combien", "kilo", "sac", "cours", "parakou", "bohicon", "marche", "axi", "oja", "325", "350")) {
+        return "p2_prix_soja_parakou";
+    }
+
+    // 9. Prix du Gari (p3_prix_gari_dantokpa)
+    if (hasAny("gari", "garri", "gali", "gaari", "sohoui", "manioc")) {
+        return "p3_prix_gari_dantokpa";
+    }
+
+    // 10. Prix du Maïs à Dantokpa (p1_prix_mais_dantokpa)
+    if (hasAny("dantokpa") || hasAll(
+        ["mais", "gbade", "agbado", "bli"],
+        ["prix", "cout", "combien", "vendre", "marche", "sac", "kilo", "axi", "oja", "fcfa"]
+    )) {
+        return "p1_prix_mais_dantokpa";
+    }
+
+    // 11. Salutations & Encouragements (f1_bon_courage_champs)
+    if (hasAny("merci", "bonjour", "salut", "bonsoir", "courage", "akpe", "ku abo", "e se", "ku azo")) {
+        return "f1_bon_courage_champs";
+    }
+
+    return null;
 }
 
 let currentAudioSource = null;
@@ -474,7 +563,6 @@ function stopActiveAudio() {
 }
 
 async function playOfficialTrack(trackId, btnElement = null, customFallbackText = null) {
-    // Si on clique sur le même bouton en cours de lecture -> stop
     if (currentAudioSource && btnElement && currentAudioBtn === btnElement) {
         stopActiveAudio();
         return;
@@ -495,36 +583,52 @@ async function playOfficialTrack(trackId, btnElement = null, customFallbackText 
             if (btnElement) {
                 currentAudioBtn = btnElement;
                 currentAudioBtnOriginalHtml = btnElement.innerHTML;
-                btnElement.innerHTML = `<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Lecture (${LANG_CONFIG[currentLang].code})...</span>`;
+                btnElement.innerHTML = `<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Voix ${LANG_CONFIG[currentLang].label}...</span>`;
             }
-            audio.onended = () => {
-                stopActiveAudio();
-            };
+            audio.onended = () => stopActiveAudio();
             audio.onerror = () => {
                 stopActiveAudio();
-                speakText(fallbackText, currentLang, btnElement);
+                speakText(fallbackText, currentLang, btnElement, trackId);
             };
             await audio.play();
             return;
         } catch (err) {
-            console.warn("Bascule sur TTS IA pour la piste:", trackId, err);
+            console.warn("Bascule sur TTS pour la piste:", trackId, err);
             stopActiveAudio();
         }
     }
 
-    // Fallback TTS IA (notamment pour l'Éwé)
-    await speakText(fallbackText, currentLang, btnElement);
+    await speakText(fallbackText, currentLang, btnElement, trackId);
 }
 
 /* -----------------------------------------------------
-   5. SYNTHÈSE VOCALE DYNAMIQUE (ELEVENLABS YORÙBÁ / MMS FON / VOIX IA KORE)
+   5. SYNTHÈSE VOCALE MULTILINGUE AUTHENTIQUE
+      - Fon (Fɔngbe) : Meta MMS-TTS Fon (/api/tts + dpc-mmstts.hf.space + pistes MP3 Fon)
+      - Éwé (Eʋegbe) : Meta MMS-TTS Éwé (/api/tts + dpc-mmstts.hf.space)
+      - Yorùbá (yo)  : ElevenLabs eleven_v4_turbo (/api/tts) + MMS-TTS Yorùbá
+      - Français (fr): ElevenLabs eleven_v4_turbo (/api/tts) + Voix IA Kore 24kHz
 ------------------------------------------------------ */
 const TTS_MODELS = [
     "gemini-2.5-flash-preview-tts",
     "gemini-3.1-flash-tts-preview"
 ];
 
-async function speakText(text, lang, btnElement = null) {
+async function playMmsDirectFromBrowser(cleanText, lang) {
+    const mmsLabel = lang === 'fon' ? 'Fon (fon)' : (lang === 'ewe' ? 'Éwé (ewe)' : 'Yoruba (yor)');
+    const predRes = await fetch('https://dpc-mmstts.hf.space/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: [cleanText.slice(0, 500), mmsLabel] })
+    });
+    if (!predRes.ok) throw new Error(`MMS direct HTTP ${predRes.status}`);
+    const predJson = await predRes.json();
+    const fileObj = predJson?.data?.[0];
+    const filePath = typeof fileObj === 'string' ? fileObj : fileObj?.name;
+    if (!filePath) throw new Error("MMS direct: pas de fichier");
+    return `https://dpc-mmstts.hf.space/file=${filePath}`;
+}
+
+async function speakText(text, lang, btnElement = null, matchedTrackId = null) {
     if (currentAudioSource && btnElement && currentAudioBtn === btnElement) {
         stopActiveAudio();
         return;
@@ -534,74 +638,85 @@ async function speakText(text, lang, btnElement = null) {
     const cleanText = (text || "").replace(/[*#_`]/g, '').replace(/\n+/g, ' ').trim();
     if (!cleanText) return;
 
+    // Si une piste officielle pré-enregistrée correspond à la question en Fon, Yorùbá ou Français,
+    // on peut la jouer en priorité si demandé, sinon on utilise l'API TTS de la langue active
+    const inferredTrack = matchedTrackId || matchOfficialTrackForQuery(cleanText);
+
     if (btnElement) {
         currentAudioBtn = btnElement;
         currentAudioBtnOriginalHtml = btnElement.innerHTML;
-        btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Voix en préparation...</span>';
+        btnElement.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Voix ${LANG_CONFIG[lang]?.label || ''}...</span>`;
     }
 
-    // 1. FON : Gradio MMS-TTS Fon
-    if (lang === 'fon' && window.gradioClient) {
-        try {
-            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout Gradio TTS")), 5000));
-            const gradioPromise = (async () => {
-                const app = await window.gradioClient.connect("Max-Adis/agrivoice-fon-asr");
-                const result = await app.predict("/synthese", [cleanText]);
-                return result.data[0];
-            })();
-
-            const audioObj = await Promise.race([gradioPromise, timeoutPromise]);
-            const audioUrl = typeof audioObj === 'string' ? audioObj : (audioObj?.url || audioObj?.name);
-
-            if (audioUrl) {
-                const fonAudio = new Audio(audioUrl);
-                fonAudio.playbackRate = voiceSpeed;
-                currentAudioSource = fonAudio;
-                if (btnElement) {
-                    btnElement.innerHTML = '<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Voix Fɔngbe...</span>';
-                }
-                fonAudio.onended = () => stopActiveAudio();
-                await fonAudio.play();
-                return;
+    // 1. APPEL SERVEUR UNIFIÉ /api/tts (Fon MMS-TTS, Éwé MMS-TTS, Yorùbá ElevenLabs, Français ElevenLabs)
+    try {
+        const apiLang = lang === 'yoruba' ? 'yo' : lang;
+        const r = await fetch('/api/tts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: cleanText, language: apiLang })
+        });
+        if (r.ok) {
+            const audioUrl = URL.createObjectURL(await r.blob());
+            const nativeAudio = new Audio(audioUrl);
+            nativeAudio.playbackRate = voiceSpeed;
+            currentAudioSource = nativeAudio;
+            if (btnElement) {
+                btnElement.innerHTML = `<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Voix ${LANG_CONFIG[lang]?.label || ''}...</span>`;
             }
-        } catch (fonErr) {
-            console.warn("Gradio Fon indisponible, bascule TTS IA:", fonErr.message);
+            nativeAudio.onended = () => {
+                URL.revokeObjectURL(audioUrl);
+                stopActiveAudio();
+            };
+            await nativeAudio.play();
+            return;
+        }
+    } catch (apiErr) {
+        console.warn("Serveur /api/tts non joignable, tentative directe:", apiErr.message);
+    }
+
+    // 2. REPLI DIRECT NAVIGATEUR POUR FON, ÉWÉ & YORÙBÁ (Meta MMS-TTS via dpc-mmstts.hf.space)
+    if (lang === 'fon' || lang === 'ewe' || lang === 'yoruba') {
+        try {
+            const wavUrl = await playMmsDirectFromBrowser(cleanText, lang);
+            const mmsAudio = new Audio(wavUrl);
+            mmsAudio.playbackRate = voiceSpeed;
+            currentAudioSource = mmsAudio;
+            if (btnElement) {
+                btnElement.innerHTML = `<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Voix ${LANG_CONFIG[lang]?.label || ''}...</span>`;
+            }
+            mmsAudio.onended = () => stopActiveAudio();
+            await mmsAudio.play();
+            return;
+        } catch (mmsErr) {
+            console.warn("MMS direct indisponible:", mmsErr.message);
+        }
+
+        // Si hors-ligne ou erreur réseau sur Fon / Yorùbá : jouer la piste officielle MP3 correspondante dans la VRAIE langue (JAMAIS en français !)
+        const fallbackTrack = inferredTrack || 'a1_accueil';
+        const localLang = lang === 'ewe' ? 'fon' : lang;
+        const localPath = `audios/${localLang}_${fallbackTrack}.mp3`;
+        try {
+            const localAudio = new Audio(localPath);
+            localAudio.playbackRate = voiceSpeed;
+            currentAudioSource = localAudio;
+            if (btnElement) {
+                btnElement.innerHTML = `<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Audio ${LANG_CONFIG[lang]?.label || ''}...</span>`;
+            }
+            localAudio.onended = () => stopActiveAudio();
+            await localAudio.play();
+            return;
+        } catch (localErr) {
+            stopActiveAudio();
+            return;
         }
     }
 
-    // 2. YORÙBÁ : ElevenLabs via la fonction serveur /api/tts
-    if (lang === 'yoruba') {
-        try {
-            const r = await fetch('/api/tts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: cleanText, language: 'yo' })
-            });
-            if (r.ok) {
-                const audioUrl = URL.createObjectURL(await r.blob());
-                const yoAudio = new Audio(audioUrl);
-                yoAudio.playbackRate = voiceSpeed;
-                currentAudioSource = yoAudio;
-                if (btnElement) {
-                    btnElement.innerHTML = '<span class="audio-bar"></span><span class="audio-bar"></span><span class="audio-bar"></span> <span>Voix Yorùbá...</span>';
-                }
-                yoAudio.onended = () => {
-                    URL.revokeObjectURL(audioUrl);
-                    stopActiveAudio();
-                };
-                await yoAudio.play();
-                return;
-            }
-        } catch (yoErr) {
-            console.warn("Voix Yorùbá ElevenLabs indisponible, bascule secours:", yoErr.message);
-        }
-    }
-
-    // 3. VOIX IA NATURELLE 24kHz (Kore)
+    // 3. REPLI VOIX IA 24kHz (Uniquement pour le Français si /api/tts est indisponible)
     try {
         const ttsPayload = {
             contents: [{
-                parts: [{ text: `Read aloud the following agricultural advice in a warm, natural, clear human voice: ${cleanText}` }]
+                parts: [{ text: `Lis ce conseil agricole à voix haute en français avec un ton chaleureux et naturel : ${cleanText}` }]
             }],
             generationConfig: {
                 responseModalities: ["AUDIO"],
@@ -1033,6 +1148,8 @@ if (chatForm) {
         const welcome = document.getElementById('welcome-screen');
         if (welcome) welcome.style.display = 'none';
 
+        const matchedTrackId = matchOfficialTrackForQuery(text);
+
         addMessage(text, 'user');
         userInput.value = '';
         userInput.style.height = 'auto';
@@ -1047,9 +1164,9 @@ if (chatForm) {
         );
 
         try {
-            const botReply = await askAI(text, currentLang);
+            const botReply = await askAI(text, currentLang, matchedTrackId);
             document.getElementById(loaderId)?.remove();
-            addMessage(botReply, 'assistant', false, true);
+            addMessage(botReply, 'assistant', false, true, matchedTrackId);
             saveCurrentSessionToHistory(text, botReply);
         } catch (err) {
             document.getElementById(loaderId)?.remove();
@@ -1058,14 +1175,25 @@ if (chatForm) {
     });
 }
 
-async function askAI(userText, lang) {
+async function askAI(userText, lang, matchedTrackId = null) {
     const sysPrompt = SYSTEM_PROMPTS[lang] || SYSTEM_PROMPTS.fr;
-    conversationHistory.push({ role: "user", parts: [{ text: userText }] });
+    const matchedFiche = matchedTrackId ? FICHES_DATA.find(f => f.trackId === matchedTrackId) : null;
+    const refBody = matchedFiche ? (matchedFiche.body[lang] || matchedFiche.body.fr) : "";
+
+    const langDirectives = {
+        fr: `Réponds uniquement en Français clair et pratique (3 à 4 phrases maximum).`,
+        fon: `[OBLIGATION STRICTE : Réponds EXCLUSIVEMENT en langue Fɔngbe (Fon du Bénin). Même si la question de l'utilisateur est posée en français, traduis ta réponse et écris UNIQUEMENT en Fɔngbe authentique. N'écris AUCUNE phrase en français.]${refBody ? `\nRéférence officielle Fɔngbe INRAB : "${refBody}"` : ''}`,
+        yoruba: `[OBLIGATION STRICTE : Réponds EXCLUSIVEMENT en langue Yorùbá avec les accents toniques (ẹ, ọ, ṣ). Même si la question de l'utilisateur est posée en français, écris UNIQUEMENT en Yorùbá. N'écris AUCUNE phrase en français.]${refBody ? `\nRéférence officielle Yorùbá INRAB : "${refBody}"` : ''}`,
+        ewe: `[OBLIGATION STRICTE : Réponds EXCLUSIVEMENT en langue Éwé / Mina (Eʋegbe). Même si la question de l'utilisateur est posée en français, écris UNIQUEMENT en Éwé. N'écris AUCUNE phrase en français.]${refBody ? `\nRéférence officielle Éwé INRAB : "${refBody}"` : ''}`
+    };
+
+    const enrichedUserMessage = `${langDirectives[lang] || langDirectives.fr}\n\nQuestion du producteur : ${userText}`;
+    conversationHistory.push({ role: "user", parts: [{ text: enrichedUserMessage }] });
 
     const payload = {
         systemInstruction: { parts: [{ text: sysPrompt }] },
         contents: conversationHistory,
-        generationConfig: { temperature: 0.55, maxOutputTokens: 800 }
+        generationConfig: { temperature: 0.45, maxOutputTokens: 700 }
     };
 
     let lastError = null;
@@ -1080,13 +1208,21 @@ async function askAI(userText, lang) {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
             const data = await response.json();
-            const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Je n'ai pas pu générer de réponse.";
+            const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || refBody || "Je n'ai pas pu générer de réponse.";
+            conversationHistory[conversationHistory.length - 1] = { role: "user", parts: [{ text: userText }] };
             conversationHistory.push({ role: "model", parts: [{ text: replyText }] });
             return replyText;
         } catch (err) {
             lastError = err;
         }
     }
+
+    if (refBody) {
+        conversationHistory[conversationHistory.length - 1] = { role: "user", parts: [{ text: userText }] };
+        conversationHistory.push({ role: "model", parts: [{ text: refBody }] });
+        return refBody;
+    }
+
     conversationHistory.pop();
     throw lastError || new Error("Service temporairement indisponible.");
 }
@@ -1103,7 +1239,7 @@ function formatMarkdown(text) {
         .replace(/\n/g, '<br>');
 }
 
-function addMessage(text, role, isHtml = false, withTTS = false) {
+function addMessage(text, role, isHtml = false, withTTS = false, matchedTrackId = null) {
     const template = role === 'user' ? templateUser : templateAssistant;
     if (!template) return "";
 
@@ -1131,9 +1267,17 @@ function addMessage(text, role, isHtml = false, withTTS = false) {
         const ttsBtn = document.createElement('button');
         ttsBtn.style.cssText = 'display:inline-flex;align-items:center;gap:7px;background:#E8F5E9;color:var(--agri-green);font-size:12.5px;font-weight:800;padding:7px 15px;border-radius:9999px;border:1px solid #BBF7D0;cursor:pointer;font-family:inherit;transition:all 0.15s';
         ttsBtn.innerHTML = `<i class="fa-solid fa-volume-high"></i> <span>Écouter la voix (${LANG_CONFIG[currentLang].label})</span>`;
-        ttsBtn.onclick = () => speakText(text, currentLang, ttsBtn);
+        ttsBtn.onclick = () => speakText(text, currentLang, ttsBtn, matchedTrackId);
         actionToolbar.appendChild(ttsBtn);
         createdTtsBtn = ttsBtn;
+
+        if (matchedTrackId && ['fon', 'yoruba', 'fr'].includes(currentLang)) {
+            const studioBtn = document.createElement('button');
+            studioBtn.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:#FEF3C7;color:#92400E;font-size:12px;font-weight:800;padding:7px 13px;border-radius:9999px;border:1px solid #FDE68A;cursor:pointer;font-family:inherit;transition:all 0.15s';
+            studioBtn.innerHTML = `<i class="fa-solid fa-microphone-lines"></i> <span>Audio Studio (${LANG_CONFIG[currentLang].label})</span>`;
+            studioBtn.onclick = () => playOfficialTrack(matchedTrackId, studioBtn, text);
+            actionToolbar.appendChild(studioBtn);
+        }
 
         const copyBtn = document.createElement('button');
         copyBtn.style.cssText = 'width:32px;height:32px;border-radius:50%;background:#F1F5F9;border:none;color:#64748B;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px';
@@ -1156,7 +1300,7 @@ function addMessage(text, role, isHtml = false, withTTS = false) {
     }
 
     if (withTTS && role === 'assistant' && createdTtsBtn && isAutoplayOn()) {
-        speakText(text, currentLang, createdTtsBtn);
+        speakText(text, currentLang, createdTtsBtn, matchedTrackId);
     }
 
     return uniqueId;
